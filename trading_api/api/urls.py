@@ -6,6 +6,7 @@ from .api import NewUserView, UserViewSet, AddressCheck
 router = routers.DefaultRouter()
 
 router.register('v1/tg-users', UserViewSet, 'tg-users')
+router.register('v1/texts', TextViewSet, 'texts')
 
 urlpatterns = router.urls
 
