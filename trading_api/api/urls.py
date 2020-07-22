@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework import routers
 
-from .api import NewUserView, UserViewSet, AddressCheck
+from .api import NewUserView, UserViewSet
 
 router = routers.DefaultRouter()
 

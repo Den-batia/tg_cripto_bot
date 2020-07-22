@@ -1,7 +1,7 @@
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
-from trading_api.api.models import User
+from .models import User, Text
 
 
 class WalletSerializer(ModelSerializer):

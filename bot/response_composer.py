@@ -1,6 +1,5 @@
-from .api import api
 from .keyboards import kb
-from .settings import SHOP_NAME, SUPPORT, SYMBOL
+from .translations.translations import translate
 
 verify_sm = {True: '✅', False: '❌'}
 
@@ -9,15 +8,21 @@ lang = 'ru'
 
 
 class ResponseComposer:
+    # async def _get(self, *, var_name, **kwargs):
+    #     kwargs['support'] = SUPPORT
+    #     text: str = await api.get_text(var_name)
+    #     return text.format(**kwargs).expandtabs(2)
+
     async def _get(self, *, var_name, **kwargs):
-        kwargs['symbol'] = SYMBOL.upper()
-        kwargs['support'] = SUPPORT
-        kwargs['shop_name'] = SHOP_NAME
-        text: str = await api.get_text(var_name)
-        return text.format(**kwargs).expandtabs(2)
+        return translate(f'misc.{var_name}', locale=lang, **kwargs).expandtabs(2)
 
     async def _big_number_str(self, value):
         return "{:,}".format(value)
+
+    async def start(self):
+        text = await self._get(var_name='start')
+        k = await kb.main_menu()
+        return text, k
 
     async def friends(self, user, friends_cnt):
         text = await self._get(var_name='friends_message', friends_cnt=friends_cnt)
@@ -32,21 +37,6 @@ class ResponseComposer:
     async def menu(self, locations):
         text = await self._get(var_name="menu")
         k = await kb.menu(locations)
-        return text, k
-
-    async def cities(self, cities):
-        text = await self._get(var_name="cities_header")
-        k = await kb.cities(cities)
-        return text, k
-
-    async def selected_city(self, user):
-        text = await self._get(var_name="selected_city", city=user['city'])
-        k = await kb.main_menu(user['city'])
-        return text, k
-
-    async def products(self, user):
-        text = await self._get(var_name="product_message")
-        k = await kb.main_menu(user['city'])
         return text, k
 
     async def balance(self, balance, rate, amount):
@@ -66,6 +56,21 @@ class ResponseComposer:
 
     async def get_main_k(self):
         return await kb.main_menu()
+
+    async def unknown_error(self):
+        text = await self._get(var_name='unknown_error')
+        k = await kb.main_menu()
+        return text, k
+
+    async def about(self):
+        text = await self._get(var_name='about')
+        k = await kb.ref()
+        return text, k
+
+    async def referral(self):
+        text = await self._get(var_name='referral')
+        k = await kb.main_menu()
+        return text, k
 
 
 rc = ResponseComposer()

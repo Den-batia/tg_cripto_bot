@@ -1,12 +1,10 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from .models import User, Address
-from .serializers import UserSerializer
-from crypto.btc import BTC
+from .models import User, Text
+from .serializers import UserSerializer, TextSerializer
 
 
 class UserViewSet(ReadOnlyModelViewSet):
@@ -22,29 +20,11 @@ class NewUserView(APIView):
         user = User.objects.filter(telegram_id=telegram_id).first()
         if user is None:
             referred_from = User.objects.filter(ref_code=ref_code).first() if ref_code else None
-            user = User.objects.create(telegram_id=telegram_id, address=BTC.get_new_address())
+            user = User.objects.create(telegram_id=telegram_id)
             if referred_from:
                 user.referred_from = referred_from
             user.save()
         return Response(UserSerializer(user).data, status=HTTP_201_CREATED)
-
-
-class AddressCheck(APIView):
-    def post(self, request, *args, **kwargs):
-        address = request.data['address']
-        telegram_id = request.data['telegram_id']
-        user = User.objects.get(telegram_id=telegram_id)
-
-        if user.balance_requests < 1:
-            raise ValidationError
-
-        address_object = Address.objects.filter(address=address).first()
-
-        user.balance_requests -= 1
-        user.save()
-
-        if address_object is None:
-            return Response(data={'status': 0})
 
 
 class TextViewSet(ReadOnlyModelViewSet):

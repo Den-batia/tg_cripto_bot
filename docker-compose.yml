@@ -9,7 +9,7 @@ services:
       - proxy
     env_file:
       - .env
-    command: bash -c "python manage.py migrate --noinput && gunicorn --workers=3 analyzer_api.wsgi -b 0.0.0.0:8080"
+    command: bash -c "python manage.py migrate --noinput && gunicorn --workers=3 trading_api.wsgi -b 0.0.0.0:8080"
     depends_on:
       - postgres
     expose:
@@ -38,7 +38,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - analyzer_api
+      - trading_api
       - redis
 
   postgres:

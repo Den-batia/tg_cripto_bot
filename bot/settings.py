@@ -14,9 +14,7 @@ loop = asyncio.get_event_loop()
 bot = aiogram.Bot(token=os.environ.get('BOT_TOKEN'), parse_mode='html', loop=loop)
 dp = Dispatcher(bot, storage=storage)
 
-SYMBOL = os.environ.get('SYMBOL').upper()
-SHOP_NAME = os.environ.get('SHOP_NAME')
 SUPPORT = os.environ.get('SUPPORT')
 BOT_NAME = loop.run_until_complete(bot.get_me()).username
 
-API_HOST = 'http://shop_api:8080'
+API_HOST = 'http://trading_api:8080'

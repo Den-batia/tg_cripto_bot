@@ -3,18 +3,29 @@ from uuid import uuid4
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from django.db import models
+
+def random_string(symbols):
+    return uuid4().hex[:symbols]
 
 
-def random_string():
-    return uuid4().hex[:16]
+def random_ref_code():
+    return random_string(16)
+
+
+def random_order_id():
+    return random_string(10)
+
+
+def random_nickname():
+    return random_string(10)
 
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
     telegram_id = models.BigIntegerField(unique=True, blank=True, null=True)
     referred_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, default=None, null=True)
-    ref_code = models.CharField(default=random_string, unique=True, max_length=16)
+    ref_code = models.CharField(default=random_ref_code, unique=True, max_length=16)
+    nickname = models.CharField(default=random_nickname, unique=True, max_length=10)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -34,7 +45,7 @@ class Symbol(models.Model):
     name = models.CharField(max_length=4, unique=True)
 
 
-class Wallet(models.Model):
+class Account(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wallets')
     balance = models.DecimalField(max_digits=15, decimal_places=8, default=0)
@@ -49,6 +60,7 @@ class Broker(models.Model):
 
 
 class Order(models.Model):
+    id = models.CharField(primary_key=True, default=random_order_id, max_length=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT)
     broker = models.ForeignKey(Broker, on_delete=models.CASCADE)
