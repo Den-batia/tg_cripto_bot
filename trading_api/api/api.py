@@ -45,3 +45,9 @@ class AddressCheck(APIView):
 
         if address_object is None:
             return Response(data={'status': 0})
+
+
+class TextViewSet(ReadOnlyModelViewSet):
+    serializer_class = TextSerializer
+    queryset = Text.objects.all()
+    lookup_field = 'name'

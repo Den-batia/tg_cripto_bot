@@ -11,9 +11,6 @@ def random_string():
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
-    balance_requests = models.DecimalField(default=0, decimal_places=2, max_digits=10)
-    address = models.CharField(max_length=34)
-    total_received = models.DecimalField(max_digits=10, decimal_places=8, default=0)
     telegram_id = models.BigIntegerField(unique=True, blank=True, null=True)
     referred_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, default=None, null=True)
     ref_code = models.CharField(default=random_string, unique=True, max_length=16)
@@ -32,5 +29,19 @@ class User(models.Model):
         return True
 
 
+class Symbol(models.Model):
+    name = models.CharField()
+
+
 class Wallet(models.Model):
     pass
+
+
+class Rates(models.Model):
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='rates')
+
+
+class Text(models.Model):
+    name = models.CharField(max_length=50)
+    text = models.TextField()
