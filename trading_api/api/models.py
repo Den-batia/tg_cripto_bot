@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from django.db import models
@@ -30,11 +31,32 @@ class User(models.Model):
 
 
 class Symbol(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=4, unique=True)
 
 
 class Wallet(models.Model):
-    pass
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wallets')
+    balance = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    frozen = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT)
+    private_key = models.CharField(max_length=128)
+    earned_from_ref = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+
+
+class Broker(models.Model):
+    name = models.CharField(max_length=32)
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT)
+    broker = models.ForeignKey(Broker, on_delete=models.CASCADE)
+    limit_from = models.SmallIntegerField(validators=[MinValueValidator(1)])
+    limit_to = models.SmallIntegerField(validators=[MinValueValidator(1)])
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    details = models.CharField(max_length=512, default='')
+    type = models.CharField(max_length=3)
 
 
 class Rates(models.Model):

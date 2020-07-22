@@ -2,41 +2,41 @@ version: '3.7'
 
 services:
 
-  analyzer_api:
-    build: analyzer_api
-    container_name: analyzer_api
+  trading_api:
+    build: trading_api
+    container_name: trading_api
     networks:
       - proxy
     env_file:
-      - analyzer_api/prod.env
+      - .env
     command: bash -c "python manage.py migrate --noinput && gunicorn --workers=3 analyzer_api.wsgi -b 0.0.0.0:8080"
     depends_on:
       - postgres
     expose:
       - 8080
 
-  celery:
-    build: analyzer_api
-    container_name: celery
-    networks:
-      - proxy
-    command: celery -A routines worker -B -l info
-    env_file:
-      - analyzer_api/prod.env
-    depends_on:
-      - postgres
-      - redis
+#  celery:
+#    build: analyzer_api
+#    container_name: celery
+#    networks:
+#      - proxy
+#    command: celery -A routines worker -B -l info
+#    env_file:
+#      - analyzer_api/prod.env
+#    depends_on:
+#      - postgres
+#      - redis
 
-  analyzer_bot:
+  trading_bot:
     build: bot
-    container_name: analyzer_bot
+    container_name: trading_bot
     volumes:
       - .:/code
     networks:
       - proxy
     command: bash -c "python -m bot.bot"
     env_file:
-      - bot/.env
+      - .env
     depends_on:
       - analyzer_api
       - redis
