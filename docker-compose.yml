@@ -1,0 +1,74 @@
+version: '3.7'
+
+services:
+
+  analyzer_api:
+    build: analyzer_api
+    container_name: analyzer_api
+    networks:
+      - proxy
+    env_file:
+      - analyzer_api/prod.env
+    command: bash -c "python manage.py migrate --noinput && gunicorn --workers=3 analyzer_api.wsgi -b 0.0.0.0:8080"
+    depends_on:
+      - postgres
+    expose:
+      - 8080
+
+  celery:
+    build: analyzer_api
+    container_name: celery
+    networks:
+      - proxy
+    command: celery -A routines worker -B -l info
+    env_file:
+      - analyzer_api/prod.env
+    depends_on:
+      - postgres
+      - redis
+
+  analyzer_bot:
+    build: bot
+    container_name: analyzer_bot
+    volumes:
+      - .:/code
+    networks:
+      - proxy
+    command: bash -c "python -m bot.bot"
+    env_file:
+      - bot/.env
+    depends_on:
+      - analyzer_api
+      - redis
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: tester
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    networks:
+      - proxy
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  redis:
+    hostname: redis
+    image: redis:alpine
+    networks:
+      - proxy
+    logging:
+      driver: none
+
+
+networks:
+  proxy:
+    driver: bridge
+
+
+volumes:
+  postgres_data:
