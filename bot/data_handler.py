@@ -34,15 +34,9 @@ class DataHandler:
     async def cancel(self):
         return await rc.cancel()
 
-    async def check_address_request(self, telegram_id):
-        user = await api.get_user(telegram_id)
-        if user['balance_requests'] < 1:
-            return await rc.deposit(user['balance_requests'], price=0.0001), False
-        return await rc.check_address_request(), True
-
-    async def check_address(self, address, telegram_id):
-        result = await api.check_address(address, telegram_id)
-        return await rc.check_address(**result, address=address)
+    async def accounts(self):
+        symbols = await api.get_symbols()
+        return await rc.accounts(symbols)
 
     async def referral(self, telegram_id):
         user = await api.get_user(telegram_id)

@@ -72,5 +72,20 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
+    async def accounts(self, symbols):
+        text = await self._get(var_name='accounts')
+        k = await kb.accounts(symbols)
+        return text, k
+
+    async def account_not_exists(self, symbol_id):
+        text = await self._get(var_name='account_not_exists')
+        k = await kb.create_account(symbol_id)
+        return text, k
+
+    async def account(self, account):
+        text = await self._get(var_name='account')
+        k = await kb.account(account)
+        return text, k
+
 
 rc = ResponseComposer()

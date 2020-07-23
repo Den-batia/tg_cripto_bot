@@ -37,10 +37,25 @@ class Keyboard:
 
     async def main_menu(self):
         kb = self.get_kb([
-            [self.label('account'), self.label('trading')],
+            [self.label('accounts'), self.label('trading')],
             [self.label('about')],
         ])
         return kb
+
+    async def accounts(self, symbols):
+        btns = [[self.inl_b(symbol['name'], action=f'account {symbol["id"]}')] for symbol in symbols]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def account(self, account):
+        btns = [[
+            self.inl_b('deposit', action=f'get_address {account["address"]}'),
+            self.inl_b('withdraw', action=f'get_address {account["address"]}')
+        ]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def create_account(self, symbol_id):
+        btns = [[self.inl_b('create_account', action=f'create_account {symbol["id"]}')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def get_link(self):
         btns = [[self.inl_b('invite_more', action='friends')]]

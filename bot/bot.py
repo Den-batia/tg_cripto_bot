@@ -21,6 +21,12 @@ async def start(message: types.Message, state):
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
+@dp.message_handler(lambda msg: msg.text.startswith(sm('account')))
+async def accounts(message: types.Message):
+    text, k = await dh.accounts()
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
 @dp.message_handler(lambda msg: msg.text.startswith(sm('about')))
 async def about(message: types.Message):
     text, k = await dh.about()
@@ -31,6 +37,13 @@ async def about(message: types.Message):
 async def cancel(message: types.Message):
     text, k = await dh.cancel(message.text, message.from_user.id)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('get_address'))
+async def get_address(message: types.CallbackQuery):
+    await message.answer()
+    text = f'<pre>{message.data.split()[1]}</pre>'
+    await send_message(text=text, chat_id=message.message.chat.id)
 
 
 @dp.callback_query_handler(lambda msg: msg.data == 'ref')

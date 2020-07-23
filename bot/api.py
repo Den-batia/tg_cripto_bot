@@ -28,6 +28,18 @@ class API:
         res = await self._call_api(f'/v1/rate')
         return res['rate']
 
+    async def get_symbols(self):
+        res = await self._call_api(f'/v1/symbols')
+        return res
+
+    async def get_accounts(self, user_id):
+        res = await self._call_api(f'/v1/accounts/{user_id}')
+        return res
+
+    async def create_account(self, user_id, symbol):
+        res = await self._call_api(f'/v1/accounts/generate', method='post', _json={'user_id': user_id, 'symbol': symbol})
+        return res
+
     async def get_user(self, user_tg_id):
         return await self._call_api(f'/v1/tg-users/{user_tg_id}')
 
