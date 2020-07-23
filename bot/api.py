@@ -22,7 +22,8 @@ class API:
             if is_photo:
                 return await resp.read()
 
-            return await resp.json()
+            if resp.status != 204:
+                return await resp.json()
 
     async def get_rate(self):
         res = await self._call_api(f'/v1/rate')

@@ -12,7 +12,7 @@ else:
 
 
 class ETH:
-    PK = env['ETH_PK']
+    PK = env.get('ETH_PK')
 
     @classmethod
     def generate_wallet(cls):

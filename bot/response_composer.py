@@ -62,6 +62,11 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
+    async def unknown_command(self):
+        text = await self._get(var_name='unknown_command')
+        k = await kb.main_menu()
+        return text, k
+
     async def about(self):
         text = await self._get(var_name='about')
         k = await kb.ref()

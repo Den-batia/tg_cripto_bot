@@ -21,9 +21,23 @@ async def start(message: types.Message, state):
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
-@dp.message_handler(lambda msg: msg.text.startswith(sm('account')))
+@dp.message_handler(lambda msg: msg.text.startswith(sm('accounts')))
 async def accounts(message: types.Message):
     text, k = await dh.accounts()
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('account'))
+async def account(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.account(message.from_user.id, message.data.split()[1])
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('create_account'))
+async def account(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.create_account(message.from_user.id, message.data.split()[1])
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 

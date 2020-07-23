@@ -43,7 +43,7 @@ class Keyboard:
         return kb
 
     async def accounts(self, symbols):
-        btns = [[self.inl_b(symbol['name'], action=f'account {symbol["id"]}')] for symbol in symbols]
+        btns = [[self.inl_b(symbol['name'].upper(), action=f'account {symbol["id"]}')] for symbol in symbols]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def account(self, account):
@@ -54,7 +54,7 @@ class Keyboard:
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def create_account(self, symbol_id):
-        btns = [[self.inl_b('create_account', action=f'create_account {symbol["id"]}')]]
+        btns = [[self.inl_b('create_account', action=f'create_account {symbol_id}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def get_link(self):

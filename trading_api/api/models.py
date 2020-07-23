@@ -47,7 +47,7 @@ class Symbol(models.Model):
 
 class Account(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wallets')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
     balance = models.DecimalField(max_digits=15, decimal_places=8, default=0)
     frozen = models.DecimalField(max_digits=15, decimal_places=8, default=0)
     symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT)

@@ -6,9 +6,10 @@ from .models import User, Text, Symbol, Account, Order, Broker
 from crypto.manager import crypto_manager
 
 
-class WalletSerializer(ModelSerializer):
+class SymbolSerializer(ModelSerializer):
     class Meta:
-        pass
+        model = Symbol
+        fields = ('id', 'name')
 
 
 class UserSerializer(ModelSerializer):
@@ -23,34 +24,31 @@ class UserSerializer(ModelSerializer):
 
 
 class AccountSerializer(ModelSerializer):
-    symbol = SlugRelatedField('name')
+    symbol = SymbolSerializer(read_only=True)
     address = SerializerMethodField()
 
     class Meta:
         model = Account
-        fields = ('balance', 'frozen', 'earned_from_ref', 'address')
+        fields = ('balance', 'frozen', 'earned_from_ref', 'address', 'symbol')
 
     def get_address(self, instance: Account):
         return crypto_manager[instance.symbol.name].get_address_from_pk(instance.private_key)
 
 
 class UserAccountsSerializer(ModelSerializer):
-    accounts = AccountSerializer(read_only=True, many=True)
+    accounts = SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('id', 'telegram_id', 'accounts')
 
-
-class SymbolSerializer(ModelSerializer):
-    class Meta:
-        model = Symbol
-        fields = ('id', 'name')
+    def get_accounts(self, instance: User):
+        return AccountSerializer(instance.accounts, many=True).data
 
 
 class OrderSerializer(ModelSerializer):
-    broker = SlugRelatedField('name')
-    user = SlugRelatedField('nickname')
+    broker = SlugRelatedField('name', read_only=True)
+    user = SlugRelatedField('nickname', read_only=True)
 
     class Meta:
         model = Order

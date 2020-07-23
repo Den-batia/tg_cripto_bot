@@ -9,7 +9,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from .models import User, Text, Symbol, Account, Broker
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer
-from ..crypto.manager import crypto_manager
+from crypto.manager import crypto_manager
 
 
 class UserViewSet(ReadOnlyModelViewSet):
@@ -38,11 +38,11 @@ class SymbolsViewSet(ReadOnlyModelViewSet):
 
 
 class UserAccountsViewSet(RetrieveModelMixin, GenericViewSet):
-    serializer_class = UserAccountsSerializer()
-    queryset = Symbol.objects.all()
+    serializer_class = UserAccountsSerializer
+    queryset = User.objects.all()
 
 
-class AggregatedOrderViewSet(APIView):
+class AggregatedOrderView(APIView):
     def get(self, request, *args, **kwargs):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))

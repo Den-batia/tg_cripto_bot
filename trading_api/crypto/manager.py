@@ -7,6 +7,9 @@ class Manager:
             'eth': ETH,
         }
 
+    def __getitem__(self, item):
+        return self.currencies[item]
+
     def get_address_from_pk(self, symbol, pk):
         f = getattr(self.currencies[symbol], 'get_address_from_pk')
         return f(pk)
