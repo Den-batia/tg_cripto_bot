@@ -33,8 +33,24 @@ class API:
         res = await self._call_api(f'/v1/symbols')
         return res
 
+    async def get_symbol(self, symbol_id):
+        res = await self._call_api(f'/v1/symbols/{symbol_id}')
+        return res
+
+    async def get_broker(self, broker_id):
+        res = await self._call_api(f'/v1/brokers/{broker_id}')
+        return res
+
     async def get_accounts(self, user_id):
         res = await self._call_api(f'/v1/accounts/{user_id}')
+        return res
+
+    async def get_aggregated_orders(self, symbol_id, order_type):
+        res = await self._call_api(f'/v1/aggregated-orders/?symbol={symbol_id}&type={order_type}')
+        return res
+
+    async def get_orders(self, symbol_id, broker_id, order_type):
+        res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}')
         return res
 
     async def create_account(self, user_id, symbol):

@@ -12,6 +12,12 @@ class SymbolSerializer(ModelSerializer):
         fields = ('id', 'name')
 
 
+class BrokerSerializer(ModelSerializer):
+    class Meta:
+        model = Broker
+        fields = ('id', 'name')
+
+
 class UserSerializer(ModelSerializer):
     invited_count = SerializerMethodField()
 
@@ -56,13 +62,13 @@ class OrderSerializer(ModelSerializer):
 
 
 class AggregatedOrderSerializer(ModelSerializer):
-    orders = SerializerMethodField(read_only=True)
+    orders_cnt = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Broker
-        fields = ('name', 'orders')
+        fields = ('id', 'name', 'orders_cnt')
 
-    def get_lots_cnt(self, instance: Broker):
+    def get_orders_cnt(self, instance: Broker):
         return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol']).count()
 
 

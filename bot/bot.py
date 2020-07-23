@@ -30,15 +30,43 @@ async def accounts(message: types.Message):
 @dp.callback_query_handler(lambda msg: msg.data.startswith('account'))
 async def account(message: types.CallbackQuery):
     await message.answer()
-    text, k = await dh.account(message.from_user.id, message.data.split()[1])
+    text, k = await dh.account(message.from_user.id, int(message.data.split()[1]))
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
-@dp.callback_query_handler(lambda msg: msg.data.startswith('create_account'))
+@dp.message_handler(lambda msg: msg.text.startswith(sm('trading')))
+async def trading(message: types.Message):
+    text, k = await dh.market()
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('market_choose_symbol'))
 async def account(message: types.CallbackQuery):
     await message.answer()
-    text, k = await dh.create_account(message.from_user.id, message.data.split()[1])
-    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    text, k = await dh.symbol_market(int(message.data.split()[1]))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('buy'))
+async def buy(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.symbol_market_buy(int(message.data.split()[1]))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('sell'))
+async def sell(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.symbol_market_sell(int(message.data.split()[1]))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('broker_buy'))
+async def broker_buy(message: types.CallbackQuery):
+    await message.answer()
+    splited = message.data.split()
+    text, k = await dh.symbol_broker_market_sell(int(splited[1]), int(splited[2]))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
 @dp.message_handler(lambda msg: msg.text.startswith(sm('about')))

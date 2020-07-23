@@ -68,7 +68,7 @@ class Order(models.Model):
     limit_to = models.SmallIntegerField(validators=[MinValueValidator(1)])
     rate = models.DecimalField(max_digits=10, decimal_places=2)
     details = models.CharField(max_length=512, default='')
-    type = models.CharField(max_length=3)
+    type = models.CharField(max_length=4)
 
 
 class Rates(models.Model):

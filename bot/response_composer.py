@@ -88,8 +88,34 @@ class ResponseComposer:
         return text, k
 
     async def account(self, account):
-        text = await self._get(var_name='account')
+        text = await self._get(var_name='account', balance=float(account['balance']),
+                               symbol=account['symbol']['name'].upper(), frozen=account['frozen'])
         k = await kb.account(account)
+        return text, k
+
+    async def market_choose_symbol(self, symbols):
+        text = await self._get(var_name='market_choose_symbol')
+        k = await kb.market_choose_symbol(symbols)
+        return text, k
+
+    async def symbol_market(self, symbol):
+        text = await self._get(var_name='symbol_market')
+        k = await kb.symbol_market(symbol)
+        return text, k
+
+    async def symbol_market_buy(self, symbol, orders):
+        text = await self._get(var_name='buy', symbol=symbol['name'].upper())
+        k = await kb.symbol_market_buy(symbol, orders)
+        return text, k
+
+    async def symbol_market_sell(self, symbol, orders):
+        text = await self._get(var_name='sell', symbol=symbol['name'].upper())
+        k = await kb.symbol_market_buy(symbol, orders)
+        return text, k
+
+    async def symbol_broker_market_sell(self, symbol, broker, orders):
+        text = await self._get(var_name='sell', symbol=symbol['name'].upper())
+        k = await kb.symbol_broker_market_buy(symbol, orders)
         return text, k
 
 

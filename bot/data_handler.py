@@ -31,6 +31,9 @@ class DataHandler:
     async def some_error(self):
         return await rc.unknown_error()
 
+    async def unknown_command(self):
+        return await rc.unknown_command()
+
     async def cancel(self):
         return await rc.cancel()
 
@@ -40,7 +43,8 @@ class DataHandler:
 
     async def _get_account(self, user_id, symbol_id):
         user_accounts = (await api.get_accounts(user_id))['accounts']
-        return next((acc for acc in user_accounts if symbol_id == acc['symbol']['id']), None)
+        account = next((acc for acc in user_accounts if acc['symbol']['id'] == symbol_id), None)
+        return account
 
     async def account(self, telegram_id, symbol_id):
         user = await api.get_user(telegram_id)
@@ -70,11 +74,30 @@ class DataHandler:
         await send_message(text, telegram_id, reply_markup=k)
         return f'<pre>{user["address"]}</pre>', None
 
-    async def referral(self, telegram_id):
-        user = await api.get_user(telegram_id)
-        text, k = await rc.referral()
-        await send_message(text, telegram_id, reply_markup=k)
-        return await get_ref_link(user['ref_code']), None
+    async def market(self):
+        symbols = await api.get_symbols()
+        return await rc.market_choose_symbol(symbols)
+
+    async def symbol_market(self, symbol_id):
+        symbol = await api.get_symbol(symbol_id)
+        return await rc.symbol_market(symbol)
+
+    async def symbol_market_buy(self, symbol_id):
+        lots = await api.get_aggregated_orders(symbol_id, 'sell')
+        symbol = await api.get_symbol(symbol_id)
+        return await rc.symbol_market_buy(symbol, lots)
+
+    async def symbol_market_sell(self, symbol_id):
+        lots = await api.get_aggregated_orders(symbol_id, 'buy')
+        symbol = await api.get_symbol(symbol_id)
+        return await rc.symbol_market_sell(symbol, lots)
+
+    async def symbol_broker_market_sell(self, symbol_id, broker_id):
+        orders = await api.get_orders(symbol_id, broker_id, 'buy')
+        symbol = await api.get_symbol(symbol_id)
+        broker = await api.get_broker(broker_id)
+        print(orders)
+        return await rc.symbol_broker_market_sell(symbol, broker, orders)
 
 
 dh = DataHandler()

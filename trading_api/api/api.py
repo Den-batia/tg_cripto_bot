@@ -6,9 +6,9 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 
-from .models import User, Text, Symbol, Account, Broker
+from .models import User, Text, Symbol, Account, Broker, Order
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
-    AggregatedOrderSerializer
+    AggregatedOrderSerializer, OrderSerializer, BrokerSerializer
 from crypto.manager import crypto_manager
 
 
@@ -37,6 +37,11 @@ class SymbolsViewSet(ReadOnlyModelViewSet):
     queryset = Symbol.objects.all()
 
 
+class BrokersViewSet(ReadOnlyModelViewSet):
+    serializer_class = BrokerSerializer
+    queryset = Broker.objects.all()
+
+
 class UserAccountsViewSet(RetrieveModelMixin, GenericViewSet):
     serializer_class = UserAccountsSerializer
     queryset = User.objects.all()
@@ -46,8 +51,18 @@ class AggregatedOrderView(APIView):
     def get(self, request, *args, **kwargs):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
-        data = AggregatedOrderSerializer(Broker.objects.all(), context={'type': order_type, 'symbol': symbol}).data()
+        data = AggregatedOrderSerializer(Broker.objects, context={'type': order_type, 'symbol': symbol}, many=True).data
         return Response(data=data)
+
+
+class OrderViewSet(ReadOnlyModelViewSet):
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        order_type = self.request.query_params.get('type')
+        symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
+        broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
+        return Order.objects.filter(broker=broker, symbol=symbol, type=order_type)
 
 
 class GenerateAccountView(APIView):

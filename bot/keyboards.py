@@ -57,6 +57,31 @@ class Keyboard:
         btns = [[self.inl_b('create_account', action=f'create_account {symbol_id}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def market_choose_symbol(self, symbols):
+        btns = [[self.inl_b(symbol['name'].upper(), action=f'market_choose_symbol {symbol["id"]}') for symbol in symbols]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def symbol_market(self, symbol):
+        btns = [
+            [self.inl_b('buy', action=f'buy {symbol["id"]}'), self.inl_b('sell', action=f'sell {symbol["id"]}')],
+            [self.inl_b('my_orders', action=f'my_orders {symbol["id"]}')]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def symbol_market_buy(self, symbol, brokers):
+        btns = [
+            [self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_buy {symbol["id"]} {broker["id"]}')]
+            for broker in brokers
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def symbol_broker_market_buy(self, symbol, orders):
+        btns = [
+            [self.inl_b(f'{order["user"]}, {order["limit_from"]}-{order["limit_to"]}, {order["rate"]}', action=f'broker_buy {symbol["id"]} {order["id"]}')]
+            for order in orders
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def get_link(self):
         btns = [[self.inl_b('invite_more', action='friends')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
