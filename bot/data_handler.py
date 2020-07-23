@@ -38,10 +38,13 @@ class DataHandler:
         symbols = await api.get_symbols()
         return await rc.accounts(symbols)
 
+    async def _get_account(self, user_id, symbol_id):
+        user_accounts = (await api.get_accounts(user_id))['accounts']
+        return next((acc for acc in user_accounts if symbol_id == acc['symbol']['id']), None)
+
     async def account(self, telegram_id, symbol_id):
         user = await api.get_user(telegram_id)
-        user_accounts = (await api.get_accounts(user['id']))['accounts']
-        account = next((acc for acc in user_accounts if symbol_id == acc['symbol']['id']), None)
+        account = await self._get_account(user['id'], symbol_id)
         if account is None:
             return await rc.account_not_exists(symbol_id)
         else:
@@ -49,10 +52,10 @@ class DataHandler:
 
     async def create_account(self, telegram_id, symbol_id):
         user = await api.get_user(telegram_id)
-        user_accounts = (await api.get_accounts(user['id']))['accounts']
-        account = next((acc for acc in user_accounts if symbol_id == acc['symbol']['id']), None)
+        account = await self._get_account(user['id'], symbol_id)
         if account is None:
             await api.create_account(user['id'], symbol_id)
+            account = await self._get_account(user['id'], symbol_id)
         return await rc.account(account)
 
     async def referral(self, telegram_id):
