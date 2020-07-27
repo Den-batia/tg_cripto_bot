@@ -4,6 +4,7 @@ from .api import api
 from .response_composer import rc
 from .settings import bot
 from .utils.logger import logger
+from .utils.redis_queue import NotificationsQueue
 from .utils.utils import get_ref_code, get_ref_link
 
 
@@ -24,6 +25,12 @@ class DataHandler:
             ref_code = get_ref_code(msg)
             await api.register_user(msg.from_user.id, ref_code)
         return await rc.start()
+
+    async def get_updates(self):
+        notification = NotificationsQueue.get()
+        meth = getattr(rc, f'get_update_{notification["type"]}')
+        text = await meth(**notification)
+        await send_message(text, chat_id=notification['telegram_id'])
 
     async def about(self):
         return await rc.about()

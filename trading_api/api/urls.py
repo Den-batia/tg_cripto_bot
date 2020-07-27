@@ -4,7 +4,7 @@ from rest_framework import routers
 from .api import (
     NewUserView, UserViewSet, TextViewSet,
     UserAccountsViewSet, SymbolsViewSet,
-    GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet
+    GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView
 )
 
 router = routers.DefaultRouter()

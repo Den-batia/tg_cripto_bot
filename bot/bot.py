@@ -1,5 +1,6 @@
 from aiogram import types, Dispatcher
 from aiogram.utils import executor
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from .translations.translations import sm
 from .data_handler import dh, send_message
@@ -132,4 +133,7 @@ async def shutdown(dispatcher: Dispatcher):
 
 
 if __name__ == '__main__':
+    scheduler = AsyncIOScheduler(event_loop=loop)
+    scheduler.add_job(dh.get_updates, 'interval', seconds=5, max_instances=1)
+    scheduler.start()
     executor.start_polling(dp, loop=loop, on_shutdown=shutdown)

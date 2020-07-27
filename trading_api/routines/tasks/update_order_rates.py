@@ -19,8 +19,8 @@ def get_rates():
 def update():
     for symbol, currencies in get_rates().items():
         symbol = Symbol.objects.get(name=symbol)
-        for currency, rate in currencies.items():
-            new_rate, created = Rates.objects.get_or_create(symbol=symbol, defaults={'rate': rate})
+        for currency, new_rate in currencies.items():
+            rate, created = Rates.objects.get_or_create(symbol=symbol, defaults={'rate': new_rate})
             if not created:
                 rate.rate = new_rate
                 rate.save()

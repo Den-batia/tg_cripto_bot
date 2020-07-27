@@ -75,7 +75,7 @@ class Order(models.Model):
 
 class Deposit(models.Model):
     id = models.CharField(primary_key=True, default=random_order_id, max_length=10)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deposits')
     tx_hash = models.CharField(max_length=66, default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     confirmed_at = models.DateTimeField(default=None, blank=True, null=True)

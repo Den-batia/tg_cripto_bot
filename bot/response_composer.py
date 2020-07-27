@@ -118,5 +118,10 @@ class ResponseComposer:
         k = await kb.symbol_broker_market_buy(symbol, orders)
         return text, k
 
+    async def get_update_dep(self, amount, symbol, **kwargs):
+        text = await self._get(var_name='dep', symbol=symbol.upper(), amount=amount)
+        k = None
+        return text, k
+
 
 rc = ResponseComposer()

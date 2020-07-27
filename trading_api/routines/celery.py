@@ -21,3 +21,15 @@ def update_rates():
 def update_order_rates():
     from .tasks.update_order_rates import update
     update()
+
+
+@periodic_task(run_every=timedelta(minutes=2))
+def create_deposits_eth():
+    from .tasks.crypto.eth.create_deposits import create
+    create()
+
+
+@periodic_task(run_every=timedelta(minutes=2))
+def process_deposits_eth():
+    from .tasks.crypto.eth.process_deposits import process
+    process()
