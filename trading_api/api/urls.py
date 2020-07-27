@@ -21,7 +21,7 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path('v1/tg-users/new', NewUserView.as_view(), name='new-tg-user'),
+    path('v1/orders/new', NewOrderView.as_view(), name='new-order'),
     path('v1/accounts/generate', GenerateAccountView.as_view(), name='generate-account'),
     path('v1/aggregated-orders/', AggregatedOrderView.as_view(), name='aggregated-orders')
-
 ]

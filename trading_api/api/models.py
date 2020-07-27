@@ -50,25 +50,37 @@ class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
     balance = models.DecimalField(max_digits=15, decimal_places=8, default=0)
     frozen = models.DecimalField(max_digits=15, decimal_places=8, default=0)
-    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT)
+    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='accounts')
     private_key = models.CharField(max_length=128)
     earned_from_ref = models.DecimalField(max_digits=15, decimal_places=8, default=0)
 
 
 class Broker(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=32)
 
 
 class Order(models.Model):
     id = models.CharField(primary_key=True, default=random_order_id, max_length=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT)
+    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='orders')
     broker = models.ForeignKey(Broker, on_delete=models.CASCADE, related_name='orders')
     limit_from = models.SmallIntegerField(validators=[MinValueValidator(1)])
     limit_to = models.SmallIntegerField(validators=[MinValueValidator(1)])
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    coefficient = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     details = models.CharField(max_length=512, default='')
     type = models.CharField(max_length=4)
+
+
+class Deposit(models.Model):
+    id = models.CharField(primary_key=True, default=random_order_id, max_length=10)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    tx_hash = models.CharField(max_length=66, default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(default=None, blank=True, null=True)
+    symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name='deposits')
+    amount = models.DecimalField(max_digits=15, decimal_places=8)
 
 
 class Rates(models.Model):

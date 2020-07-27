@@ -52,7 +52,7 @@ class ETH:
         else:
             address = cls.get_address_from_pk(cls.PK)
 
-        return web3.eth.getBalance(address)
+        return cls.from_subunit(web3.eth.getBalance(address))
 
     @classmethod
     def get_net_commission(cls, net_commission, units=False, is_internal_call=True):
@@ -68,8 +68,8 @@ class ETH:
         return net_commission
 
     @classmethod
-    def _create_tx(cls, amount, to, from_address, net_commission=60, commission=0):
-        gas, gas_price = cls.get_net_commission(net_commission)
+    def _create_tx(cls, amount, to, from_address, gwei=60, commission=0):
+        gas, gas_price = cls.get_net_commission(gwei)
         amount = cls.to_subunit(amount)
         value_with_commission = amount - gas * gas_price - commission
 
@@ -96,13 +96,13 @@ class ETH:
         return tx_hash.hex()
 
     @classmethod
-    def create_tx_in(cls, pk, net_commission):
+    def create_tx_in(cls, pk, gwei):
         balance = cls.get_balance(pk=pk)
         system_address = web3.eth.account.privateKeyToAccount(cls.PK).address
         from_address = web3.eth.account.privateKeyToAccount(pk).address
         tx = cls._create_tx(
             amount=cls.from_subunit(balance), to=system_address,
-            from_address=from_address, net_commission=net_commission
+            from_address=from_address, gwei=gwei
         )
         signed_txn = web3.eth.account.signTransaction(tx, private_key=pk)
         tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)
@@ -125,7 +125,7 @@ class ETH:
         for _ in range(5):
             tx = web3.eth.getTransaction(tx_hash)
             if tx:
-                return int(tx['value'])
+                return cls.from_subunit(int(tx['value']))
             time.sleep(3)
 
         raise Exception('No transaction')

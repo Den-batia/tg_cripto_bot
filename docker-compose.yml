@@ -15,17 +15,17 @@ services:
     expose:
       - 8080
 
-#  celery:
-#    build: analyzer_api
-#    container_name: celery
-#    networks:
-#      - proxy
-#    command: celery -A routines worker -B -l info
-#    env_file:
-#      - analyzer_api/prod.env
-#    depends_on:
-#      - postgres
-#      - redis
+  celery:
+    build: trading_api
+    container_name: celery
+    networks:
+      - proxy
+    command: celery -A routines worker -B -l info
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
 
   trading_bot:
     build: bot

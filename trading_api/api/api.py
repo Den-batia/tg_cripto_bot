@@ -6,7 +6,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 
-from .models import User, Text, Symbol, Account, Broker, Order
+from .models import User, Text, Symbol, Account, Broker, Order, Rates
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer, OrderSerializer, BrokerSerializer
 from crypto.manager import crypto_manager
@@ -62,7 +62,30 @@ class OrderViewSet(ReadOnlyModelViewSet):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
+        print(order_type, symbol, broker, Order.objects.filter(broker=broker, symbol=symbol, type=order_type).count())
         return Order.objects.filter(broker=broker, symbol=symbol, type=order_type)
+
+
+class NewOrderView(APIView):
+    def post(self, request, *args, **kwargs):
+        brokers = Broker.objects.filter(id__in=request.data['brokers']).all()
+        symbol = get_object_or_404(Symbol, id=request.data['symbol'])
+        limit_from = request.data['limit_from']
+        limit_to = request.data['limit_to']
+        order_type = request.data['type']
+        coefficient = request.data['coefficient']
+        if coefficient:
+            rate = Rates.objects.filter(symbol=symbol).rate * coefficient
+        else:
+            rate = request.data['rate']
+        user = get_object_or_404(User, id=request.data['user_id'])
+        for broker in brokers:
+            Order.objects.create(
+                broker=broker, symbol=symbol, limit_from=limit_from,
+                limit_to=limit_to, type=order_type, user=user,
+                rate=rate, coefficient=coefficient
+            )
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 class GenerateAccountView(APIView):
