@@ -2,6 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from bot.states import SELECT_BROKER
 from .translations.translations import sm
 from .data_handler import dh, send_message
 from .helpers import rate_limit
@@ -67,6 +68,24 @@ async def broker_buy(message: types.CallbackQuery):
     await message.answer()
     splited = message.data.split()
     text, k = await dh.symbol_broker_market_sell(int(splited[1]), int(splited[2]))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('new_order'))
+async def new_order(message: types.CallbackQuery, state):
+    await message.answer()
+    symbol, order_type = message.data.split()[1:]
+    text, k = await dh.new_order(int(symbol))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+    await state.set_state(SELECT_BROKER)
+    await state.set_data({'symbol': symbol, 'type': order_type})
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('add_broker'))
+async def new_order(message: types.CallbackQuery, state):
+    await message.answer()
+    symbol, order_type = message.data.split()[1:]
+    text, k = await dh.new_order(int(symbol))
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
