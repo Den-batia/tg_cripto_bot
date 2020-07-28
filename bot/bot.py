@@ -1,3 +1,5 @@
+import re
+
 from aiogram import types, Dispatcher
 from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -71,22 +73,31 @@ async def broker_buy(message: types.CallbackQuery):
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
-@dp.callback_query_handler(lambda msg: msg.data.startswith('new_order'))
-async def new_order(message: types.CallbackQuery, state):
+@dp.callback_query_handler(lambda msg: re.match(r'^new_order [0-9]+$', msg.data))
+async def new_order(message: types.CallbackQuery):
+    symbol_id = int(message.data.split()[1])
+    text, k = await dh.new_order(symbol_id)
+    await message.message.edit_text(text=text, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: re.match(r'^new_order_brokers [0-9]+ (buy|sell)$', msg.data))
+async def new_order_brokers(message: types.CallbackQuery, state):
     await message.answer()
     symbol, order_type = message.data.split()[1:]
-    text, k = await dh.new_order(int(symbol))
-    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+    text, k = await dh.new_order_brokers()
+    await message.message.edit_text(text=text, reply_markup=k)
     await state.set_state(SELECT_BROKER)
-    await state.set_data({'symbol': symbol, 'type': order_type})
+    await state.set_data({'symbol': symbol, 'type': order_type, 'brokers': []})
 
 
-@dp.callback_query_handler(lambda msg: msg.data.startswith('add_broker'))
-async def new_order(message: types.CallbackQuery, state):
+@dp.callback_query_handler(lambda msg: re.match(r'^(add|remove) broker [0-9]+$', msg.data), state=SELECT_BROKER)
+async def update_brokers_list(message: types.CallbackQuery, state):
     await message.answer()
-    symbol, order_type = message.data.split()[1:]
-    text, k = await dh.new_order(int(symbol))
-    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+    data = await state.get_data()
+    splited_data = message.data.split()
+    new_brokers_list, k = await dh.update_brokers_list(data['brokers'], int(splited_data[2]), splited_data[0])
+    await state.set_data({**data, **{'brokers': new_brokers_list}})
+    await message.message.edit_reply_markup(reply_markup=k)
 
 
 @dp.message_handler(lambda msg: msg.text.startswith(sm('about')))

@@ -123,5 +123,19 @@ class ResponseComposer:
         k = None
         return text, k
 
+    async def new_order(self, symbol_id):
+        text = await self._get(var_name='new_order')
+        k = await kb.new_order_create(symbol_id)
+        return text, k
+
+    async def new_order_brokers(self):
+        text = await self._get(var_name='new_order_brokers', symbol=symbol.upper(), amount=amount)
+        k = None
+        return text, k
+
+    async def get_new_order_brokers_kb(self, brokers, chosen_brokers):
+        k = kb.get_new_brokers(brokers, chosen_brokers)
+        return k
+
 
 rc = ResponseComposer()

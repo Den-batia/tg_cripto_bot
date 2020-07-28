@@ -32,6 +32,23 @@ class DataHandler:
         text = await meth(**notification)
         await send_message(text, chat_id=notification['telegram_id'])
 
+    async def new_order(self, symbol_id):
+        return await rc.new_order(symbol_id)
+
+    async def new_order_brokers(self):
+        brokers = await api.get_brokers()
+        return await rc.new_order_brokers(brokers)
+
+    async def update_brokers_list(self, current_list, broker_id, action):
+        current_list = set(current_list)
+        if action == 'add':
+            current_list.add(broker_id)
+        elif action == 'remove' and broker_id in current_list:
+            current_list.remove(broker_id)
+        brokers = await api.get_brokers()
+        kb = await rc.get_new_order_brokers_kb(brokers, current_list)
+        return list(current_list), kb
+
     async def about(self):
         return await rc.about()
 

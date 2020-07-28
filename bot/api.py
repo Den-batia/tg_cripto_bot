@@ -41,6 +41,10 @@ class API:
         res = await self._call_api(f'/v1/brokers/{broker_id}')
         return res
 
+    async def get_brokers(self):
+        res = await self._call_api('/v1/brokers')
+        return res
+
     async def get_accounts(self, user_id):
         res = await self._call_api(f'/v1/accounts/{user_id}')
         return res

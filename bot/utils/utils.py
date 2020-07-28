@@ -10,3 +10,10 @@ async def get_ref_link(ref_code):
     from ..settings import bot
     bot = await bot.get_me()
     return f't.me/{bot.username}?start={ref_code}'
+
+
+def get_chunks(lst, n):
+    res = []
+    for i in range(0, len(lst), n):
+        res.append(lst[i:i + n])
+    return res
