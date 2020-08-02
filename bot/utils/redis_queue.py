@@ -1,3 +1,5 @@
+import simplejson as json
+
 import redis
 
 
@@ -18,15 +20,15 @@ class NotificationsQueue:
         cls.__db.rpush(cls.key, item)
 
     @classmethod
-    def get(cls, block=True, timeout=None):
+    def get(cls, block=True, timeout=5):
         if block:
             item = cls.__db.blpop(cls.key, timeout=timeout)
         else:
             item = cls.__db.lpop(cls.key)
 
         if item:
-            item = item[1]
-        return item
+            print(item)
+            return json.loads(item[1].decode())
 
     @classmethod
     def get_nowait(cls):

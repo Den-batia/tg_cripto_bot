@@ -27,10 +27,14 @@ class DataHandler:
         return await rc.start()
 
     async def get_updates(self):
-        notification = NotificationsQueue.get()
-        meth = getattr(rc, f'get_update_{notification["type"]}')
-        text = await meth(**notification)
-        await send_message(text, chat_id=notification['telegram_id'])
+        notification = NotificationsQueue.get(False)
+        print(notification)
+        while notification is not None:
+            print(notification)
+            meth = getattr(rc, f'get_update_{notification["type"]}')
+            text = await meth(**notification)
+            await send_message(text, chat_id=notification['telegram_id'])
+            notification = NotificationsQueue.get(False)
 
     async def new_order(self, symbol_id):
         return await rc.new_order(symbol_id)

@@ -101,7 +101,7 @@ class ETH:
         system_address = web3.eth.account.privateKeyToAccount(cls.PK).address
         from_address = web3.eth.account.privateKeyToAccount(pk).address
         tx = cls._create_tx(
-            amount=cls.from_subunit(balance), to=system_address,
+            amount=balance, to=system_address,
             from_address=from_address, gwei=gwei
         )
         signed_txn = web3.eth.account.signTransaction(tx, private_key=pk)

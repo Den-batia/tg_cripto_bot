@@ -3,13 +3,13 @@ import logging
 from api.models import Symbol, Deposit
 from django.db.transaction import atomic
 
-from trading_api.crypto.eth import ETH
+from crypto.eth import ETH
 
 logger = logging.getLogger('create_eth_deposits')
 
 
 def create():
-    symbol = Symbol.objects.get(name='eth')
+    symbol = Symbol.objects.get()
     accounts = symbol.accounts.all()
     for account in accounts:
         balance = ETH.get_balance(pk=account.private_key)

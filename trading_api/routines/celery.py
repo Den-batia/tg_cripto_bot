@@ -29,7 +29,7 @@ def create_deposits_eth():
     create()
 
 
-@periodic_task(run_every=timedelta(minutes=2))
+@periodic_task(run_every=timedelta(seconds=30))
 def process_deposits_eth():
     from .tasks.crypto.eth.process_deposits import process
     process()

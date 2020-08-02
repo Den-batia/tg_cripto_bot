@@ -11,7 +11,7 @@ logger = logging.getLogger('process_eth_deposits')
 
 
 def process():
-    symbol = Symbol.objects.get(name='eth')
+    symbol = Symbol.objects.get()
     for dep in Deposit.objects.filter(confirmed_at__isnull=True, symbol=symbol):
         if ETH.is_transaction_delivered(dep.tx_hash):
             with atomic():

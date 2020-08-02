@@ -1,3 +1,5 @@
+import simplejson as json
+
 import redis
 
 
@@ -15,7 +17,7 @@ class NotificationsQueue:
 
     @classmethod
     def put(cls, item):
-        cls.__db.rpush(cls.key, item)
+        cls.__db.rpush(cls.key, json.dumps(item))
 
     @classmethod
     def get(cls, block=True, timeout=None):

@@ -64,6 +64,14 @@ services:
     logging:
       driver: none
 
+  redis_q:
+    hostname: redis
+    image: redis:alpine
+    networks:
+      - proxy
+    logging:
+      driver: none
+
 
 networks:
   proxy:
