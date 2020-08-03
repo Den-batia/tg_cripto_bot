@@ -27,6 +27,7 @@ class User(models.Model):
     ref_code = models.CharField(default=random_ref_code, unique=True, max_length=16)
     nickname = models.CharField(default=random_nickname, unique=True, max_length=10)
     is_admin = models.BooleanField(default=False)
+    is_verify = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     REQUIRED_FIELDS = ['id']
@@ -43,13 +44,15 @@ class User(models.Model):
 
 class Symbol(models.Model):
     name = models.CharField(max_length=4, unique=True)
+    min_withdraw = models.DecimalField(max_digits=15, decimal_places=8, default='0.01')
+    commission = models.DecimalField(max_digits=15, decimal_places=8, default='0.005')
 
 
 class Account(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
-    balance = models.DecimalField(max_digits=15, decimal_places=8, default=0)
-    frozen = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    balance = models.DecimalField(max_digits=15, decimal_places=8, default=0, validators=[MinValueValidator(0)])
+    frozen = models.DecimalField(max_digits=15, decimal_places=8, default=0, validators=[MinValueValidator(0)])
     symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='accounts')
     private_key = models.CharField(max_length=128)
     earned_from_ref = models.DecimalField(max_digits=15, decimal_places=8, default=0)
@@ -74,13 +77,26 @@ class Order(models.Model):
 
 
 class Deposit(models.Model):
-    id = models.CharField(primary_key=True, default=random_order_id, max_length=10)
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deposits')
+    symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name='deposits')
     tx_hash = models.CharField(max_length=66, default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     confirmed_at = models.DateTimeField(default=None, blank=True, null=True)
-    symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name='deposits')
     amount = models.DecimalField(max_digits=15, decimal_places=8)
+
+
+class Withdraw(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdraws')
+    symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name='withdraws')
+    tx_hash = models.CharField(max_length=66, default=None, null=True)
+    address = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(default=None, blank=True, null=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=8)
+    commission_service = models.DecimalField(max_digits=15, decimal_places=8)
+    commission_blockchain = models.DecimalField(max_digits=15, decimal_places=8, default=0)
 
 
 class Rates(models.Model):

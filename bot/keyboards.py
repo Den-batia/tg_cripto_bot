@@ -50,7 +50,7 @@ class Keyboard:
     async def account(self, account):
         btns = [[
             self.inl_b('deposit', action=f'get_address {account["address"]}'),
-            self.inl_b('withdraw', action=f'get_address {account["address"]}')
+            self.inl_b('withdraw', action=f'withdraw {account["symbol"]["id"]}')
         ]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 

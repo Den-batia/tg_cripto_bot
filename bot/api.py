@@ -57,8 +57,23 @@ class API:
         res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}')
         return res
 
-    async def create_account(self, user_id, symbol):
-        res = await self._call_api(f'/v1/accounts/generate', method='post', _json={'user_id': user_id, 'symbol': symbol})
+    async def create_account(self, user_id, symbol_id):
+        res = await self._call_api(f'/v1/accounts/generate', method='post',
+                                   _json={'user_id': user_id, 'symbol': symbol_id})
+        return res
+
+    async def check_address(self, address, symbol_id):
+        res = await self._call_api(
+            f'/v1/address-check', method='post',
+            _json={'address': address, 'symbol': symbol_id}
+        )
+        return res
+
+    async def create_withdraw(self, user_id, symbol_id, amount, address):
+        res = await self._call_api(
+            f'/v1/withdraws/new', method='post',
+            _json={'user_id': user_id, 'symbol': symbol_id, 'amount': str(amount), 'address': address}
+        )
         return res
 
     async def get_user(self, user_tg_id):

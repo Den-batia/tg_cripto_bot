@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from aiogram.types import Message
 
 from .api import api
@@ -5,7 +7,7 @@ from .response_composer import rc
 from .settings import bot
 from .utils.logger import logger
 from .utils.redis_queue import NotificationsQueue
-from .utils.utils import get_ref_code, get_ref_link
+from .utils.utils import get_ref_code, get_ref_link, is_string_a_number
 
 
 async def send_message(text, chat_id, reply_markup=None, silent=True):
@@ -28,12 +30,11 @@ class DataHandler:
 
     async def get_updates(self):
         notification = NotificationsQueue.get(False)
-        print(notification)
         while notification is not None:
             print(notification)
             meth = getattr(rc, f'get_update_{notification["type"]}')
-            text = await meth(**notification)
-            await send_message(text, chat_id=notification['telegram_id'])
+            text, k = await meth(**notification)
+            await send_message(text, chat_id=notification['telegram_id'], reply_markup=k)
             notification = NotificationsQueue.get(False)
 
     async def new_order(self, symbol_id):
@@ -101,6 +102,43 @@ class DataHandler:
         text, k = await rc.deposit(balance_requests=user['balance_requests'], price=0.0001)
         await send_message(text, telegram_id, reply_markup=k)
         return f'<pre>{user["address"]}</pre>', None
+
+    async def withdraw(self, telegram_id, symbol_id):
+        symbol = await api.get_symbol(symbol_id)
+        user = await api.get_user(telegram_id)
+        account = await self._get_account(user['id'], symbol_id)
+        if Decimal(account['balance']) < Decimal(symbol['min_withdraw']):
+            return await rc.not_enough_money_withdraw(), False
+        return await rc.enter_address(), True
+
+    async def process_address(self, telegram_id, address, symbol_id):
+        address_check_result = await api.check_address(address, symbol_id)
+        if not address_check_result['is_valid']:
+            return await rc.address_validation_failed(), None
+        symbol = await api.get_symbol(symbol_id)
+        user = await api.get_user(telegram_id)
+        account = await self._get_account(user['id'], symbol_id)
+        return await rc.enter_amount_withdraw(
+            balance=account['balance'],
+            min_withdraw=symbol['min_withdraw'],
+            symbol=symbol['name'].upper()
+        ), True
+
+    async def process_amount_withdraw(self, telegram_id, address, symbol_id, amount):
+        symbol = await api.get_symbol(symbol_id)
+        user = await api.get_user(telegram_id)
+        account = await self._get_account(user['id'], symbol_id)
+        if (
+                not is_string_a_number(amount) or
+                (amount := Decimal(amount)) < Decimal(symbol['min_withdraw']) or
+                amount > Decimal(account['balance'])
+        ):
+            return await rc.wrong_amount(), False
+        await api.create_withdraw(user['id'], symbol_id, amount, address)
+        return await rc.transaction_queued(), True
+
+    async def cancel_withdraw(self):
+        return await rc.cancel_withdraw()
 
     async def market(self):
         symbols = await api.get_symbols()

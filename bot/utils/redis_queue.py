@@ -27,8 +27,7 @@ class NotificationsQueue:
             item = cls.__db.lpop(cls.key)
 
         if item:
-            print(item)
-            return json.loads(item[1].decode())
+            return json.loads(item.decode())
 
     @classmethod
     def get_nowait(cls):

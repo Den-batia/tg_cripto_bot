@@ -118,9 +118,49 @@ class ResponseComposer:
         k = await kb.symbol_broker_market_buy(symbol, orders)
         return text, k
 
-    async def get_update_dep(self, amount, symbol, **kwargs):
-        text = await self._get(var_name='dep', symbol=symbol.upper(), amount=amount)
+    async def get_update_deposit(self, amount, symbol, **kwargs):
+        text = await self._get(var_name='deposit_notification', symbol=symbol.upper(), amount=amount)
         k = None
+        return text, k
+
+    async def get_update_withdraw(self, link, **kwargs):
+        text = await self._get(var_name='withdraw_notification', link=link)
+        k = None
+        return text, k
+
+    async def cancel_withdraw(self):
+        text = await self._get(var_name='cancel')
+        k = await kb.main_menu()
+        return text, k
+
+    async def not_enough_money_withdraw(self):
+        text = await self._get(var_name='not_enough_money')
+        k = await kb.main_menu()
+        return text, k
+
+    async def address_validation_failed(self):
+        text = await self._get(var_name='address_validation_failed')
+        k = await kb.main_menu()
+        return text, k
+
+    async def enter_address(self):
+        text = await self._get(var_name='enter_address')
+        k = await kb.get_cancel()
+        return text, k
+
+    async def enter_amount_withdraw(self, balance, min_withdraw, symbol):
+        text = await self._get(var_name='enter_amount_withdraw', balance=balance, min_withdraw=min_withdraw, symbol=symbol)
+        k = await kb.get_cancel()
+        return text, k
+
+    async def transaction_queued(self):
+        text = await self._get(var_name='transaction_queued')
+        k = await kb.main_menu()
+        return text, k
+
+    async def wrong_amount(self):
+        text = await self._get(var_name='wrong_amount')
+        k = await kb.main_menu()
         return text, k
 
     async def new_order(self, symbol_id):

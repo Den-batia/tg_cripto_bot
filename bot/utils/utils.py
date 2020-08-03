@@ -17,3 +17,7 @@ def get_chunks(lst, n):
     for i in range(0, len(lst), n):
         res.append(lst[i:i + n])
     return res
+
+
+def is_string_a_number(s):
+    return s.replace('.','',1).isdigit()

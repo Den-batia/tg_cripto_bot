@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+from django.db.transaction import atomic
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -6,7 +9,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 
-from .models import User, Text, Symbol, Account, Broker, Order, Rates
+from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer, OrderSerializer, BrokerSerializer
 from crypto.manager import crypto_manager
@@ -95,6 +98,60 @@ class GenerateAccountView(APIView):
         if Account.objects.filter(user=user, symbol=symbol).exists():
             raise ValidationError
         Account.objects.create(user=user, symbol=symbol, private_key=crypto_manager[symbol.name].generate_wallet())
+        return Response(status=HTTP_204_NO_CONTENT)
+
+
+class ValidateAddressMixin:
+    def validate_address(self, address: str, symbol: Symbol):
+        if not self.is_address_valid(address, symbol):
+            raise ValidationError
+
+    def is_address_valid(self, address: str, symbol: Symbol):
+        return crypto_manager.is_address_valid(symbol.name, address)
+
+
+class BalanceManagementMixin:
+    def get_account(self, user: User, symbol: Symbol):
+        return user.accounts.filter(symbol=symbol).get()
+
+    def validate_balance(self, user: User, symbol: Symbol, target_amount: Decimal):
+        account = self.get_account(user, symbol)
+        if account.balance < target_amount:
+            raise ValidationError
+
+    def validate_account_change(self, account):
+        if account.frozen < 0 or account.balance < 0:
+            raise ValidationError(f'User {account.user.nickname} has balance or frozen < 0')
+
+    def freeze(self, amount, user, symbol):
+        account = self.get_account(user, symbol)
+        account.balance -= amount
+        account.frozen += amount
+        self.validate_account_change(account)
+        account.save()
+
+
+class AddressCheckView(APIView, ValidateAddressMixin):
+    def post(self, request, *args, **kwargs):
+        symbol = get_object_or_404(Symbol, id=request.data['symbol'])
+        address = request.data['address']
+        is_valid = self.is_address_valid(address, symbol)
+        return Response(data={'is_valid': is_valid})
+
+
+class NewWithdrawView(APIView, ValidateAddressMixin, BalanceManagementMixin):
+    def post(self, request, *args, **kwargs):
+        symbol = get_object_or_404(Symbol, id=request.data['symbol'])
+        user = get_object_or_404(User, id=request.data['user_id'])
+        address = request.data['address']
+        amount = Decimal(request.data['amount'])
+        self.validate_address(address, symbol)
+        target_amount = amount + symbol.commission
+        self.validate_balance(user, symbol, target_amount)
+        with atomic():
+            self.freeze(target_amount, user, symbol)
+            Withdraw.objects.create(user=user, amount=amount, address=address,
+                                    symbol=symbol, commission_service=symbol.commission)
         return Response(status=HTTP_204_NO_CONTENT)
 
 

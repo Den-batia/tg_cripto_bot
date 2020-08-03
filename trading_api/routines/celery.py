@@ -33,3 +33,15 @@ def create_deposits_eth():
 def process_deposits_eth():
     from .tasks.crypto.eth.process_deposits import process
     process()
+
+
+@periodic_task(run_every=timedelta(seconds=10))
+def create_withdraws_eth():
+    from .tasks.crypto.eth.withdraw import create
+    create()
+
+
+@periodic_task(run_every=timedelta(seconds=10))
+def process_withdraws_eth():
+    from .tasks.crypto.eth.confirm_withdraw import confirm
+    confirm()

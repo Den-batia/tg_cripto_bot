@@ -4,7 +4,8 @@ from rest_framework import routers
 from .api import (
     NewUserView, UserViewSet, TextViewSet,
     UserAccountsViewSet, SymbolsViewSet,
-    GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView
+    GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
+    NewWithdrawView
 )
 
 router = routers.DefaultRouter()
@@ -23,5 +24,7 @@ urlpatterns += [
     path('v1/tg-users/new', NewUserView.as_view(), name='new-tg-user'),
     path('v1/orders/new', NewOrderView.as_view(), name='new-order'),
     path('v1/accounts/generate', GenerateAccountView.as_view(), name='generate-account'),
+    path('v1/address-check', AddressCheckView.as_view(), name='address-check'),
+    path('v1/withdraws/new', NewWithdrawView.as_view(), name='new-withdraw'),
     path('v1/aggregated-orders/', AggregatedOrderView.as_view(), name='aggregated-orders')
 ]

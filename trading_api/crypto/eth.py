@@ -1,4 +1,6 @@
 import time
+
+import requests
 from web3 import Web3, HTTPProvider
 from os import environ as env
 
@@ -9,6 +11,9 @@ if env.get('TEST'):
 else:
     web3 = Web3(HTTPProvider(''))
     chain = 1
+
+
+gas = 21000
 
 
 class ETH:
@@ -55,27 +60,28 @@ class ETH:
         return cls.from_subunit(web3.eth.getBalance(address))
 
     @classmethod
-    def get_net_commission(cls, net_commission, units=False, is_internal_call=True):
-        gas = 21000
-        gas_price = web3.toWei(net_commission, 'gwei')
-        if is_internal_call:
-            return gas, gas_price
-
-        net_commission = gas * gas_price
-
-        if units:
-            net_commission = cls.from_subunit(net_commission)
-        return net_commission
+    def get_gas_price(cls):
+        url = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle'
+        gas_price = int(requests.get(url).json()['result']['ProposeGasPrice'])
+        if gas_price > 1000:
+            gas_price = 100
+        return gas_price
 
     @classmethod
-    def _create_tx(cls, amount, to, from_address, gwei=60, commission=0):
-        gas, gas_price = cls.get_net_commission(gwei)
+    def get_net_commission(cls, gwei):
+        gas_price = web3.toWei(gwei, 'gwei')
+        return cls.from_subunit(gas * gas_price)
+
+    @classmethod
+    def _create_tx(cls, amount, to, from_address, gwei, subtract_fee):
+        gas_price = web3.toWei(gwei, 'gwei')
         amount = cls.to_subunit(amount)
-        value_with_commission = amount - gas * gas_price - commission
+        if subtract_fee:
+            amount = amount - gas * gas_price
 
         transaction = {
             'to': to,
-            'value': int(value_with_commission),
+            'value': int(amount),
             'gas': int(gas),
             'gasPrice': gas_price,
             'nonce': web3.eth.getTransactionCount(from_address),
@@ -84,25 +90,22 @@ class ETH:
         return transaction
 
     @classmethod
-    def create_tx_out(cls, address, amount, commission, net_commission):
+    def create_tx_out(cls, address, amount, gwei):
         account = web3.eth.account.privateKeyToAccount(cls.PK)
         to = web3.toChecksumAddress(address)
-        tx = cls._create_tx(
-            amount=amount, to=to, from_address=account.address,
-            commission=commission, net_commission=net_commission
-        )
+        tx = cls._create_tx(amount=amount, to=to, from_address=account.address, gwei=gwei, subtract_fee=False)
         signed_txn = web3.eth.account.signTransaction(tx, private_key=cls.PK)
         tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)
         return tx_hash.hex()
 
     @classmethod
-    def create_tx_in(cls, pk, gwei):
+    def create_tx_in(cls, pk):
         balance = cls.get_balance(pk=pk)
         system_address = web3.eth.account.privateKeyToAccount(cls.PK).address
         from_address = web3.eth.account.privateKeyToAccount(pk).address
         tx = cls._create_tx(
             amount=balance, to=system_address,
-            from_address=from_address, gwei=gwei
+            from_address=from_address, gwei=cls.get_gas_price(), subtract_fee=True
         )
         signed_txn = web3.eth.account.signTransaction(tx, private_key=pk)
         tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)

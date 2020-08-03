@@ -11,7 +11,7 @@ logger = logging.getLogger('process_eth_deposits')
 
 
 def process():
-    symbol = Symbol.objects.get()
+    symbol = Symbol.objects.get(name='eth')
     for dep in Deposit.objects.filter(confirmed_at__isnull=True, symbol=symbol):
         if ETH.is_transaction_delivered(dep.tx_hash):
             with atomic():
@@ -20,4 +20,5 @@ def process():
                 acc.balance += dep.amount
                 acc.save()
                 dep.save()
-                NotificationsQueue.put({'telegram_id': dep.user.telegram_id, 'type': 'dep', 'amount': dep.amount, 'symbol': symbol.name})
+                NotificationsQueue.put({'telegram_id': dep.user.telegram_id, 'type': 'deposit',
+                                        'amount': dep.amount, 'symbol': symbol.name})

@@ -9,10 +9,18 @@
     "symbol_market": "Выберите операцию",
     "buy": "Покупка %{symbol}",
     "sell": "Продажа %{symbol}",
-    "dep": "Новое поступление на сумму %{amount} %{symbol}",
+    "deposit_notification": "Новое поступление на сумму %{amount} %{symbol}",
+    "withdraw_notification": "Перевод осуществлен: %{link}",
     "referral": "Приглашай друзей и зарабатывай 0.5% от оборота друзей!",
     "return_main_menu": "Возврат в главное меню",
     "unknown_error": "Возникла неизвестная ошибка!",
-    "unknown_command": "Неизвестная команда!"
+    "unknown_command": "Неизвестная команда!",
+    "cancel": "Действие отменено",
+    "not_enough_money": "Недостаточно средств",
+    "enter_address": "Введите адрес",
+    "address_validation_failed": "Вы ввели некорректный адрес",
+    "enter_amount_withdraw": "Введите сумму для вывода средств!\n\nБаланс: <b>%{balance} %{symbol}</b>\nМинимальный вывод: <b>%{min_withdraw} %{symbol}</b>",
+    "wrong_amount": "Неверная сумма",
+    "transaction_queued": "Транзакция успешно поставлена в очередь на вывод!"
   }
 }

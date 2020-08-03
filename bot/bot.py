@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from bot.states import SELECT_BROKER
+from bot.states import SELECT_BROKER, WITHDRAW_CHOOSE_ADDRESS, WITHDRAW_CHOOSE_AMOUNT
 from .translations.translations import sm
 from .data_handler import dh, send_message
 from .helpers import rate_limit
@@ -117,6 +117,56 @@ async def get_address(message: types.CallbackQuery):
     await message.answer()
     text = f'<pre>{message.data.split()[1]}</pre>'
     await send_message(text=text, chat_id=message.message.chat.id)
+
+
+@dp.callback_query_handler(lambda msg: msg.data.startswith('withdraw'))
+@rate_limit(5)
+async def withdraw(message: types.CallbackQuery, state):
+    await message.answer()
+    symbol_id = int(message.data.split()[1])
+    (text, k), status = await dh.withdraw(message.from_user.id, symbol_id)
+    if status:
+        await state.set_data({'symbol_id': symbol_id})
+        await state.set_state(WITHDRAW_CHOOSE_ADDRESS)
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith(sm('cancel')), state=WITHDRAW_CHOOSE_ADDRESS)
+@dp.message_handler(lambda msg: msg.text.startswith(sm('cancel')), state=WITHDRAW_CHOOSE_AMOUNT)
+@rate_limit(1)
+async def cancel_withdraw(message: types.Message, state):
+    await state.reset_state(with_data=True)
+    text, k = await dh.cancel_withdraw()
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(state=WITHDRAW_CHOOSE_ADDRESS)
+@rate_limit(1)
+async def handle_address(message: types.Message, state):
+    data = await state.get_data()
+    address = message.text.strip()
+    (text, k), success = await dh.process_address(message.from_user.id, address, data['symbol_id'])
+    if success:
+        await state.set_state(WITHDRAW_CHOOSE_AMOUNT)
+        await state.set_data({**data, **{'address': address}})
+    else:
+        await state.reset_state(with_data=True)
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(state=WITHDRAW_CHOOSE_AMOUNT)
+@rate_limit(1)
+async def handle_amount(message: types.Message, state):
+    data = await state.get_data()
+    (text, k), success = await dh.process_amount_withdraw(
+        telegram_id=message.from_user.id,
+        address=data['address'],
+        symbol_id=data['symbol_id'],
+        amount=message.text
+    )
+    if success:
+        await state.reset_state(with_data=True)
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
 @dp.callback_query_handler(lambda msg: msg.data == 'ref')
