@@ -7,7 +7,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 
 from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
@@ -65,8 +65,19 @@ class OrderViewSet(ReadOnlyModelViewSet):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
-        print(order_type, symbol, broker, Order.objects.filter(broker=broker, symbol=symbol, type=order_type).count())
-        return Order.objects.filter(broker=broker, symbol=symbol, type=order_type)
+        return Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False)
+
+
+class UserOrdersViewSet(ModelViewSet):
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        user = get_object_or_404(User, id=self.kwargs['user_id'])
+        return user.orders.order_by('created_at')
+
+    def perform_destroy(self, instance: Order):
+        instance.is_deleted = True
+        instance.save()
 
 
 class NewOrderView(APIView):

@@ -69,7 +69,7 @@ class AggregatedOrderSerializer(ModelSerializer):
         fields = ('id', 'name', 'orders_cnt')
 
     def get_orders_cnt(self, instance: Broker):
-        return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol']).count()
+        return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol'], is_deleted=False).count()
 
 
 class TextSerializer(ModelSerializer):

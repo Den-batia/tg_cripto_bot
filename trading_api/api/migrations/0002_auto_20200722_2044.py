@@ -16,5 +16,4 @@ class Migration(migrations.Migration):
             old_name='Wallet',
             new_name='Account',
         ),
-        migrations.RunPython(lambda *args: Symbol.objects.create(name='eth'))
     ]

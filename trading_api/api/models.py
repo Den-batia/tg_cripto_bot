@@ -74,6 +74,8 @@ class Order(models.Model):
     coefficient = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     details = models.CharField(max_length=512, default='')
     type = models.CharField(max_length=4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
 
 class Deposit(models.Model):
