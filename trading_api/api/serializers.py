@@ -1,4 +1,4 @@
-from rest_framework.fields import SerializerMethodField
+from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
@@ -23,7 +23,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'telegram_id', 'ref_code', 'invited_count')
+        fields = ('id', 'telegram_id', 'ref_code', 'invited_count', 'is_admin')
 
     def get_invited_count(self, instance: User):
         return User.objects.filter(referred_from=instance).count()
@@ -59,6 +59,32 @@ class OrderSerializer(ModelSerializer):
     class Meta:
         model = Order
         fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details')
+
+
+class UserInfoSerializer(ModelSerializer):
+    deals = SerializerMethodField(read_only=True)
+    orders = SerializerMethodField(read_only=True)
+    created_at = DateTimeField(format="%Y-%m-%d")
+
+    class Meta:
+        model = User
+        fields = ('id', 'nickname', 'is_verify', 'created_at', 'deals', 'orders')
+
+    def get_deals(self, instance: User):
+        return 0
+
+    def get_orders(self, instance: User):
+        return instance.orders.filter(is_deleted=False).count()
+
+
+class OrderDetailSerializer(ModelSerializer):
+    broker = SlugRelatedField('name', read_only=True)
+    user = UserInfoSerializer(read_only=True)
+    symbol = SymbolSerializer(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details', 'symbol')
 
 
 class AggregatedOrderSerializer(ModelSerializer):

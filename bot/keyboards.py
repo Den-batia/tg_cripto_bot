@@ -84,6 +84,29 @@ class Keyboard:
         btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol_id}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def my_order(self, order):
+        btns = [
+            [
+                self.inl_b('limits', action=f'order_edit_limits {order["id"]}'),
+                self.inl_b('rate', action=f'order_edit_rate {order["id"]}'),
+                self.inl_b('details', action=f'order_edit_details {order["id"]}'),
+            ],
+            [
+                self.inl_b('back', action=f'my_orders {order["symbol"]["id"]}'),
+                self.inl_b('delete', action=f'delete_order {order["id"]}'),
+                self.inl_b('deactivate', action=f'order_edit_activity {order["id"]}')
+            ]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def user_admin_actions(self, user):
+        btns = [
+            [
+                self.inl_b('unverify' if user['is_verify'] else 'verify', action=f'verify {user["id"]}')
+            ]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def symbol_market_buy(self, symbol, brokers):
         btns = [
             self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_buy {symbol["id"]} {broker["id"]}')

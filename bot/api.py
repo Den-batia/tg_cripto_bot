@@ -87,6 +87,12 @@ class API:
     async def get_user(self, user_tg_id):
         return await self._call_api(f'/v1/tg-users/{user_tg_id}')
 
+    async def get_user_info(self, nickname):
+        return await self._call_api(f'/v1/user-info/{nickname}')
+
+    async def get_order_info(self, order_id):
+        return await self._call_api(f'/v1/order-info/{order_id}')
+
     async def get_text(self, name):
         res = await self._call_api(f'/v1/texts/{name}')
         return res['text']

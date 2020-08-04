@@ -153,8 +153,16 @@ class DataHandler:
         await api.create_withdraw(user['id'], symbol_id, amount, address)
         return await rc.transaction_queued(), True
 
-    async def cancel(self):
-        return await rc.cancel()
+    async def get_order_info(self, telegram_id, order_id):
+        user = await api.get_user(telegram_id)
+        order = await api.get_order_info(order_id)
+        is_my = user['id'] == order['user']['id']
+        return await rc.order(order, is_my=is_my)
+
+    async def get_user_info(self, telegram_id, nickname):
+        user = await api.get_user(telegram_id)
+        target_user = await api.get_user_info(nickname)
+        return await rc.user(target_user, is_admin=user['is_admin'])
 
     async def market(self):
         symbols = await api.get_symbols()

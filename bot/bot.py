@@ -180,18 +180,18 @@ async def get_address(message: types.CallbackQuery):
     await send_message(text=text, chat_id=message.message.chat.id)
 
 
-@dp.callback_query_handler(lambda msg: re.match(r'^order [0-9]+$', msg.data))
+@dp.callback_query_handler(lambda msg: re.match(r'^order [0-9a-z]+$', msg.data))
 async def get_order(message: types.CallbackQuery):
     await message.answer()
-    order_id = int(message.data.split()[1])
-    text, k = await dh.get_order(message.message.chat.id, order_id)
+    order_id = message.data.split()[1]
+    text, k = await dh.get_order_info(message.message.chat.id, order_id)
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
 @dp.message_handler(lambda msg: re.match(r'^/tr[0-9a-z]+$', msg.text))
 async def get_user(message: types.Message):
     nickname = message.text[3:]
-    text, k = await dh.get_user(message.from_user.id, nickname)
+    text, k = await dh.get_user_info(message.from_user.id, nickname)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 

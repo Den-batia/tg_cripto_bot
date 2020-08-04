@@ -11,7 +11,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelV
 
 from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
-    AggregatedOrderSerializer, OrderSerializer, BrokerSerializer
+    AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer
 from crypto.manager import crypto_manager
 
 
@@ -84,6 +84,17 @@ class UserOrdersViewSet(ModelViewSet):
     def perform_destroy(self, instance: Order):
         instance.is_deleted = True
         instance.save()
+
+
+class OrderInfoViewSet(RetrieveModelMixin, GenericViewSet):
+    serializer_class = OrderDetailSerializer
+    queryset = Order.objects.filter(is_deleted=False)
+
+
+class UserInfoViewSet(RetrieveModelMixin, GenericViewSet):
+    serializer_class = UserInfoSerializer
+    queryset = User.objects.all()
+    lookup_field = 'nickname'
 
 
 class NewOrderView(APIView):

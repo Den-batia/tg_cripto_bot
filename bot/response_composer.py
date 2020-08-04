@@ -163,6 +163,31 @@ class ResponseComposer:
         k = await kb.my_orders(orders, symbol_id)
         return text, k
 
+    async def order(self, order, is_my):
+        text = await self._get(var_name=order['type'], symbol=order['symbol']['name'].upper())
+        text += '\n\n'
+        user = order.pop('user')
+        text += await self._get(
+            var_name='user',
+            is_verify=verify_sm[user.pop('is_verify')],
+            **user
+        )
+        text += '\n\n'
+        text += await self._get(var_name='order', **order)
+        if is_my:
+            k = await kb.my_order(order)
+        else:
+            k = await kb.market_order(order['id'])
+        return text, k
+
+    async def user(self, user, is_admin):
+        text = await self._get(var_name='user', is_verify=verify_sm[user.pop('is_verify')], **user)
+        if is_admin:
+            k = await kb.user_admin_actions(user)
+        else:
+            k = None
+        return text, k
+
     async def new_order(self, symbol_id):
         text = await self._get(var_name='new_order')
         k = await kb.new_order_create(symbol_id)
