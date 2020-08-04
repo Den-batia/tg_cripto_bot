@@ -40,6 +40,13 @@ async def account(message: types.CallbackQuery):
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
+@dp.callback_query_handler(lambda msg: msg.data.startswith('create_account'))
+async def create_account(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.create_account(message.from_user.id, int(message.data.split()[1]))
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
 @dp.message_handler(lambda msg: msg.text.startswith(sm('trading')))
 async def trading(message: types.Message):
     text, k = await dh.market()
@@ -112,7 +119,6 @@ async def update_brokers_list(message: types.CallbackQuery, state):
 @dp.callback_query_handler(lambda msg: re.match(r'^cancel$', msg.data), state=SELECT_BROKER)
 @dp.message_handler(lambda msg: msg.text.startswith(sm('cancel')), state=[CHOOSE_LIMITS, CHOOSE_RATE])
 async def cancel_create_lot(message: Union[types.CallbackQuery, types.Message], state):
-    await message.answer()
     await state.reset_state(with_data=True)
     text, k = await dh.cancel()
     chat_id = message.message.chat.id if isinstance(message, types.CallbackQuery) else message.chat.id
@@ -172,6 +178,21 @@ async def get_address(message: types.CallbackQuery):
     await message.answer()
     text = f'<pre>{message.data.split()[1]}</pre>'
     await send_message(text=text, chat_id=message.message.chat.id)
+
+
+@dp.callback_query_handler(lambda msg: re.match(r'^order [0-9]+$', msg.data))
+async def get_order(message: types.CallbackQuery):
+    await message.answer()
+    order_id = int(message.data.split()[1])
+    text, k = await dh.get_order(message.message.chat.id, order_id)
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(lambda msg: re.match(r'^/tr[0-9a-z]+$', msg.text))
+async def get_user(message: types.Message):
+    nickname = message.text[3:]
+    text, k = await dh.get_user(message.from_user.id, nickname)
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
 @dp.callback_query_handler(lambda msg: msg.data.startswith('withdraw'))
