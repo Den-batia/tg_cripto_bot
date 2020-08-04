@@ -1,7 +1,7 @@
 from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup
 from .translations.translations import translate
-from .utils.utils import get_chunks
+from .utils.utils import get_chunks, prettify_number
 
 lang = 'ru'
 
@@ -71,17 +71,26 @@ class Keyboard:
 
     async def my_orders(self, orders, symbol_id):
         btns = [
-            [self.inl_b(f'{order["broker"]} {order["limit_from"]}-{order["limit_to"]}', action=f'')]
+            [
+                self.inl_b(
+                    f'{"📈" if order["type"] == "buy" else "📉"} {order["broker"]}, '
+                    f'{prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])}, {order["rate"]} RUB',
+                    action=f'order {order["id"]}'
+                )
+            ]
             for order in orders
         ]
         btns.append([self.inl_b('new_order', action=f'new_order {symbol_id}')])
+        btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol_id}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def symbol_market_buy(self, symbol, brokers):
         btns = [
-            [self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_buy {symbol["id"]} {broker["id"]}')]
+            self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_buy {symbol["id"]} {broker["id"]}')
             for broker in brokers
         ]
+        btns = get_chunks(btns, 2)
+        btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol["id"]}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def symbol_broker_market_buy(self, symbol, orders):
@@ -94,8 +103,10 @@ class Keyboard:
 
     async def new_order_create(self, symbol_id):
         btns = [
-            [self.inl_b(f'new_order_{order_type}', action=f'new_order {symbol_id} {order_type}')]
-            for order_type in ['buy', 'sell']
+            [
+                self.inl_b(f'new_order_{order_type}', action=f'new_order_brokers {symbol_id} {order_type}')
+                for order_type in ['buy', 'sell']
+            ]
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
@@ -109,6 +120,10 @@ class Keyboard:
             )
             brokers_list.append(btn)
         btns = get_chunks(brokers_list, 2)
+        controls = [self.inl_b('cancel', action='cancel')]
+        if chosen_brokers:
+            controls.append(self.inl_b('done', action='done'))
+        btns.append(controls)
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def get_link(self):

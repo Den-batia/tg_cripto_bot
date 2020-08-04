@@ -10,6 +10,6 @@ def update():
         rate = symbol.rates.first()
         orders = []
         for order in symbol.orders.filter(coefficient__isnull=False).all():
-            order.rate = order.coefficient * rate
+            order.rate = order.coefficient * rate.rate
             orders.append(order)
         Order.objects.bulk_update(orders, ['rate'])

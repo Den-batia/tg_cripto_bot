@@ -58,7 +58,7 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details')
+        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details')
 
 
 class AggregatedOrderSerializer(ModelSerializer):

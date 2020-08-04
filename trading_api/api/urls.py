@@ -5,20 +5,21 @@ from .api import (
     NewUserView, UserViewSet, TextViewSet,
     UserAccountsViewSet, SymbolsViewSet,
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
-    NewWithdrawView
+    NewWithdrawView, UserOrdersViewSet, TgUserViewSet
 )
 
 router = routers.DefaultRouter()
 
-router.register('v1/tg-users', UserViewSet, 'tg-users')
+router.register('v1/tg-users', TgUserViewSet, 'tg-users')
+router.register('v1/users', UserViewSet, 'users')
 router.register('v1/texts', TextViewSet, 'texts')
 router.register('v1/symbols', SymbolsViewSet, 'symbol')
 router.register('v1/brokers', BrokersViewSet, 'brokers')
 router.register('v1/accounts', UserAccountsViewSet, 'accounts')
 router.register('v1/orders', OrderViewSet, 'orders')
+router.register('v1/users/(?P<user_id>[0-9a-f-]+)/orders', UserOrdersViewSet, 'user-orders')
 
 urlpatterns = router.urls
-
 
 urlpatterns += [
     path('v1/tg-users/new', NewUserView.as_view(), name='new-tg-user'),

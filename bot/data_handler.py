@@ -37,6 +37,11 @@ class DataHandler:
             await send_message(text, chat_id=notification['telegram_id'], reply_markup=k)
             notification = NotificationsQueue.get(False)
 
+    async def my_orders(self, telegram_id, symbol_id):
+        user = await api.get_user(telegram_id)
+        orders = await api.get_user_orders(user['id'], symbol_id)
+        return await rc.my_orders(orders, symbol_id)
+
     async def new_order(self, symbol_id):
         return await rc.new_order(symbol_id)
 
@@ -53,6 +58,17 @@ class DataHandler:
         brokers = await api.get_brokers()
         kb = await rc.get_new_order_brokers_kb(brokers, current_list)
         return list(current_list), kb
+
+    async def choose_limits(self):
+        return await rc.choose_limits()
+
+    async def choose_rate(self):
+        return await rc.choose_rate()
+
+    async def create_order(self, telegram_id, data):
+        user = await api.get_user(telegram_id)
+        await api.create_order({**data, **{'user_id': user['id']}})
+        return await rc.done()
 
     async def about(self):
         return await rc.about()
@@ -137,8 +153,8 @@ class DataHandler:
         await api.create_withdraw(user['id'], symbol_id, amount, address)
         return await rc.transaction_queued(), True
 
-    async def cancel_withdraw(self):
-        return await rc.cancel_withdraw()
+    async def cancel(self):
+        return await rc.cancel()
 
     async def market(self):
         symbols = await api.get_symbols()

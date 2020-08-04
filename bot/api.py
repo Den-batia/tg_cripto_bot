@@ -57,6 +57,10 @@ class API:
         res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}')
         return res
 
+    async def get_user_orders(self, user_id, symbol_id):
+        res = await self._call_api(f'/v1/users/{user_id}/orders?symbol={symbol_id}')
+        return res
+
     async def create_account(self, user_id, symbol_id):
         res = await self._call_api(f'/v1/accounts/generate', method='post',
                                    _json={'user_id': user_id, 'symbol': symbol_id})
@@ -74,6 +78,10 @@ class API:
             f'/v1/withdraws/new', method='post',
             _json={'user_id': user_id, 'symbol': symbol_id, 'amount': str(amount), 'address': address}
         )
+        return res
+
+    async def create_order(self, data):
+        res = await self._call_api(f'/v1/orders/new', method='post', _json=data)
         return res
 
     async def get_user(self, user_tg_id):

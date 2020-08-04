@@ -10,7 +10,7 @@ def add_symbol_brokers(*args, **kwargs):
     brokers = [
         'Сбербанк', 'Тинькофф', 'ВТБ', 'Альфа-Банк', 'Приват-Банк',
         'Каспий-Банк', 'Газпромбанк', 'Банк Открытие',
-        'QIWI', 'Яндекс' 'ADV cash', 'Payeer', 'Банковский перевод'
+        'QIWI', 'Яндекс', 'ADV cash', 'Payeer', 'Банковский перевод'
     ]
     objects = [Broker(name=name) for name in brokers]
     Broker.objects.bulk_create(objects)

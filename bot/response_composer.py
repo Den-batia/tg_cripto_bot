@@ -49,11 +49,6 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def cancel(self):
-        text = await self._get(var_name="cancel_message")
-        k = await kb.main_menu()
-        return text, k
-
     async def get_main_k(self):
         return await kb.main_menu()
 
@@ -128,7 +123,7 @@ class ResponseComposer:
         k = None
         return text, k
 
-    async def cancel_withdraw(self):
+    async def cancel(self):
         text = await self._get(var_name='cancel')
         k = await kb.main_menu()
         return text, k
@@ -163,19 +158,34 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
+    async def my_orders(self, orders, symbol_id):
+        text = await self._get(var_name='my_orders')
+        k = await kb.my_orders(orders, symbol_id)
+        return text, k
+
     async def new_order(self, symbol_id):
         text = await self._get(var_name='new_order')
         k = await kb.new_order_create(symbol_id)
         return text, k
 
-    async def new_order_brokers(self):
-        text = await self._get(var_name='new_order_brokers', symbol=symbol.upper(), amount=amount)
-        k = None
+    async def new_order_brokers(self, brokers):
+        text = await self._get(var_name='new_order_brokers')
+        k = await kb.get_new_brokers(brokers, [])
         return text, k
 
     async def get_new_order_brokers_kb(self, brokers, chosen_brokers):
-        k = kb.get_new_brokers(brokers, chosen_brokers)
+        k = await kb.get_new_brokers(brokers, chosen_brokers)
         return k
+
+    async def choose_limits(self):
+        text = await self._get(var_name='choose_limits')
+        k = await kb.get_cancel()
+        return text, k
+
+    async def choose_rate(self):
+        text = await self._get(var_name='choose_rate')
+        k = await kb.get_cancel()
+        return text, k
 
 
 rc = ResponseComposer()

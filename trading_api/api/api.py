@@ -15,10 +15,16 @@ from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserA
 from crypto.manager import crypto_manager
 
 
-class UserViewSet(ReadOnlyModelViewSet):
+class TgUserViewSet(ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = 'telegram_id'
+
+
+class UserViewSet(ReadOnlyModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    lookup_field = 'nickname'
 
 
 class NewUserView(APIView):
@@ -87,18 +93,20 @@ class NewOrderView(APIView):
         limit_from = request.data['limit_from']
         limit_to = request.data['limit_to']
         order_type = request.data['type']
-        coefficient = request.data['coefficient']
-        if coefficient:
-            rate = Rates.objects.filter(symbol=symbol).rate * coefficient
+        if coefficient := request.data.get('coefficient'):
+            rate = Rates.objects.filter(symbol=symbol).get().rate * Decimal(coefficient)
         else:
             rate = request.data['rate']
         user = get_object_or_404(User, id=request.data['user_id'])
+        orders = []
         for broker in brokers:
-            Order.objects.create(
+            new_order = Order(
                 broker=broker, symbol=symbol, limit_from=limit_from,
                 limit_to=limit_to, type=order_type, user=user,
                 rate=rate, coefficient=coefficient
             )
+            orders.append(new_order)
+        Order.objects.bulk_create(orders)
         return Response(status=HTTP_204_NO_CONTENT)
 
 
