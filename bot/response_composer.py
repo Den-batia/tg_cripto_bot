@@ -82,9 +82,10 @@ class ResponseComposer:
         k = await kb.create_account(symbol_id)
         return text, k
 
-    async def account(self, account):
+    async def account(self, account, user):
         text = await self._get(var_name='account', balance=float(account['balance']),
-                               symbol=account['symbol']['name'].upper(), frozen=account['frozen'])
+                               symbol=account['symbol']['name'].upper(), frozen=account['frozen'],
+                               nickname=user['nickname'])
         k = await kb.account(account)
         return text, k
 

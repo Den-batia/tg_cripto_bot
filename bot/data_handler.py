@@ -97,7 +97,7 @@ class DataHandler:
         if account is None:
             return await rc.account_not_exists(symbol_id)
         else:
-            return await rc.account(account)
+            return await rc.account(account, user)
 
     async def create_account(self, telegram_id, symbol_id):
         user = await api.get_user(telegram_id)
