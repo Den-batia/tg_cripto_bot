@@ -182,7 +182,7 @@ class ResponseComposer:
         return text, k
 
     async def user(self, user, is_admin):
-        text = await self._get(var_name='user', is_verify=verify_sm[user.pop('is_verify')], **user)
+        text = await self._get(var_name='user', verify=verify_sm[user['is_verify']], **user)
         if is_admin:
             k = await kb.user_admin_actions(user)
         else:

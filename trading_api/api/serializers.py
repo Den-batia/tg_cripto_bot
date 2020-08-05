@@ -23,7 +23,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'telegram_id', 'ref_code', 'invited_count', 'is_admin', 'nickname')
+        fields = ('id', 'telegram_id', 'ref_code', 'invited_count', 'is_admin', 'nickname', 'is_verify')
 
     def get_invited_count(self, instance: User):
         return User.objects.filter(referred_from=instance).count()

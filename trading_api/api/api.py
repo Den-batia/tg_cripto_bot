@@ -21,7 +21,7 @@ class TgUserViewSet(ReadOnlyModelViewSet):
     lookup_field = 'telegram_id'
 
 
-class UserViewSet(ReadOnlyModelViewSet):
+class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = 'nickname'

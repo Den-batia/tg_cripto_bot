@@ -11,6 +11,7 @@ from .translations.translations import sm
 from .data_handler import dh, send_message
 from .helpers import rate_limit
 from .settings import dp, loop
+from .admin.admin import *
 
 
 @dp.message_handler(commands=['id'])

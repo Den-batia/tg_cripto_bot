@@ -97,8 +97,8 @@ class API:
         res = await self._call_api(f'/v1/texts/{name}')
         return res['text']
 
-    async def update_user(self, user_tg_id, data):
-        return await self._call_api(f'/v1/tg-users/{user_tg_id}/', method='patch', _json=data)
+    async def update_user(self, user, data):
+        return await self._call_api(f'/v1/users/{user}/', method='patch', _json=data)
 
     async def register_user(self, user_tg_id, ref_code):
         body = {'telegram_id': user_tg_id}

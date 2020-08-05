@@ -164,6 +164,15 @@ class DataHandler:
         target_user = await api.get_user_info(nickname)
         return await rc.user(target_user, is_admin=user['is_admin'])
 
+    async def is_user_admin(self, telegram_id):
+        user = await api.get_user(telegram_id)
+        return user['is_admin']
+
+    async def verify(self, telegram_id, target_user):
+        user = await api.get_user_info(target_user)
+        await api.update_user(user['nickname'], dict(is_verify=not user['is_verify']))
+        return await self.get_user_info(telegram_id, target_user)
+
     async def market(self):
         symbols = await api.get_symbols()
         return await rc.market_choose_symbol(symbols)
