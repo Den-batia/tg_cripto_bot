@@ -1,10 +1,12 @@
 import re
+from typing import Union
 
 from aiogram import types
 
 from bot.data_handler import dh, send_message
 from bot.settings import dp
 from bot.states import CHOOSE_RATE, CHOOSE_LIMITS, SELECT_BROKER
+from bot.translations.translations import sm
 from bot.utils.utils import is_string_a_number
 
 

@@ -99,6 +99,10 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def market_order(self, order_id):
+        btns = [[self.inl_b('begin_deal', action=f'')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def user_admin_actions(self, user):
         btns = [
             [
@@ -107,21 +111,21 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def symbol_market_buy(self, symbol, brokers):
+    async def symbol_market_action(self, symbol, brokers, action):
         btns = [
-            self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_buy {symbol["id"]} {broker["id"]}')
+            self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_{action} {symbol["id"]} {broker["id"]}')
             for broker in brokers
         ]
         btns = get_chunks(btns, 2)
         btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol["id"]}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def symbol_broker_market_buy(self, symbol, orders):
+    async def symbol_broker_market(self, symbol, orders, action):
         btns = [
-            [self.inl_b(f'{order["user"]}, {order["limit_from"]}-{order["limit_to"]}, {order["rate"]}', action=f'broker_buy {symbol["id"]} {order["id"]}')]
+            [self.inl_b(f'{order["user"]}, {order["limit_from"]}-{order["limit_to"]} RUB, {order["rate"]}', action=f'order {order["id"]}')]
             for order in orders
         ]
-        btns.append([self.inl_b(f'new_order')])
+        btns.append([self.inl_b('back', action=f'{action} {symbol["id"]}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def new_order_create(self, symbol_id):

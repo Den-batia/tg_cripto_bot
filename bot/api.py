@@ -103,6 +103,9 @@ class API:
     async def update_order(self, user_id, order_id, data):
         return await self._call_api(f'/v1/users/{user_id}/orders/{order_id}/', method='patch', _json=data)
 
+    async def delete_order(self, user_id, order_id):
+        return await self._call_api(f'/v1/users/{user_id}/orders/{order_id}/', method='delete')
+
     async def register_user(self, user_tg_id, ref_code):
         body = {'telegram_id': user_tg_id}
         if ref_code is not None:

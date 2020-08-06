@@ -10,6 +10,9 @@ from .utils.redis_queue import NotificationsQueue
 from .utils.utils import get_ref_code, get_ref_link, is_string_a_number
 
 
+sell_buy_reversed = {'sell': 'buy', 'buy': 'sell'}
+
+
 async def send_message(text, chat_id, reply_markup=None, silent=True):
     try:
         await bot.send_message(chat_id=chat_id, text=text, reply_markup=reply_markup)
@@ -81,9 +84,18 @@ class DataHandler:
 
     async def update_order(self, telegram_id, order_id, data):
         user = await api.get_user(telegram_id)
-        await api.update_order(user['id'], order_id, data)
+        text, k = await rc.done()
         if data.get('is_deleted'):
-            return await rc.done()
+            await api.delete_order(user['id'], order_id)
+            return text, k
+        await api.update_order(user['id'], order_id, data)
+        await send_message(chat_id=telegram_id, text=text, reply_markup=k)
+        return await self.get_order_info(telegram_id, order_id)
+
+    async def edit_order_activity(self, telegram_id, order_id):
+        order = await api.get_order_info(order_id)
+        user = await api.get_user(telegram_id)
+        await api.update_order(user_id=user['id'], order_id=order_id, data={'is_active': not order['is_active']})
         return await self.get_order_info(telegram_id, order_id)
 
     async def about(self):
@@ -171,8 +183,14 @@ class DataHandler:
 
     async def get_order_info(self, telegram_id, order_id):
         user = await api.get_user(telegram_id)
-        order = await api.get_order_info(order_id)
+        try:
+            order = await api.get_order_info(order_id)
+            if order['is_deleted']:
+                raise Exception
+        except:
+            return await rc.unknown_command()
         is_my = user['id'] == order['user']['id']
+        print(order)
         return await rc.order(order, is_my=is_my)
 
     async def get_user_info(self, telegram_id, nickname):
@@ -197,22 +215,17 @@ class DataHandler:
         symbol = await api.get_symbol(symbol_id)
         return await rc.symbol_market(symbol)
 
-    async def symbol_market_buy(self, symbol_id):
-        lots = await api.get_aggregated_orders(symbol_id, 'sell')
+    async def symbol_market_action(self, symbol_id, action):
+        lots = await api.get_aggregated_orders(symbol_id, sell_buy_reversed[action])
         symbol = await api.get_symbol(symbol_id)
-        return await rc.symbol_market_buy(symbol, lots)
+        return await rc.symbol_market_action(symbol, lots, action)
 
-    async def symbol_market_sell(self, symbol_id):
-        lots = await api.get_aggregated_orders(symbol_id, 'buy')
-        symbol = await api.get_symbol(symbol_id)
-        return await rc.symbol_market_sell(symbol, lots)
-
-    async def symbol_broker_market_sell(self, symbol_id, broker_id):
-        orders = await api.get_orders(symbol_id, broker_id, 'buy')
+    async def symbol_broker_market(self, symbol_id, broker_id, action):
+        orders = await api.get_orders(symbol_id, broker_id, sell_buy_reversed[action])
         symbol = await api.get_symbol(symbol_id)
         broker = await api.get_broker(broker_id)
         print(orders)
-        return await rc.symbol_broker_market_sell(symbol, broker, orders)
+        return await rc.symbol_broker_market(symbol, broker, orders, action)
 
 
 dh = DataHandler()

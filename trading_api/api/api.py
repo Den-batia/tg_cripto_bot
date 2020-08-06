@@ -71,7 +71,9 @@ class OrderViewSet(ReadOnlyModelViewSet):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
-        return Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False)
+        print(symbol.name, broker.name, order_type)
+        print(Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True))
+        return Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True)
 
 
 class UserOrdersViewSet(ModelViewSet):
@@ -79,11 +81,16 @@ class UserOrdersViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = get_object_or_404(User, id=self.kwargs['user_id'])
-        return user.orders.order_by('created_at')
+        return user.orders.filter(is_deleted=False).order_by('created_at')
 
     def perform_destroy(self, instance: Order):
         instance.is_deleted = True
         instance.save()
+
+    def perform_update(self, serializer: OrderSerializer):
+        if coeff := serializer.validated_data.get('coefficient'):
+            serializer.validated_data['rate'] = Rates.objects.filter(symbol=serializer.instance.symbol).get().rate * Decimal(coeff)
+        serializer.save()
 
 
 class OrderInfoViewSet(RetrieveModelMixin, GenericViewSet):

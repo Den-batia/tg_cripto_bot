@@ -75,6 +75,7 @@ class Order(models.Model):
     details = models.CharField(max_length=512, default='')
     type = models.CharField(max_length=4)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
 
 

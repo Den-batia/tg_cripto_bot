@@ -99,19 +99,14 @@ class ResponseComposer:
         k = await kb.symbol_market(symbol)
         return text, k
 
-    async def symbol_market_buy(self, symbol, orders):
-        text = await self._get(var_name='buy', symbol=symbol['name'].upper())
-        k = await kb.symbol_market_buy(symbol, orders)
+    async def symbol_market_action(self, symbol, orders, action):
+        text = await self._get(var_name=action, symbol=symbol['name'].upper())
+        k = await kb.symbol_market_action(symbol, orders, action)
         return text, k
 
-    async def symbol_market_sell(self, symbol, orders):
-        text = await self._get(var_name='sell', symbol=symbol['name'].upper())
-        k = await kb.symbol_market_buy(symbol, orders)
-        return text, k
-
-    async def symbol_broker_market_sell(self, symbol, broker, orders):
-        text = await self._get(var_name='sell', symbol=symbol['name'].upper())
-        k = await kb.symbol_broker_market_buy(symbol, orders)
+    async def symbol_broker_market(self, symbol, broker, orders, action):
+        text = await self._get(var_name=f'broker_{action}', symbol=symbol['name'].upper(), broker=broker['name'])
+        k = await kb.symbol_broker_market(symbol, orders, action=action)
         return text, k
 
     async def get_update_deposit(self, amount, symbol, **kwargs):
@@ -165,16 +160,19 @@ class ResponseComposer:
         return text, k
 
     async def order(self, order, is_my):
-        text = await self._get(var_name=order['type'], symbol=order['symbol']['name'].upper())
+        text = await self._get(var_name=order['type'], symbol=order['symbol']['name'].upper(), id=order['id'])
         text += '\n\n'
         user = order.pop('user')
         text += await self._get(
             var_name='user',
-            is_verify=verify_sm[user.pop('is_verify')],
+            verify=verify_sm[user.pop('is_verify')],
             **user
         )
         text += '\n\n'
-        text += await self._get(var_name='order', **order)
+        text += await self._get(var_name='order', active=verify_sm[order['is_active']], **order)
+        if order['details']:
+            text += '\n'
+            text += await self._get(var_name='order_details', details=order['details'])
         if is_my:
             k = await kb.my_order(order)
         else:

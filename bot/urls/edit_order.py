@@ -25,7 +25,7 @@ async def edit_order(message: types.CallbackQuery, state: FSMContext):
     await state.set_state(states[edit_type])
     await state.set_data({'order_id': order})
     text, k = await dh.edit_order_request(edit_type)
-    await message.message.edit_text(text=text, reply_markup=k)
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
 
 
 @dp.message_handler(lambda msg: re.match(r'^-?[0-9]{1,2}%$', msg.text), state=EDIT_ORDER_RATE)
@@ -40,7 +40,7 @@ async def edit_rate_percents(message: types.Message, state):
 @dp.message_handler(lambda msg: is_string_a_number(msg.text), state=EDIT_ORDER_RATE)
 async def edit_rate_fixed(message: types.Message, state):
     data = await state.get_data()
-    text, k = await dh.update_order(message.from_user.id, data['order_id'], {'rate': message.text})
+    text, k = await dh.update_order(message.from_user.id, data['order_id'], {'rate': message.text, 'coefficient': None})
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state(with_data=True)
 
@@ -75,3 +75,11 @@ async def delete_order(message: types.Message, state):
     text, k = await dh.cancel()
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
     await state.reset_state(with_data=True)
+
+
+@dp.callback_query_handler(lambda msg: re.match(r'^order_edit_activity [0-9a-z]+$', msg.data))
+async def edit_order_activity(message: types.CallbackQuery):
+    await message.answer()
+    order_id = message.data.split()[1]
+    text, k = await dh.edit_order_activity(message.from_user.id, order_id)
+    await message.message.edit_text(text, reply_markup=k)

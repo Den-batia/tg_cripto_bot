@@ -58,26 +58,24 @@ async def account(message: types.CallbackQuery):
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
-@dp.callback_query_handler(lambda msg: msg.data.startswith('buy'))
-async def buy(message: types.CallbackQuery):
+@dp.callback_query_handler(lambda msg: re.match(r'(buy|sell) [0-9]+', msg.data))
+async def symbol_market_action(message: types.CallbackQuery):
     await message.answer()
-    text, k = await dh.symbol_market_buy(int(message.data.split()[1]))
-    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+    action, symbol_id = message.data.split()
+    text, k = await dh.symbol_market_action(int(symbol_id), action)
+    await message.message.edit_text(text=text, reply_markup=k)
 
 
-@dp.callback_query_handler(lambda msg: msg.data.startswith('sell'))
-async def sell(message: types.CallbackQuery):
-    await message.answer()
-    text, k = await dh.symbol_market_sell(int(message.data.split()[1]))
-    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
-
-
-@dp.callback_query_handler(lambda msg: msg.data.startswith('broker_buy'))
-async def broker_buy(message: types.CallbackQuery):
+@dp.callback_query_handler(lambda msg: re.match(r'^broker_(buy|sell) [0-9]+ [0-9]+$', msg.data))
+async def symbol_broker_market(message: types.CallbackQuery):
     await message.answer()
     splited = message.data.split()
-    text, k = await dh.symbol_broker_market_sell(int(splited[1]), int(splited[2]))
-    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+    text, k = await dh.symbol_broker_market(
+        action=splited[0].split('_')[1],
+        symbol_id=int(splited[1]),
+        broker_id=int(splited[2])
+    )
+    await message.message.edit_text(text=text, reply_markup=k)
 
 
 @dp.callback_query_handler(lambda msg: re.match(r'^my_orders [0-9]+$', msg.data))
@@ -112,6 +110,13 @@ async def get_order(message: types.CallbackQuery):
     order_id = message.data.split()[1]
     text, k = await dh.get_order_info(message.message.chat.id, order_id)
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(lambda msg: re.match(r'^/o[0-9a-z]+$', msg.text))
+async def get_order_text(message: types.Message):
+    order_id = message.text[2:]
+    text, k = await dh.get_order_info(message.chat.id, order_id)
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
 @dp.message_handler(lambda msg: re.match(r'^/tr[0-9a-z]+$', msg.text))

@@ -58,7 +58,7 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details')
+        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details', 'is_active', 'coefficient')
 
 
 class UserInfoSerializer(ModelSerializer):
@@ -84,7 +84,7 @@ class OrderDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details', 'symbol')
+        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details', 'symbol', 'is_active', 'is_deleted')
 
 
 class AggregatedOrderSerializer(ModelSerializer):
@@ -95,7 +95,7 @@ class AggregatedOrderSerializer(ModelSerializer):
         fields = ('id', 'name', 'orders_cnt')
 
     def get_orders_cnt(self, instance: Broker):
-        return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol'], is_deleted=False).count()
+        return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol'], is_deleted=False, is_active=True).count()
 
 
 class TextSerializer(ModelSerializer):
