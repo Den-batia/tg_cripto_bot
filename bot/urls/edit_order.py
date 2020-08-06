@@ -6,6 +6,7 @@ from aiogram.dispatcher import FSMContext
 from bot.data_handler import dh, send_message
 from bot.settings import dp
 from bot.states import EDIT_ORDER_LIMITS, EDIT_ORDER_DETAILS, EDIT_ORDER_RATE, ORDER_DELETE
+from bot.translations.translations import get_trans_list
 from bot.utils.utils import is_string_a_number
 
 states = {
@@ -49,5 +50,28 @@ async def edit_limits(message: types.Message, state):
     limit_from, limit_to = map(lambda x: int(x.replace(' ', '')), message.text.split('-'))
     data = await state.get_data()
     text, k = await dh.update_order(message.from_user.id, data['order_id'], {'limit_from': limit_from, 'limit_to': limit_to})
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await state.reset_state(with_data=True)
+
+
+@dp.message_handler(lambda msg: 0 < len(msg.text) < 1024 , state=EDIT_ORDER_DETAILS)
+async def edit_details(message: types.Message, state):
+    data = await state.get_data()
+    text, k = await dh.update_order(message.from_user.id, data['order_id'], {'details': message.text})
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await state.reset_state(with_data=True)
+
+
+@dp.message_handler(lambda msg: msg.text in get_trans_list('yes'), state=ORDER_DELETE)
+async def delete_order(message: types.Message, state):
+    data = await state.get_data()
+    text, k = await dh.update_order(message.from_user.id, data['order_id'], {'is_deleted': True})
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await state.reset_state(with_data=True)
+
+
+@dp.message_handler(lambda msg: msg.text in get_trans_list('no'), state=ORDER_DELETE)
+async def delete_order(message: types.Message, state):
+    text, k = await dh.cancel()
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
     await state.reset_state(with_data=True)

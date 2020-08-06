@@ -82,6 +82,8 @@ class DataHandler:
     async def update_order(self, telegram_id, order_id, data):
         user = await api.get_user(telegram_id)
         await api.update_order(user['id'], order_id, data)
+        if data.get('is_deleted'):
+            return await rc.done()
         return await self.get_order_info(telegram_id, order_id)
 
     async def about(self):
