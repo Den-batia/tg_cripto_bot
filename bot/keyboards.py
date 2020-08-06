@@ -93,8 +93,8 @@ class Keyboard:
             ],
             [
                 self.inl_b('back', action=f'my_orders {order["symbol"]["id"]}'),
-                self.inl_b('delete', action=f'delete_order {order["id"]}'),
-                self.inl_b('deactivate', action=f'order_edit_activity {order["id"]}')
+                self.inl_b('delete', action=f'order_edit_delete {order["id"]}'),
+                self.inl_b('deactivate' if order['is_active'] else 'activate', action=f'order_edit_activity {order["id"]}')
             ]
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)

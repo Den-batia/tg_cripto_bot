@@ -70,6 +70,20 @@ class DataHandler:
         await api.create_order({**data, **{'user_id': user['id']}})
         return await rc.done()
 
+    async def edit_order_request(self, edit_type):
+        methods = {
+            'limits': rc.choose_limits,
+            'rate': rc.choose_rate,
+            'details': rc.choose_details,
+            'delete': rc.delete_order_confirmation
+        }
+        return await methods[edit_type]()
+
+    async def update_order(self, telegram_id, order_id, data):
+        user = await api.get_user(telegram_id)
+        await api.update_order(user['id'], order_id, data)
+        return await self.get_order_info(telegram_id, order_id)
+
     async def about(self):
         return await rc.about()
 

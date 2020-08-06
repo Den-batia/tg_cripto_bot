@@ -11,6 +11,8 @@
     "new_order_brokers": "Выберите брокера",
     "choose_limits": "Выберите лимиты, например, 1-1000",
     "choose_rate": "Выберите курс, например, 10000 или 3%",
+    "choose_details": "Напишите описание",
+    "delete_order_confirmation": "Вы действительно хотите удалить заявку?",
     "my_orders": "Мои заявки",
     "order": "<b>Брокер:</b> %{broker}\n<b>Курс:</b> %{rate} RUB\n<b>Лимиты:</b> %{limit_from}-%{limit_to}",
     "user": "<b>Пользователь:</b> /tr%{nickname}\n<b>Дата регистрации:</b> %{created_at}\n<b>Верификация:</b> %{verify}\n<b>Сделок:</b> %{deals}\n<b>Заявок:</b> %{orders}",

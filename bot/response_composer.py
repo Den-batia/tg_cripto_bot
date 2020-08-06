@@ -213,5 +213,15 @@ class ResponseComposer:
         k = await kb.get_cancel()
         return text, k
 
+    async def choose_details(self):
+        text = await self._get(var_name='choose_details')
+        k = await kb.get_cancel()
+        return text, k
+
+    async def delete_order_confirmation(self):
+        text = await self._get(var_name='delete_order_confirmation')
+        k = await kb.are_you_sure()
+        return text, k
+
 
 rc = ResponseComposer()
