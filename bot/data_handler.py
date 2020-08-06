@@ -133,7 +133,7 @@ class DataHandler:
         if account is None:
             await api.create_account(user['id'], symbol_id)
             account = await self._get_account(user['id'], symbol_id)
-        return await rc.account(account)
+        return await rc.account(account, user)
 
     async def referral(self, telegram_id):
         user = await api.get_user(telegram_id)
