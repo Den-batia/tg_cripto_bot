@@ -16,6 +16,10 @@ def random_order_id():
     return random_string(10)
 
 
+def random_deal_id():
+    return random_string(15)
+
+
 def random_nickname():
     return random_string(10)
 
@@ -77,6 +81,31 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
+
+
+class Requisite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requisites')
+    broker = models.ForeignKey(Broker, on_delete=models.CASCADE, related_name='requisites')
+    requisite = models.CharField(max_length=128)
+
+    class Meta:
+        unique_together = ('user', 'broker')
+
+
+class Deal(models.Model):
+    id = models.CharField(primary_key=True, default=random_deal_id, max_length=15)
+    symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='deals')
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='deals')
+    requisite = models.CharField(max_length=128, blank=True, default='')
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    state = models.SmallIntegerField(default=0)
+    amount_crypto = models.DecimalField(max_digits=15, decimal_places=8)
+    amount_currency = models.DecimalField(max_digits=15, decimal_places=2)
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_deals')
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_deals')
+    commission = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(blank=True, null=True, default=None)
 
 
 class Deposit(models.Model):
