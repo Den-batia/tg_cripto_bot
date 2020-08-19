@@ -5,7 +5,7 @@ from .api import (
     NewUserView, UserViewSet, TextViewSet,
     UserAccountsViewSet, SymbolsViewSet,
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
-    NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet
+    NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokersViewSet
 )
 
 router = routers.DefaultRouter()
@@ -18,6 +18,7 @@ router.register('v1/brokers', BrokersViewSet, 'brokers')
 router.register('v1/accounts', UserAccountsViewSet, 'accounts')
 router.register('v1/orders', OrderViewSet, 'orders')
 router.register('v1/users/(?P<user_id>[0-9a-f-]+)/orders', UserOrdersViewSet, 'user-orders')
+router.register('v1/users/(?P<user_id>[0-9a-f-]+)/brokers', UserBrokersViewSet, 'user-brokers')
 router.register('v1/user-info', UserInfoViewSet, 'user-info')
 router.register('v1/order-info', OrderInfoViewSet, 'order-info')
 

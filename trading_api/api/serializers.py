@@ -2,7 +2,7 @@ from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from .models import User, Text, Symbol, Account, Order, Broker
+from .models import User, Text, Symbol, Account, Order, Broker, Requisite
 from crypto.manager import crypto_manager
 
 
@@ -96,6 +96,14 @@ class AggregatedOrderSerializer(ModelSerializer):
 
     def get_orders_cnt(self, instance: Broker):
         return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol'], is_deleted=False, is_active=True).count()
+
+
+class RequisiteSerializer(ModelSerializer):
+    broker = BrokerSerializer(read_only=True)
+
+    class Meta:
+        model = Requisite
+        fields = ('broker', 'requisite')
 
 
 class TextSerializer(ModelSerializer):

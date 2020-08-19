@@ -39,7 +39,5 @@ class MessageMiddleware(BaseMiddleware):
             await self.message_throttled(message, t)
             raise CancelHandler()
 
-        loop.create_task(save_message(message, bot=False))
-
     async def message_throttled(self, message: types.Message, throttled: Throttled):
         pass

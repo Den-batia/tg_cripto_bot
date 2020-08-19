@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db.transaction import atomic
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
@@ -9,9 +9,10 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 
-from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw
+from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
-    AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer
+    AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer, \
+    RequisiteSerializer
 from crypto.manager import crypto_manager
 
 
@@ -71,8 +72,6 @@ class OrderViewSet(ReadOnlyModelViewSet):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
-        print(symbol.name, broker.name, order_type)
-        print(Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True))
         return Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True)
 
 
@@ -91,6 +90,24 @@ class UserOrdersViewSet(ModelViewSet):
         if coeff := serializer.validated_data.get('coefficient'):
             serializer.validated_data['rate'] = Rates.objects.filter(symbol=serializer.instance.symbol).get().rate * Decimal(coeff)
         serializer.save()
+
+
+class UserBrokerView(APIView):
+    def get(self, request, *args, **kwargs):
+        user = get_object_or_404(User, id=kwargs['user_id'])
+        broker = get_object_or_404(Broker, id=kwargs['broker'])
+        target = Requisite.objects.filter(user=user, broker=broker).first()
+        if target:
+            return Response(data=RequisiteSerializer(target).data)
+        else:
+            raise NotFound
+
+    def patch(self, request, *args, **kwargs):
+        user = get_object_or_404(User, id=kwargs['user_id'])
+        broker = get_object_or_404(Broker, id=kwargs['broker'])
+        requisite = request.data['requisite']
+        target, created = Requisite.objects.update_or_create(user=user, broker=broker, defaults={'requisite': requisite})
+        return Response(data=RequisiteSerializer(target).data)
 
 
 class OrderInfoViewSet(RetrieveModelMixin, GenericViewSet):
@@ -190,6 +207,17 @@ class NewWithdrawView(APIView, ValidateAddressMixin, BalanceManagementMixin):
             Withdraw.objects.create(user=user, amount=amount, address=address,
                                     symbol=symbol, commission_service=symbol.commission)
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class NewDealView(APIView, BalanceManagementMixin):
+    def post(self, request, *args, **kwargs):
+        amount_crypto = request.data['amount_crypto']
+        amount_currency = request.data['amount_currency']
+        order = get_object_or_404(Order.objects.filter(is_active=True, is_deleted=False), id=request.data['order_id'])
+        symbol = get_object_or_404(Symbol, id=request.data['symbol_id'])
+        rate = request.data['rate']
+        initiator = get_object_or_404(User, )
+
 
 
 class TextViewSet(ReadOnlyModelViewSet):
