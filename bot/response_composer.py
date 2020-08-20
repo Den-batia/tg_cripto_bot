@@ -221,5 +221,20 @@ class ResponseComposer:
         k = await kb.are_you_sure()
         return text, k
 
+    async def requisites(self, brokers):
+        text = await self._get(var_name='requisites_settings')
+        k = await kb.requisites(brokers)
+        return text, k
+
+    async def broker_requisite(self, requisite, broker):
+        text = await self._get(var_name='requisite_settings', requisite=requisite, broker_name=broker['name'])
+        k = await kb.broker_requisite(broker)
+        return text, k
+
+    async def edit_broker_requisite(self, broker):
+        text = await self._get(var_name='edit_broker_requisite', broker_name=broker['name'])
+        k = await kb.get_cancel()
+        return text, k
+
 
 rc = ResponseComposer()

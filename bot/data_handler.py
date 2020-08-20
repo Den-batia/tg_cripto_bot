@@ -224,8 +224,24 @@ class DataHandler:
         orders = await api.get_orders(symbol_id, broker_id, sell_buy_reversed[action])
         symbol = await api.get_symbol(symbol_id)
         broker = await api.get_broker(broker_id)
-        print(orders)
         return await rc.symbol_broker_market(symbol, broker, orders, action)
+
+    async def requisites(self):
+        brokers = await api.get_brokers()
+        return await rc.requisites(brokers)
+
+    async def requisites_broker(self, telegram_id, broker_id):
+        user = await api.get_user(telegram_id)
+        broker = await api.get_broker(broker_id)
+        try:
+            requisite = await api.get_user_requisite(user['id'], broker_id=broker_id)
+        except:
+            requisite = ''
+        return await rc.broker_requisite(requisite, broker)
+
+    async def edit_requisite(self, broker_id):
+        broker = await api.get_broker(broker_id)
+        return await rc.edit_broker_requisite(broker)
 
 
 dh = DataHandler()

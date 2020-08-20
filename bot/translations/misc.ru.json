@@ -34,6 +34,9 @@
     "address_validation_failed": "Вы ввели некорректный адрес",
     "enter_amount_withdraw": "Введите сумму для вывода средств!\n\nБаланс: <b>%{balance} %{symbol}</b>\nМинимальный вывод: <b>%{min_withdraw} %{symbol}</b>",
     "wrong_amount": "Неверная сумма",
-    "transaction_queued": "Транзакция успешно поставлена в очередь на вывод!"
+    "transaction_queued": "Транзакция успешно поставлена в очередь на вывод!",
+    "requisites_settings": "Выберите брокера",
+    "requisite_settings": "Текущие реквизиты по %{broker_name}",
+    "edit_broker_requisite": "Выберите новые реквизиты для %{broker_name}"
   }
 }

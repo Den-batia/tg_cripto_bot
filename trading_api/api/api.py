@@ -95,7 +95,7 @@ class UserOrdersViewSet(ModelViewSet):
 class UserBrokerView(APIView):
     def get(self, request, *args, **kwargs):
         user = get_object_or_404(User, id=kwargs['user_id'])
-        broker = get_object_or_404(Broker, id=kwargs['broker'])
+        broker = get_object_or_404(Broker, id=kwargs['broker_id'])
         target = Requisite.objects.filter(user=user, broker=broker).first()
         if target:
             return Response(data=RequisiteSerializer(target).data)
@@ -104,7 +104,7 @@ class UserBrokerView(APIView):
 
     def patch(self, request, *args, **kwargs):
         user = get_object_or_404(User, id=kwargs['user_id'])
-        broker = get_object_or_404(Broker, id=kwargs['broker'])
+        broker = get_object_or_404(Broker, id=kwargs['broker_id'])
         requisite = request.data['requisite']
         target, created = Requisite.objects.update_or_create(user=user, broker=broker, defaults={'requisite': requisite})
         return Response(data=RequisiteSerializer(target).data)

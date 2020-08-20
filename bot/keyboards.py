@@ -39,7 +39,7 @@ class Keyboard:
     async def main_menu(self):
         kb = self.get_kb([
             [self.label('accounts'), self.label('trading')],
-            [self.label('about')],
+            [self.label('about'), self.label('requisites')],
         ])
         return kb
 
@@ -159,6 +159,17 @@ class Keyboard:
 
     async def ref(self):
         btns = [[self.inl_b('ref', action='ref')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def requisites(self, brokers):
+        btns = []
+        for broker in brokers:
+            btns.append(self.inl_b(broker['name'], action=f'requisite_broker {broker["id"]}'))
+        btns = get_chunks(btns, 2)
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def broker_requisite(self, broker):
+        btns = [[self.inl_b('edit_requisite', action=f'edit_requisite {broker["id"]}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def get_cancel(self):
