@@ -100,7 +100,7 @@ class Keyboard:
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def market_order(self, order_id):
-        btns = [[self.inl_b('begin_deal', action=f'')]]
+        btns = [[self.inl_b('begin_deal', action=f'begin_deal {order_id}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def user_admin_actions(self, user):

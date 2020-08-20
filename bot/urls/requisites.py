@@ -22,17 +22,25 @@ async def requisites_broker(message: types.CallbackQuery):
 
 
 @dp.callback_query_handler(lambda msg: re.match(r'edit_requisite [0-9]+', msg.data))
-async def requisites_broker(message: types.CallbackQuery, state):
+async def edit_requisite(message: types.CallbackQuery, state):
+    await message.answer()
     broker_id = int(message.data.split()[1])
     text, k = await dh.edit_requisite(broker_id)
-    await message.message.edit_text(text=text, reply_markup=k)
+    await send_message(text=text, reply_markup=k, chat_id=message.from_user.id)
     await state.set_state(EDIT_REQUISITE)
     await state.set_data({'broker_id': broker_id})
+
+
+@dp.message_handler(lambda msg: msg.text.startswith(sm('cancel')), state=EDIT_REQUISITE)
+async def cancel_enter_requisites(message: types.Message, state):
+    await state.reset_state(with_data=True)
+    text, k = await dh.cancel()
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
 
 
 @dp.message_handler(state=EDIT_REQUISITE)
 async def requisites_broker(message: types.Message, state):
     data = await state.get_data()
-    text, k = await dh.edit_requisite_confirm(message.from_user.id, data['broker_id'])
-    await message.edit_text(text=text, reply_markup=k)
+    text, k = await dh.update_requisite(message.from_user.id, data['broker_id'], message.text)
+    await send_message(text=text, reply_markup=k, chat_id=message.from_user.id)
     await state.reset_state(with_data=True)

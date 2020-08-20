@@ -236,5 +236,18 @@ class ResponseComposer:
         k = await kb.get_cancel()
         return text, k
 
+    async def enter_amount_begin_deal(self, min_amount, max_amount):
+        text = await self._get(var_name='enter_amount_begin_deal', min=min_amount, max=max_amount)
+        k = await kb.get_cancel()
+        return text, k
+
+    async def begin_deal_confirmation(self, order, amount, requisite):
+        text = await self._get(var_name='begin_deal_confirmation', amount=amount, **order)
+        if requisite is not None:
+            text += '\n\n'
+            text += await self._get(var_name='deal_requisite', requisite=requisite)
+        k = await kb.are_you_sure()
+        return text, k
+
 
 rc = ResponseComposer()

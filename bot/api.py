@@ -65,6 +65,10 @@ class API:
         res = await self._call_api(f'/v1/users/{user_id}/brokers/{broker_id}')
         return res
 
+    async def patch_user_requisite(self, user_id, broker_id, requisite):
+        res = await self._call_api(f'/v1/users/{user_id}/brokers/{broker_id}/', method='patch', _json={'requisite': requisite})
+        return res
+
     async def create_account(self, user_id, symbol_id):
         res = await self._call_api(f'/v1/accounts/generate', method='post',
                                    _json={'user_id': user_id, 'symbol': symbol_id})

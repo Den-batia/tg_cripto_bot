@@ -6,6 +6,7 @@ from bot.states import WITHDRAW_CHOOSE_ADDRESS, WITHDRAW_CHOOSE_AMOUNT
 from .urls.admin import *
 from .urls.create_order import *
 from .urls.requisites import *
+from .urls.begin_deal import *
 from .urls.edit_order import *
 from .helpers import rate_limit
 from .settings import loop

@@ -1,3 +1,4 @@
+import math
 from decimal import Decimal
 
 from aiogram.types import Message
@@ -9,8 +10,9 @@ from .utils.logger import logger
 from .utils.redis_queue import NotificationsQueue
 from .utils.utils import get_ref_code, get_ref_link, is_string_a_number
 
-
 sell_buy_reversed = {'sell': 'buy', 'buy': 'sell'}
+ORDER_SELL_TYPE = 'sell'
+ORDER_BUY_TYPE = 'buy'
 
 
 async def send_message(text, chat_id, reply_markup=None, silent=True):
@@ -22,6 +24,7 @@ async def send_message(text, chat_id, reply_markup=None, silent=True):
             raise
 
 
+# noinspection PyBroadException
 class DataHandler:
     async def start(self, msg: Message):
         try:
@@ -185,12 +188,9 @@ class DataHandler:
         user = await api.get_user(telegram_id)
         try:
             order = await api.get_order_info(order_id)
-            if order['is_deleted']:
-                raise Exception
         except:
             return await rc.unknown_command()
         is_my = user['id'] == order['user']['id']
-        print(order)
         return await rc.order(order, is_my=is_my)
 
     async def get_user_info(self, telegram_id, nickname):
@@ -230,18 +230,65 @@ class DataHandler:
         brokers = await api.get_brokers()
         return await rc.requisites(brokers)
 
+    async def _get_requisite(self, user_id, broker_id):
+        try:
+            requisite = (await api.get_user_requisite(user_id, broker_id=broker_id))['requisite']
+        except:
+            requisite = ''
+        return requisite
+
     async def requisites_broker(self, telegram_id, broker_id):
         user = await api.get_user(telegram_id)
         broker = await api.get_broker(broker_id)
-        try:
-            requisite = await api.get_user_requisite(user['id'], broker_id=broker_id)
-        except:
-            requisite = ''
+        requisite = await self._get_requisite(user['id'], broker['id'])
         return await rc.broker_requisite(requisite, broker)
 
     async def edit_requisite(self, broker_id):
         broker = await api.get_broker(broker_id)
         return await rc.edit_broker_requisite(broker)
+
+    async def update_requisite(self, telegram_id, broker_id, requisite):
+        user = await api.get_user(telegram_id)
+        broker = await api.get_broker(broker_id)
+        await api.patch_user_requisite(user['id'], broker['id'], requisite)
+        text, _ = await self.requisites_broker(telegram_id, broker_id)
+        k = await rc.get_main_k()
+        return text, k
+
+    def _validate_begin_deal(self, order, seller_account):
+        if Decimal(order['limit_from']) / Decimal(order['rate']) > Decimal(seller_account['balance']):
+            raise Exception
+
+    def _get_seller_id(self, user, order):
+        return order['user']['id'] if order['type'] == ORDER_SELL_TYPE else user['id']
+
+    async def begin_deal(self, telegram_id, order_id):
+        user = await api.get_user(telegram_id)
+        order = await api.get_order_info(order_id)
+        seller_id = self._get_seller_id(user, order)
+        account = await self._get_account(seller_id, order['symbol']['id'])
+        try:
+            self._validate_begin_deal(order, account)
+        except:
+            return await rc.unknown_error(), False
+        max_amount = min(order['limit_to'], math.ceil(Decimal(account['balance']) * Decimal(order['rate'])))
+        return await rc.enter_amount_begin_deal(order['limit_from'], max_amount), True
+
+    async def begin_deal_confirmation(self, telegram_id, order_id, amount):
+        user = await api.get_user(telegram_id)
+        order = await api.get_order_info(order_id)
+        seller_id = self._get_seller_id(user, order)
+        account = await self._get_account(seller_id, order['symbol']['id'])
+        max_amount = min(order['limit_to'], math.ceil(Decimal(account['balance']) * Decimal(order['rate'])))
+        if amount > max_amount or amount < order['limit_from']:
+            text, k = await rc.wrong_amount()
+            await send_message(chat_id=telegram_id, text=text, reply_markup=k)
+            return await rc.enter_amount_begin_deal(order['limit_from'], max_amount), False
+        if order['type'] == ORDER_BUY_TYPE:
+            requisite = await self._get_requisite(user['id'], order['broker']['id'])
+        else:
+            requisite = None
+        return await rc.begin_deal_confirmation(order, amount, requisite), True
 
 
 dh = DataHandler()

@@ -36,7 +36,11 @@
     "wrong_amount": "Неверная сумма",
     "transaction_queued": "Транзакция успешно поставлена в очередь на вывод!",
     "requisites_settings": "Выберите брокера",
-    "requisite_settings": "Текущие реквизиты по %{broker_name}",
-    "edit_broker_requisite": "Выберите новые реквизиты для %{broker_name}"
+    "requisite_settings": "Текущие реквизиты по %{broker_name}\n<b>%{requisite}</b>",
+    "edit_broker_requisite": "Выберите новые реквизиты для %{broker_name}",
+
+    "enter_amount_begin_deal": "Введите сумму для начала сделки от %{min} RUB до %{max} RUB",
+    "begin_deal_confirmation": "Пожалуйста подтвердите создание сделки\n\nВы <b>%{action} %{amount_crypto} %{symbol}</b> за <b>%{amount} RUB</b> через <b>%{broker}</b>",
+    "deal_requisite": "Реквизиты: <b>%{requisite}</b>"
   }
 }
