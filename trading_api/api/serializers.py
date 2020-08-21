@@ -2,7 +2,7 @@ from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from .models import User, Text, Symbol, Account, Order, Broker, Requisite
+from .models import User, Text, Symbol, Account, Order, Broker, Requisite, Deal
 from crypto.manager import crypto_manager
 
 
@@ -78,13 +78,31 @@ class UserInfoSerializer(ModelSerializer):
 
 
 class OrderDetailSerializer(ModelSerializer):
-    broker = SlugRelatedField('name', read_only=True)
+    broker = BrokerSerializer(read_only=True)
     user = UserInfoSerializer(read_only=True)
     symbol = SymbolSerializer(read_only=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details', 'symbol', 'is_active', 'is_deleted')
+        fields = (
+            'id', 'type', 'broker', 'rate', 'user', 'limit_from',
+            'limit_to', 'details', 'symbol', 'is_active', 'is_deleted'
+        )
+
+
+class DealDetailSerializer(ModelSerializer):
+    order = OrderDetailSerializer(read_only=True)
+    buyer = UserInfoSerializer(read_only=True)
+    seller = UserInfoSerializer(read_only=True)
+    symbol = SymbolSerializer(read_only=True)
+
+    class Meta:
+        model = Deal
+        fields = (
+            'id', 'requisite', 'order', 'buyer', 'seller', 'rate',
+            'status', 'amount_crypto', 'amount_currency', 'commission',
+            'created_at', 'closed_at', 'symbol'
+        )
 
 
 class AggregatedOrderSerializer(ModelSerializer):

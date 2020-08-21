@@ -119,6 +119,15 @@ class ResponseComposer:
         k = None
         return text, k
 
+    async def get_update_new_deal(self, **kwargs):
+        deal = kwargs['data']
+        action = await self._get(var_name=f'new_deal_notification_{deal["order"]["type"]}')
+        nickname = deal[('seller' if deal['order']['type'] == 'buy' else 'buyer')]['nickname']
+        symbol = deal.pop('symbol')['name'].upper()
+        text = await self._get(var_name='withdraw_notification', action=action, nickname=nickname, symbol=symbol, **deal)
+        k = await kb.confirm_deal(deal['id'])
+        return text, k
+
     async def cancel(self):
         text = await self._get(var_name='cancel')
         k = await kb.main_menu()
@@ -169,7 +178,7 @@ class ResponseComposer:
             **user
         )
         text += '\n\n'
-        text += await self._get(var_name='order', active=verify_sm[order['is_active']], **order)
+        text += await self._get(var_name='order', active=verify_sm[order['is_active']], broker=order.pop('broker')['name'], **order)
         if order['details']:
             text += '\n'
             text += await self._get(var_name='order_details', details=order['details'])
@@ -241,12 +250,23 @@ class ResponseComposer:
         k = await kb.get_cancel()
         return text, k
 
-    async def begin_deal_confirmation(self, order, amount, requisite):
-        text = await self._get(var_name='begin_deal_confirmation', amount=amount, **order)
+    async def begin_deal_confirmation(self, order, amount, amount_crypto, requisite, reversed_actions):
+        action = await self._get(var_name=f'action_{reversed_actions[order["type"]]}')
+        text = await self._get(var_name='begin_deal_confirmation', amount=amount, amount_crypto=amount_crypto,
+                               action=action, symbol=order.pop('symbol')['name'].upper(),
+                               broker=order.pop('broker')['name'], **order)
         if requisite is not None:
             text += '\n\n'
             text += await self._get(var_name='deal_requisite', requisite=requisite)
         k = await kb.are_you_sure()
+        return text, k
+
+    async def deal(self, deal):
+        text = await self._get(var_name='deal', buyer=deal['buyer']['nickname'], seller=deal['seller']['nickname'],
+                               symbol=deal['symbol']['name'].upper(), amount_currency=deal['amount_currency'],
+                               amount_crypto=deal['amount_crypto'], broker=deal['order']['broker']['name'],
+                               requisite=deal['requisite'], id=deal['id'], rate=deal['rate'])
+        k = await kb.main_menu()
         return text, k
 
 

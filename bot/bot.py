@@ -121,6 +121,21 @@ async def get_order_text(message: types.Message):
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
+@dp.callback_query_handler(lambda msg: re.match(r'^deal [0-9a-z]+$', msg.data))
+async def get_deal(message: types.CallbackQuery):
+    await message.answer()
+    deal_id = message.data.split()[1]
+    text, k = await dh.get_deal(deal_id)
+    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(lambda msg: re.match(r'^/d[0-9a-z]+$', msg.text))
+async def get_deal_text(message: types.Message):
+    deal_id = message.text[2:]
+    text, k = await dh.get_deal(deal_id)
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
 @dp.message_handler(lambda msg: re.match(r'^/tr[0-9a-z]+$', msg.text))
 async def get_user(message: types.Message):
     nickname = message.text[3:]
@@ -223,6 +238,6 @@ async def shutdown(dispatcher: Dispatcher):
 
 if __name__ == '__main__':
     scheduler = AsyncIOScheduler(event_loop=loop)
-    scheduler.add_job(dh.get_updates, 'interval', seconds=5, max_instances=1)
+    scheduler.add_job(dh.get_updates, 'interval', seconds=1, max_instances=1)
     scheduler.start()
     executor.start_polling(dp, loop=loop, on_shutdown=shutdown)

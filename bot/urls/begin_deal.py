@@ -12,7 +12,7 @@ from bot.utils.utils import is_string_a_number
 
 
 @dp.callback_query_handler(lambda msg: re.match(r'^begin_deal [0-9a-z]+$', msg.data))
-async def edit_order(message: types.CallbackQuery, state: FSMContext):
+async def begin_deal(message: types.CallbackQuery, state: FSMContext):
     await message.answer()
     order_id = message.data.split()[1]
     (text, k), status = await dh.begin_deal(message.from_user.id, order_id)
@@ -34,7 +34,17 @@ async def cancel_begin_deal(message: types.Message, state: FSMContext):
 async def begin_deal_enter_amount(message: types.Message, state: FSMContext):
     data = await state.get_data()
     amount = Decimal(message.text)
-    text, k = await dh.begin_deal_confirmation(message.from_user.id, data['order_id'], amount)
+    (text, k), status, new_data = await dh.begin_deal_confirmation(message.from_user.id, data['order_id'], amount)
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+    if status:
+        await state.set_data({**data, **new_data})
+        await state.set_state(CONFIRM_BEGIN_DEAL)
+
+
+@dp.message_handler(lambda msg: msg.text in get_trans_list('yes'), state=CONFIRM_BEGIN_DEAL)
+async def confirm_begin_deal(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    text, k = await dh.begin_deal_confirmed(data)
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state()
 

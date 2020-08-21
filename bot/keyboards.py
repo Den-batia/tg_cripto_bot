@@ -172,6 +172,15 @@ class Keyboard:
         btns = [[self.inl_b('edit_requisite', action=f'edit_requisite {broker["id"]}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def confirm_deal(self, deal_id):
+        btns = [
+            [
+                self.inl_b('confirm', action=f'confirm_deal {deal_id}'),
+                self.inl_b('decline', action=f'decline_deal {deal_id}')
+            ]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def get_cancel(self):
         return self.get_kb([['cancel']])
 

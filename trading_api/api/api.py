@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.db.models import Q
 from django.db.transaction import atomic
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import get_object_or_404
@@ -9,11 +10,13 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 
-from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite
+from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite, Deal
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer, \
-    RequisiteSerializer
+    RequisiteSerializer, DealDetailSerializer
 from crypto.manager import crypto_manager
+
+from utils.redis_queue import NotificationsQueue
 
 
 class TgUserViewSet(ReadOnlyModelViewSet):
@@ -209,15 +212,54 @@ class NewWithdrawView(APIView, ValidateAddressMixin, BalanceManagementMixin):
         return Response(status=HTTP_204_NO_CONTENT)
 
 
-class NewDealView(APIView, BalanceManagementMixin):
-    def post(self, request, *args, **kwargs):
-        amount_crypto = request.data['amount_crypto']
-        amount_currency = request.data['amount_currency']
-        order = get_object_or_404(Order.objects.filter(is_active=True, is_deleted=False), id=request.data['order_id'])
-        symbol = get_object_or_404(Symbol, id=request.data['symbol_id'])
-        rate = request.data['rate']
-        initiator = get_object_or_404(User, )
+class DealDetailViewSet(RetrieveModelMixin, GenericViewSet):
+    serializer_class = DealDetailSerializer
+    queryset = Deal.objects
 
+
+class NewDealView(APIView, BalanceManagementMixin):
+    def _validate_new_deal(self, seller, symbol, amount_crypto):
+        self.validate_balance(seller, symbol, amount_crypto)
+
+    def post(self, request, *args, **kwargs):
+        amount_crypto = Decimal(request.data['amount_crypto'])
+        amount = Decimal(request.data['amount'])
+        order = get_object_or_404(Order.objects.filter(is_active=True, is_deleted=False), id=request.data['order_id'])
+        symbol = order.symbol
+        rate = Decimal(request.data['rate'])
+        requisite = request.data['requisite']
+        buyer = get_object_or_404(User, id=request.data['buyer_id'])
+        seller = get_object_or_404(User, id=request.data['seller_id'])
+        self._validate_new_deal(seller, symbol, amount_crypto)
+        with atomic():
+            self.freeze(amount_crypto, seller, symbol)
+            deal = Deal.objects.create(
+                seller=seller, buyer=buyer, order=order, rate=rate, requisite=requisite,
+                amount_crypto=amount_crypto, amount_currency=amount, symbol=symbol
+            )
+            data = DealDetailSerializer(deal).data
+            NotificationsQueue.put(
+                {
+                    'telegram_id': (buyer if order.type == 'buy' else seller).telegram_id,
+                    'type': 'new_deal',
+                    'data': data
+                }
+            )
+        return Response(data=data)
+
+
+class UpdateDealMixin(BalanceManagementMixin):
+    target_statuses = []
+
+    def get_deal(self):
+        ref = get_object_or_404(User, id=self.request.data['ref'])
+        return get_object_or_404(
+            Deal.objects.filter(
+                (Q(buyer=ref) | Q(seller=ref)),
+                status__in=self.target_statuses
+            ),
+            id=self.kwargs['deal_id']
+        )
 
 
 class TextViewSet(ReadOnlyModelViewSet):

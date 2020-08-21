@@ -1,3 +1,6 @@
+import decimal
+
+
 def get_ref_code(msg):
     splited = msg.text.split()
     ref_code = None
@@ -40,3 +43,11 @@ def prettify_number(n):
             n = n[:-1]
 
     return f'{n}{prefix}'
+
+
+def round_down(value, decimals=8):
+    with decimal.localcontext() as ctx:
+        d = decimal.Decimal(value)
+        ctx.rounding = decimal.ROUND_DOWN
+        return round(d, decimals)
+

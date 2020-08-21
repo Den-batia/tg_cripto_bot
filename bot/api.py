@@ -92,6 +92,18 @@ class API:
         res = await self._call_api(f'/v1/orders/new', method='post', _json=data)
         return res
 
+    async def create_deal(self, data):
+        res = await self._call_api(f'/v1/deals/new', method='post', _json=data)
+        return res
+
+    async def get_deal(self, deal_id):
+        res = await self._call_api(f'/v1/deals/{deal_id}')
+        return res
+
+    async def confirm_decline_deal(self, user_id, deal_id, action):
+        res = await self._call_api(f'/v1/deals/{deal_id}/{action}/', method='post', _json={'ref': user_id})
+        return res
+
     async def get_user(self, user_tg_id):
         return await self._call_api(f'/v1/tg-users/{user_tg_id}')
 

@@ -5,7 +5,8 @@ from .api import (
     NewUserView, UserViewSet, TextViewSet,
     UserAccountsViewSet, SymbolsViewSet,
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
-    NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView
+    NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView, NewDealView,
+    DealDetailViewSet
 )
 
 router = routers.DefaultRouter()
@@ -17,6 +18,7 @@ router.register('v1/symbols', SymbolsViewSet, 'symbol')
 router.register('v1/brokers', BrokersViewSet, 'brokers')
 router.register('v1/accounts', UserAccountsViewSet, 'accounts')
 router.register('v1/orders', OrderViewSet, 'orders')
+router.register('v1/deals', DealDetailViewSet, 'deals')
 router.register('v1/users/(?P<user_id>[0-9a-f-]+)/orders', UserOrdersViewSet, 'user-orders')
 router.register('v1/user-info', UserInfoViewSet, 'user-info')
 router.register('v1/order-info', OrderInfoViewSet, 'order-info')
@@ -30,5 +32,10 @@ urlpatterns += [
     path('v1/address-check', AddressCheckView.as_view(), name='address-check'),
     path('v1/withdraws/new', NewWithdrawView.as_view(), name='new-withdraw'),
     path('v1/aggregated-orders/', AggregatedOrderView.as_view(), name='aggregated-orders'),
-    path('v1/users/<uuid:user_id>/brokers/<int:broker_id>/', UserBrokerView.as_view(), name='user-brokers')
+    path('v1/users/<uuid:user_id>/brokers/<int:broker_id>/', UserBrokerView.as_view(), name='user-brokers'),
+    path('v1/deals/new', NewDealView.as_view(), name='new-deal'),
+    path('v1/deals/<str:deal_id>/confirm/', ConfirmDealView.as_view(), name='confirm-deal'),
+    path('v1/deals/<str:deal_id>/decline/', DeclineDealView.as_view(), name='decline-deal'),
+    path('v1/deals/<str:deal_id>/send_fiat/', SendFiatDealView.as_view(), name='send-fiat-deal'),
+    path('v1/deals/<str:deal_id>/send_crypto/', SendCryptoDealView.as_view(), name='send-crypto-deal'),
 ]

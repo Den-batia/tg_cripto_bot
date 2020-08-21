@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(default=api.models.random_deal_id, max_length=15, primary_key=True, serialize=False)),
                 ('requisite', models.CharField(blank=True, default='', max_length=128)),
                 ('rate', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('state', models.SmallIntegerField(default=0)),
+                ('status', models.SmallIntegerField(default=0)),
                 ('amount_crypto', models.DecimalField(decimal_places=8, max_digits=15)),
                 ('amount_currency', models.DecimalField(decimal_places=2, max_digits=15)),
                 ('commission', models.DecimalField(decimal_places=8, default=0, max_digits=15)),

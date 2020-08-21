@@ -98,7 +98,7 @@ class Deal(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='deals')
     requisite = models.CharField(max_length=128, blank=True, default='')
     rate = models.DecimalField(max_digits=10, decimal_places=2)
-    state = models.SmallIntegerField(default=0)
+    status = models.SmallIntegerField(default=0)
     amount_crypto = models.DecimalField(max_digits=15, decimal_places=8)
     amount_currency = models.DecimalField(max_digits=15, decimal_places=2)
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_deals')
