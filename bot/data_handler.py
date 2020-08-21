@@ -290,5 +290,21 @@ class DataHandler:
             requisite = None
         return await rc.begin_deal_confirmation(order, amount, requisite), True
 
+    async def begin_deal_confirmed(self, telegram_id, order_id, amount, amount_crypto, rate):
+        user = await api.get_user(telegram_id)
+        order = await api.get_order_info(order_id)
+        seller_id = self._get_seller_id(user, order)
+        account = await self._get_account(seller_id, order['symbol']['id'])
+        max_amount = min(order['limit_to'], math.ceil(Decimal(account['balance']) * Decimal(order['rate'])))
+        if amount > max_amount or amount < order['limit_from']:
+            text, k = await rc.wrong_amount()
+            await send_message(chat_id=telegram_id, text=text, reply_markup=k)
+            return await rc.enter_amount_begin_deal(order['limit_from'], max_amount), False
+        if order['type'] == ORDER_BUY_TYPE:
+            requisite = await self._get_requisite(user['id'], order['broker']['id'])
+        else:
+            requisite = None
+        return await rc.begin_deal_confirmation(order, amount, requisite), True
+
 
 dh = DataHandler()
