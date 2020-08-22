@@ -39,7 +39,7 @@ async def update_brokers_list(message: types.CallbackQuery, state):
 
 @dp.callback_query_handler(lambda msg: re.match(r'^cancel$', msg.data), state=SELECT_BROKER)
 @dp.message_handler(lambda msg: msg.text.startswith(sm('cancel')), state=[CHOOSE_LIMITS, CHOOSE_RATE])
-async def cancel_create_lot(message: Union[types.CallbackQuery, types.Message], state):
+async def cancel_create_order(message: Union[types.CallbackQuery, types.Message], state):
     await state.reset_state(with_data=True)
     text, k = await dh.cancel()
     chat_id = message.message.chat.id if isinstance(message, types.CallbackQuery) else message.chat.id

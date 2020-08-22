@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
@@ -113,7 +114,13 @@ class AggregatedOrderSerializer(ModelSerializer):
         fields = ('id', 'name', 'orders_cnt')
 
     def get_orders_cnt(self, instance: Broker):
-        return instance.orders.filter(type=self.context['type'], symbol=self.context['symbol'], is_deleted=False, is_active=True).count()
+        return instance.orders.filter(
+            ~Q(user=self.context['ref']),
+            type=self.context['type'],
+            symbol=self.context['symbol'],
+            is_deleted=False,
+            is_active=True
+        ).count()
 
 
 class RequisiteSerializer(ModelSerializer):

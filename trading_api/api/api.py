@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.transaction import atomic
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import get_object_or_404
@@ -64,7 +64,8 @@ class AggregatedOrderView(APIView):
     def get(self, request, *args, **kwargs):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
-        data = AggregatedOrderSerializer(Broker.objects, context={'type': order_type, 'symbol': symbol}, many=True).data
+        ref = get_object_or_404(User, id=self.request.query_params.get('ref'))
+        data = AggregatedOrderSerializer(Broker.objects, context={'type': order_type, 'symbol': symbol, 'ref': ref}, many=True).data
         return Response(data=data)
 
 
@@ -75,7 +76,8 @@ class OrderViewSet(ReadOnlyModelViewSet):
         order_type = self.request.query_params.get('type')
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
-        return Order.objects.filter(broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True)
+        ref = get_object_or_404(User, id=self.request.query_params.get('ref'))
+        return Order.objects.filter(~Q(user=ref), broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True)
 
 
 class UserOrdersViewSet(ModelViewSet):
@@ -187,6 +189,25 @@ class BalanceManagementMixin:
         self.validate_account_change(account)
         account.save()
 
+    def unfreeze(self, amount, user, symbol):
+        account = self.get_account(user, symbol)
+        account.balance += amount
+        account.frozen -= amount
+        self.validate_account_change(account)
+        account.save()
+
+    def add_frozen(self, amount, user, symbol):
+        account = self.get_account(user, symbol)
+        account.frozen += amount
+        self.validate_account_change(account)
+        account.save()
+
+    def add_balance(self, amount, user, symbol):
+        account = self.get_account(user, symbol)
+        account.balance += amount
+        self.validate_account_change(account)
+        account.save()
+
 
 class AddressCheckView(APIView, ValidateAddressMixin):
     def post(self, request, *args, **kwargs):
@@ -230,6 +251,11 @@ class NewDealView(APIView, BalanceManagementMixin):
         requisite = request.data['requisite']
         buyer = get_object_or_404(User, id=request.data['buyer_id'])
         seller = get_object_or_404(User, id=request.data['seller_id'])
+        if requisite is None:
+            requisite = seller.requisites.filter(broker=order.broker).first()
+            if requisite is None:
+                raise ValidationError
+            requisite = requisite.requisite
         self._validate_new_deal(seller, symbol, amount_crypto)
         with atomic():
             self.freeze(amount_crypto, seller, symbol)
@@ -250,8 +276,17 @@ class NewDealView(APIView, BalanceManagementMixin):
 
 class UpdateDealMixin(BalanceManagementMixin):
     target_statuses = []
+    buyer_message_type = ''
+    seller_message_type = ''
+    saved_deal = None
 
-    def get_deal(self):
+    @property
+    def deal(self):
+        if self.saved_deal is None:
+            self.saved_deal = self.get_deal()
+        return self.saved_deal
+
+    def get_deal(self) -> Deal:
         ref = get_object_or_404(User, id=self.request.data['ref'])
         return get_object_or_404(
             Deal.objects.filter(
@@ -260,6 +295,114 @@ class UpdateDealMixin(BalanceManagementMixin):
             ),
             id=self.kwargs['deal_id']
         )
+
+    def _send_notification(self, telegram_id, message_type):
+        for mt in message_type:
+            NotificationsQueue.put(
+                {
+                    'telegram_id': telegram_id,
+                    'type': mt,
+                    'data': DealDetailSerializer(self.deal).data
+                }
+            )
+
+    def send_notifications(self):
+        if self.buyer_message_type:
+            if not isinstance(self.buyer_message_type, tuple):
+                self.buyer_message_type = (self.buyer_message_type,)
+            self._send_notification(self.deal.buyer.telegram_id, self.buyer_message_type)
+
+        if self.seller_message_type:
+            if not isinstance(self.seller_message_type, tuple):
+                self.seller_message_type = (self.seller_message_type,)
+            self._send_notification(self.deal.seller.telegram_id, self.seller_message_type)
+
+
+class ConfirmDealView(APIView, UpdateDealMixin):
+    target_statuses = [0]
+    buyer_message_type = ('deal_accepted', 'requisite_only')
+
+    def post(self, request, *args, **kwargs):
+        with atomic():
+            self.deal.status = 1
+            self.deal.save()
+            self.send_notifications()
+        return Response(status=204)
+
+
+class DeclineDealView(APIView, UpdateDealMixin):
+    target_statuses = [0]
+    buyer_message_type = 'deal_declined'
+    seller_message_type = 'deal_declined'
+
+    def post(self, request, *args, **kwargs):
+        with atomic():
+            self.deal.status = -1
+            self.deal.save()
+            self.unfreeze(self.deal.amount_crypto, self.deal.seller, self.deal.symbol)
+            self.send_notifications()
+        return Response(status=204)
+
+
+class SendFiatDealView(APIView, UpdateDealMixin):
+    target_statuses = [1]
+    seller_message_type = 'fiat_sent'
+
+    def post(self, request, *args, **kwargs):
+        with atomic():
+            self.deal.status = 2
+            self.deal.save()
+            self.send_notifications()
+        return Response(status=204)
+
+
+class SendCryptoDealView(APIView, UpdateDealMixin):
+    target_statuses = [2]
+    seller_message_type = 'crypto_sent'
+    buyer_message_type = 'crypto_received'
+
+    def post(self, request, *args, **kwargs):
+        with atomic():
+            self.deal.status = 3
+            self.deal.save()
+            self.add_frozen(-self.deal.amount_crypto, self.deal.seller, self.deal.symbol)
+            commission = Decimal('0.001') * self.deal.amount_crypto
+            earning = self.deal.amount_crypto - commission
+            self.deal.commission = commission
+            self.add_balance(earning, self.deal.seller, self.deal.symbol)
+            self.send_notifications()
+        return Response(status=204)
+
+
+class NewMessageView(APIView):
+    def post(self, request, *args, **kwargs):
+        sender = get_object_or_404(User, id=request.data['sender_id'])
+        receiver = get_object_or_404(User, id=request.data['receiver_id'])
+        text = request.data['text']
+        NotificationsQueue.put(
+            {
+                'telegram_id': receiver.telegram_id,
+                'type': 'message_received',
+                'text': text,
+                'user': {'nickname': sender.nickname, 'id': str(sender.id)}
+            }
+        )
+        return Response(status=204)
+
+
+class BalanceView(APIView):
+    def get(self, request, *args, **kwargs):
+        symbols = Symbol.objects.all()
+        data = []
+        for symbol in symbols:
+            target = {
+                    'wallet': crypto_manager[symbol.name].get_balance(),
+                    'db': symbol.accounts.aggregate(Sum('balance')).get('balance__sum') + symbol.accounts.aggregate(Sum('frozen')).get('frozen__sum'),
+                    'symbol': symbol.name
+                }
+            target['balance'] = target['wallet'] - target['db']
+            data.append(target)
+        return Response(data=data)
 
 
 class TextViewSet(ReadOnlyModelViewSet):

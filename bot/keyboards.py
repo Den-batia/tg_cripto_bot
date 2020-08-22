@@ -111,6 +111,10 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def send_message(self, user):
+        btns = [[self.inl_b('send_message', action=f'send_message {user["id"]}')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def symbol_market_action(self, symbol, brokers, action):
         btns = [
             self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_{action} {symbol["id"]} {broker["id"]}')
@@ -179,6 +183,14 @@ class Keyboard:
                 self.inl_b('decline', action=f'decline_deal {deal_id}')
             ]
         ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def send_fiat(self, deal_id):
+        btns = [[self.inl_b('fiat_sent', action=f'deal_send_fiat {deal_id}')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def send_crypto(self, deal_id):
+        btns = [[self.inl_b('confirm_fiat', action=f'deal_send_crypto {deal_id}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def get_cancel(self):

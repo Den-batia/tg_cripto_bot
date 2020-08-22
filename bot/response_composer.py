@@ -24,26 +24,6 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def friends(self, user, friends_cnt):
-        text = await self._get(var_name='friends_message', friends_cnt=friends_cnt)
-        k = await kb.main_menu(user['city'])
-        return text, k
-
-    async def help(self, user):
-        text = await self._get(var_name="help_message")
-        k = await kb.main_menu(user['city'])
-        return text, k
-
-    async def menu(self, locations):
-        text = await self._get(var_name="menu")
-        k = await kb.menu(locations)
-        return text, k
-
-    async def balance(self, balance, rate, amount):
-        text = await self._get(var_name="balance_message", balance=balance, amount=amount, rate=rate)
-        k = await kb.deposit()
-        return text, k
-
     async def done(self):
         text = await self._get(var_name="done")
         k = await kb.main_menu()
@@ -124,8 +104,49 @@ class ResponseComposer:
         action = await self._get(var_name=f'new_deal_notification_{deal["order"]["type"]}')
         nickname = deal[('seller' if deal['order']['type'] == 'buy' else 'buyer')]['nickname']
         symbol = deal.pop('symbol')['name'].upper()
-        text = await self._get(var_name='withdraw_notification', action=action, nickname=nickname, symbol=symbol, **deal)
+        text = await self._get(var_name='new_deal_notification', action=action, nickname=nickname, symbol=symbol, **deal)
         k = await kb.confirm_deal(deal['id'])
+        return text, k
+
+    async def get_update_deal_accepted(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='deal_accepted_notification', broker=deal['order']['broker']['name'], **deal)
+        k = None
+        return text, k
+
+    async def get_update_deal_declined(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='deal_declined_notification', **deal)
+        k = None
+        return text, k
+
+    async def get_update_requisite_only(self, **kwargs):
+        deal = kwargs['data']
+        text = f"<pre>{deal['requisite']}</pre>"
+        k = await kb.send_fiat(deal['id'])
+        return text, k
+
+    async def get_update_fiat_sent(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='deal_fiat_sent_notification', broker=deal['order']['broker']['name'], **deal)
+        k = await kb.send_crypto(deal['id'])
+        return text, k
+
+    async def get_update_crypto_sent(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='deal_crypto_sent_notification', symbol=deal.pop('symbol')['name'].upper(), **deal)
+        k = None
+        return text, k
+
+    async def get_update_crypto_received(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='deal_crypto_received_notification', symbol=deal.pop('symbol')['name'].upper(), **deal)
+        k = None
+        return text, k
+
+    async def get_update_message_received(self, **kwargs):
+        text = await self._get(var_name='message_received', text=kwargs['text'], nickname=kwargs['user']['nickname'])
+        k = await kb.send_message(kwargs['user'])
         return text, k
 
     async def cancel(self):
@@ -193,7 +214,17 @@ class ResponseComposer:
         if is_admin:
             k = await kb.user_admin_actions(user)
         else:
-            k = None
+            k = await kb.send_message(user)
+        return text, k
+
+    async def send_message(self):
+        text = await self._get(var_name='send_message')
+        k = await kb.get_cancel()
+        return text, k
+
+    async def message_sent(self):
+        text = await self._get(var_name='message_sent')
+        k = await kb.main_menu()
         return text, k
 
     async def new_order(self, symbol_id):
@@ -261,11 +292,31 @@ class ResponseComposer:
         k = await kb.are_you_sure()
         return text, k
 
-    async def deal(self, deal):
+    async def deal(self, deal, user=None):
         text = await self._get(var_name='deal', buyer=deal['buyer']['nickname'], seller=deal['seller']['nickname'],
                                symbol=deal['symbol']['name'].upper(), amount_currency=deal['amount_currency'],
                                amount_crypto=deal['amount_crypto'], broker=deal['order']['broker']['name'],
                                requisite=deal['requisite'], id=deal['id'], rate=deal['rate'])
+        k = None
+        if user:
+            if user['id'] == deal['buyer']['id'] and deal['status'] == 1:
+                k = await kb.send_fiat(deal['id'])
+            elif user['id'] == deal['seller']['id'] and deal['status'] == 2:
+                k = await kb.send_crypto(deal['id'])
+            elif deal['status'] == 0:
+                if user['id'] == deal['order']['user']['id']:
+                    k = await kb.confirm_deal(deal['id'])
+        return text, k
+
+    async def balance(self, balance):
+        text = ''
+        for b in balance:
+            text += '\n\n'
+            text += await self._get(
+                var_name='balance', wallet=b['wallet'],
+                db=b['db'], symbol=b['symbol'].upper(),
+                balance=b['balance']
+            )
         k = await kb.main_menu()
         return text, k
 

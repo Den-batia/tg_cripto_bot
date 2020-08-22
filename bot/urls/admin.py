@@ -13,9 +13,17 @@ def validate_admin(method):
     return wrapper
 
 
+@validate_admin
 @dp.callback_query_handler(lambda msg: re.match(r'^verify [0-9a-z]+$', msg.data))
 async def verify_user(message: types.CallbackQuery):
     await message.answer()
     user = message.data.split()[1]
     text, k = await dh.verify(message.from_user.id, user)
     await message.message.edit_text(text=text, reply_markup=k)
+
+
+@validate_admin
+@dp.message_handler(commands=['balance'])
+async def balance(message: types.Message):
+    text, k = await dh.balance()
+    await send_message(text=text, reply_markup=k, chat_id=message.from_user.id)

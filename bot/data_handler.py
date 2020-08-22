@@ -207,6 +207,10 @@ class DataHandler:
         await api.update_user(user['nickname'], dict(is_verify=not user['is_verify']))
         return await self.get_user_info(telegram_id, target_user)
 
+    async def balance(self):
+        balance = await api.balance()
+        return await rc.balance(balance)
+
     async def market(self):
         symbols = await api.get_symbols()
         return await rc.market_choose_symbol(symbols)
@@ -215,13 +219,15 @@ class DataHandler:
         symbol = await api.get_symbol(symbol_id)
         return await rc.symbol_market(symbol)
 
-    async def symbol_market_action(self, symbol_id, action):
-        lots = await api.get_aggregated_orders(symbol_id, sell_buy_reversed[action])
+    async def symbol_market_action(self, telegram_id, symbol_id, action):
+        user = await api.get_user(telegram_id)
+        lots = await api.get_aggregated_orders(symbol_id, sell_buy_reversed[action], user['id'])
         symbol = await api.get_symbol(symbol_id)
         return await rc.symbol_market_action(symbol, lots, action)
 
-    async def symbol_broker_market(self, symbol_id, broker_id, action):
-        orders = await api.get_orders(symbol_id, broker_id, sell_buy_reversed[action])
+    async def symbol_broker_market(self, telegram_id, symbol_id, broker_id, action):
+        user = await api.get_user(telegram_id)
+        orders = await api.get_orders(symbol_id, broker_id, sell_buy_reversed[action], user['id'])
         symbol = await api.get_symbol(symbol_id)
         broker = await api.get_broker(broker_id)
         return await rc.symbol_broker_market(symbol, broker, orders, action)
@@ -311,9 +317,10 @@ class DataHandler:
         deal = await api.create_deal(data)
         return await rc.deal(deal)
 
-    async def get_deal(self, deal_id):
+    async def get_deal(self, telegram_id, deal_id):
+        user = await api.get_user(telegram_id)
         deal = await api.get_deal(deal_id)
-        return await rc.deal(deal)
+        return await rc.deal(deal, user)
 
     def _validate_user_in_deal(self, user, deal):
         if user['id'] not in (deal['seller']['id'], deal['buyer']['id']):
@@ -327,6 +334,32 @@ class DataHandler:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], action)
         return await rc.done()
+
+    async def send_fiat(self, telegram_id, deal_id):
+        deal = await api.get_deal(deal_id)
+        user = await api.get_user(telegram_id)
+        self._validate_user_in_deal(user, deal)
+        if deal['status'] != 1:
+            return await rc.unknown_error()
+        await api.confirm_decline_deal(user['id'], deal['id'], 'send_fiat')
+        return await rc.done()
+
+    async def send_crypto(self, telegram_id, deal_id):
+        deal = await api.get_deal(deal_id)
+        user = await api.get_user(telegram_id)
+        self._validate_user_in_deal(user, deal)
+        if deal['status'] != 2:
+            return await rc.unknown_error()
+        await api.confirm_decline_deal(user['id'], deal['id'], 'send_crypto')
+        return await rc.done()
+
+    async def send_message(self):
+        return await rc.send_message()
+
+    async def send_message_confirmed(self, telegram_id, user_id, text):
+        user = await api.get_user(telegram_id)
+        await api.send_message(sender_id=user['id'], receiver_id=user_id, text=text)
+        return await rc.message_sent()
 
 
 dh = DataHandler()

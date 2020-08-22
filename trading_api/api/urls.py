@@ -6,7 +6,8 @@ from .api import (
     UserAccountsViewSet, SymbolsViewSet,
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
     NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView, NewDealView,
-    DealDetailViewSet
+    DealDetailViewSet, ConfirmDealView, DeclineDealView, SendFiatDealView, SendCryptoDealView, NewMessageView,
+    BalanceView
 )
 
 router = routers.DefaultRouter()
@@ -33,9 +34,11 @@ urlpatterns += [
     path('v1/withdraws/new', NewWithdrawView.as_view(), name='new-withdraw'),
     path('v1/aggregated-orders/', AggregatedOrderView.as_view(), name='aggregated-orders'),
     path('v1/users/<uuid:user_id>/brokers/<int:broker_id>/', UserBrokerView.as_view(), name='user-brokers'),
+    path('v1/messages/new', NewMessageView.as_view(), name='new-message'),
     path('v1/deals/new', NewDealView.as_view(), name='new-deal'),
     path('v1/deals/<str:deal_id>/confirm/', ConfirmDealView.as_view(), name='confirm-deal'),
     path('v1/deals/<str:deal_id>/decline/', DeclineDealView.as_view(), name='decline-deal'),
     path('v1/deals/<str:deal_id>/send_fiat/', SendFiatDealView.as_view(), name='send-fiat-deal'),
     path('v1/deals/<str:deal_id>/send_crypto/', SendCryptoDealView.as_view(), name='send-crypto-deal'),
+    path('v1/balance', BalanceView.as_view(), name='balance'),
 ]

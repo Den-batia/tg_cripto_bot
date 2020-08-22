@@ -49,6 +49,17 @@
 
     "new_deal_notification": "‼️ <b>Новая сделка</b>\n\nПользователь /tr%{nickname} хочет %{action} <b>%{amount_crypto} %{symbol}</b> по курсу <b>%{rate} RUB/%{symbol}</b>\nСумма: <b>%{amount_currency} RUB</b>",
     "new_deal_notification_sell": "купить у Вас",
-    "new_deal_notification_buy": "продать продать Вам"
+    "new_deal_notification_buy": "продать Вам",
+    "deal_accepted_notification": "‼️ Сделка подтверждена\nПожалуйста переведите %{amount_currency} RUB\nБрокер: <b>%{broker}</b>\nРеквизиты: <b>%{requisite}</b>",
+    "deal_fiat_sent_notification": "‼️ Покупатель отправил средства\nСумма: <b>%{amount_currency} RUB</b>\nБрокер: <b>%{broker}</b>\nРеквизиты: <b>%{requisite}</b>\n\nПожалуйста, подтвердите перевод",
+    "deal_crypto_sent_notification": "‼️ Вы успешно отправили <b>%{amount_crypto} %{symbol}</b>",
+    "deal_crypto_received_notification": "‼️ Вы получили <b>%{amount_crypto} %{symbol}</b>",
+    "deal_declined_notification": "‼️ Сделка /d%{id} отменена",
+
+    "send_message": "Напишите сообщение",
+    "message_sent": "Сообщение успешно отправлено",
+    "message_received": "Вам пришло сообщение от /tr%{nickname}:\n%{text}",
+
+    "balance": "Блокчейн: %{wallet} %{symbol}\nБаза данных: %{db} %{symbol}\nБаланс: %{balance} %{symbol}"
   }
 }

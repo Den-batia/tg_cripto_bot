@@ -6,7 +6,7 @@ from aiogram.dispatcher import FSMContext
 from bot.data_handler import dh, send_message
 from bot.settings import dp
 from bot.states import EDIT_ORDER_LIMITS, EDIT_ORDER_DETAILS, EDIT_ORDER_RATE, ORDER_DELETE
-from bot.translations.translations import get_trans_list
+from bot.translations.translations import get_trans_list, sm
 from bot.utils.utils import is_string_a_number
 
 states = {
@@ -26,6 +26,14 @@ async def edit_order(message: types.CallbackQuery, state: FSMContext):
     await state.set_data({'order_id': order})
     text, k = await dh.edit_order_request(edit_type)
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith(sm('cancel')), state=[EDIT_ORDER_DETAILS, EDIT_ORDER_RATE, EDIT_ORDER_LIMITS])
+async def cancel_send_message(message: types.Message, state: FSMContext):
+    await state.reset_state()
+    text, k = await dh.cancel()
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+    await state.reset_state()
 
 
 @dp.message_handler(lambda msg: re.match(r'^-?[0-9]{1,2}%$', msg.text), state=EDIT_ORDER_RATE)

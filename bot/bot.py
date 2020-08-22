@@ -7,6 +7,8 @@ from .urls.admin import *
 from .urls.create_order import *
 from .urls.requisites import *
 from .urls.begin_deal import *
+from .urls.processing_deal import *
+from .urls.send_message import *
 from .urls.edit_order import *
 from .helpers import rate_limit
 from .settings import loop
@@ -64,7 +66,7 @@ async def account(message: types.CallbackQuery):
 async def symbol_market_action(message: types.CallbackQuery):
     await message.answer()
     action, symbol_id = message.data.split()
-    text, k = await dh.symbol_market_action(int(symbol_id), action)
+    text, k = await dh.symbol_market_action(message.from_user.id, int(symbol_id), action)
     await message.message.edit_text(text=text, reply_markup=k)
 
 
@@ -73,6 +75,7 @@ async def symbol_broker_market(message: types.CallbackQuery):
     await message.answer()
     splited = message.data.split()
     text, k = await dh.symbol_broker_market(
+        telegram_id=message.from_user.id,
         action=splited[0].split('_')[1],
         symbol_id=int(splited[1]),
         broker_id=int(splited[2])
@@ -125,14 +128,14 @@ async def get_order_text(message: types.Message):
 async def get_deal(message: types.CallbackQuery):
     await message.answer()
     deal_id = message.data.split()[1]
-    text, k = await dh.get_deal(deal_id)
+    text, k = await dh.get_deal(message.from_user.id, deal_id)
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
 @dp.message_handler(lambda msg: re.match(r'^/d[0-9a-z]+$', msg.text))
 async def get_deal_text(message: types.Message):
     deal_id = message.text[2:]
-    text, k = await dh.get_deal(deal_id)
+    text, k = await dh.get_deal(message.from_user.id, deal_id)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 

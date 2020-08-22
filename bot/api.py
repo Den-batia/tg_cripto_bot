@@ -49,12 +49,12 @@ class API:
         res = await self._call_api(f'/v1/accounts/{user_id}')
         return res
 
-    async def get_aggregated_orders(self, symbol_id, order_type):
-        res = await self._call_api(f'/v1/aggregated-orders/?symbol={symbol_id}&type={order_type}')
+    async def get_aggregated_orders(self, symbol_id, order_type, user_id):
+        res = await self._call_api(f'/v1/aggregated-orders/?symbol={symbol_id}&type={order_type}&ref={user_id}')
         return res
 
-    async def get_orders(self, symbol_id, broker_id, order_type):
-        res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}')
+    async def get_orders(self, symbol_id, broker_id, order_type, user_id):
+        res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}&ref={user_id}')
         return res
 
     async def get_user_orders(self, user_id, symbol_id):
@@ -100,6 +100,11 @@ class API:
         res = await self._call_api(f'/v1/deals/{deal_id}')
         return res
 
+    async def send_message(self, sender_id, receiver_id, text):
+        res = await self._call_api(f'/v1/messages/new', method='post',
+                                   _json={'sender_id': sender_id, 'receiver_id': receiver_id, 'text': text})
+        return res
+
     async def confirm_decline_deal(self, user_id, deal_id, action):
         res = await self._call_api(f'/v1/deals/{deal_id}/{action}/', method='post', _json={'ref': user_id})
         return res
@@ -119,6 +124,9 @@ class API:
 
     async def update_user(self, user, data):
         return await self._call_api(f'/v1/users/{user}/', method='patch', _json=data)
+
+    async def balance(self):
+        return await self._call_api(f'/v1/balance')
 
     async def update_order(self, user_id, order_id, data):
         return await self._call_api(f'/v1/users/{user_id}/orders/{order_id}/', method='patch', _json=data)
