@@ -72,7 +72,7 @@ class UserInfoSerializer(ModelSerializer):
         fields = ('id', 'nickname', 'is_verify', 'created_at', 'deals', 'orders')
 
     def get_deals(self, instance: User):
-        return 0
+        return Deal.objects.filter((Q(buyer=instance) | Q(seller=instance)), status=3).count()
 
     def get_orders(self, instance: User):
         return instance.orders.filter(is_deleted=False).count()

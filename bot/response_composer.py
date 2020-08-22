@@ -144,6 +144,11 @@ class ResponseComposer:
         k = None
         return text, k
 
+    async def get_update_deal_timeout(self, **kwargs):
+        text = await self._get(var_name='deal_timeout_notification', **kwargs)
+        k = None
+        return text, k
+
     async def get_update_message_received(self, **kwargs):
         text = await self._get(var_name='message_received', text=kwargs['text'], nickname=kwargs['user']['nickname'])
         k = await kb.send_message(kwargs['user'])
@@ -297,15 +302,14 @@ class ResponseComposer:
                                symbol=deal['symbol']['name'].upper(), amount_currency=deal['amount_currency'],
                                amount_crypto=deal['amount_crypto'], broker=deal['order']['broker']['name'],
                                requisite=deal['requisite'], id=deal['id'], rate=deal['rate'])
-        k = None
+        k = await kb.main_menu()
         if user:
             if user['id'] == deal['buyer']['id'] and deal['status'] == 1:
                 k = await kb.send_fiat(deal['id'])
             elif user['id'] == deal['seller']['id'] and deal['status'] == 2:
                 k = await kb.send_crypto(deal['id'])
-            elif deal['status'] == 0:
-                if user['id'] == deal['order']['user']['id']:
-                    k = await kb.confirm_deal(deal['id'])
+            elif deal['status'] == 0 and user['id'] == deal['order']['user']['id']:
+                k = await kb.confirm_deal(deal['id'])
         return text, k
 
     async def balance(self, balance):

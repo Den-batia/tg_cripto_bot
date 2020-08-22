@@ -1,3 +1,4 @@
+from datetime import timezone, datetime
 from decimal import Decimal
 
 from django.db.models import Q, Sum
@@ -369,6 +370,7 @@ class SendCryptoDealView(APIView, UpdateDealMixin):
             commission = Decimal('0.001') * self.deal.amount_crypto
             earning = self.deal.amount_crypto - commission
             self.deal.commission = commission
+            self.deal.closed_at = datetime.now(timezone.utc)
             self.add_balance(earning, self.deal.seller, self.deal.symbol)
             self.send_notifications()
         return Response(status=204)

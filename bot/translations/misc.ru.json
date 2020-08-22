@@ -55,6 +55,7 @@
     "deal_crypto_sent_notification": "‼️ Вы успешно отправили <b>%{amount_crypto} %{symbol}</b>",
     "deal_crypto_received_notification": "‼️ Вы получили <b>%{amount_crypto} %{symbol}</b>",
     "deal_declined_notification": "‼️ Сделка /d%{id} отменена",
+    "deal_timeout_notification": "Сделка /d%{id} завершена по таймауту",
 
     "send_message": "Напишите сообщение",
     "message_sent": "Сообщение успешно отправлено",

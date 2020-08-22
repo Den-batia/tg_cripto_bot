@@ -45,3 +45,9 @@ def create_withdraws_eth():
 def process_withdraws_eth():
     from .tasks.crypto.eth.confirm_withdraw import confirm
     confirm()
+
+
+@periodic_task(run_every=timedelta(seconds=15))
+def deal_process_timeouts():
+    from .tasks.deals.timeouts import process_timeouts
+    process_timeouts()
