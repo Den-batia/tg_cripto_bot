@@ -84,7 +84,8 @@ class OrderViewSet(ReadOnlyModelViewSet):
             symbol=symbol,
             type=order_type,
             is_deleted=False,
-            is_active=True
+            is_active=True,
+            is_system_active=True
         ).order_by(f'{"-" if order_type == "buy" else ""}rate')
 
 
@@ -151,7 +152,7 @@ class NewOrderView(APIView):
             new_order = Order(
                 broker=broker, symbol=symbol, limit_from=limit_from,
                 limit_to=limit_to, type=order_type, user=user,
-                rate=rate, coefficient=coefficient
+                rate=rate, coefficient=coefficient, is_system_active=order_type == 'buy'
             )
             orders.append(new_order)
         Order.objects.bulk_create(orders)

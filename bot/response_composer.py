@@ -99,6 +99,16 @@ class ResponseComposer:
         k = None
         return text, k
 
+    async def get_update_order_activated(self, **kwargs):
+        text = await self._get(var_name='order_activated_notification', **kwargs)
+        k = None
+        return text, k
+
+    async def get_update_order_deactivated(self, **kwargs):
+        text = await self._get(var_name='order_deactivated_notification', **kwargs)
+        k = None
+        return text, k
+
     async def get_update_new_deal(self, **kwargs):
         deal = kwargs['data']
         action = await self._get(var_name=f'new_deal_notification_{deal["order"]["type"]}')
@@ -194,7 +204,7 @@ class ResponseComposer:
         k = await kb.my_orders(orders, symbol_id)
         return text, k
 
-    async def order(self, order, is_my):
+    async def order(self, order, is_my, is_enough_money):
         text = await self._get(var_name=order['type'], symbol=order['symbol']['name'].upper(), id=order['id'])
         text += '\n\n'
         user = order.pop('user')
@@ -209,9 +219,12 @@ class ResponseComposer:
             text += '\n'
             text += await self._get(var_name='order_details', details=order['details'])
         if is_my:
+            if not order['is_system_active']:
+                text += '\n\n'
+                text += await self._get(var_name='order_deactivated_system')
             k = await kb.my_order(order)
         else:
-            k = await kb.market_order(order['id'])
+            k = await kb.market_order(order['id'], is_enough_money)
         return text, k
 
     async def user(self, user, is_admin):

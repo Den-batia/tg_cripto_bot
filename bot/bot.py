@@ -210,6 +210,11 @@ async def referral(message: types.CallbackQuery):
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
+@dp.callback_query_handler(lambda msg: msg.data == 'answer_only')
+async def referral(message: types.CallbackQuery):
+    await message.answer()
+
+
 @dp.message_handler(lambda msg: msg.text.startswith(sm('about')))
 async def about(message: types.Message):
     text, k = await dh.about()

@@ -1,15 +1,26 @@
 import logging
 
-from api.models import Symbol, Order
+import requests
 
-logger = logging.getLogger('update_order_rates')
+from api.models import Rates, Symbol
+
+logger = logging.getLogger('update_rates')
+
+
+def get_rates():
+    rates = requests.get(
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=rub'
+    ).json()
+    rates['eth'] = rates.pop('ethereum')
+    logger.debug(f'UPDATE RATE, new rate = {rates}')
+    return rates
 
 
 def update():
-    for symbol in Symbol.objects.all():
-        rate = symbol.rates.first()
-        orders = []
-        for order in symbol.orders.filter(coefficient__isnull=False).all():
-            order.rate = order.coefficient * rate.rate
-            orders.append(order)
-        Order.objects.bulk_update(orders, ['rate'])
+    for symbol, currencies in get_rates().items():
+        symbol = Symbol.objects.get()
+        for currency, new_rate in currencies.items():
+            rate, created = Rates.objects.get_or_create(symbol=symbol, defaults={'rate': new_rate})
+            if not created:
+                rate.rate = new_rate
+                rate.save()

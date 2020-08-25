@@ -57,7 +57,7 @@ class Keyboard:
             balance = get_balance(symbol['id'])
             if balance:
                 name += f' ({balance})'
-                btns.append([self.inl_b(name, action=f'account {symbol["id"]}')])
+            btns.append([self.inl_b(name, action=f'account {symbol["id"]}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def account(self, account):
@@ -112,8 +112,11 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def market_order(self, order_id):
-        btns = [[self.inl_b('begin_deal', action=f'begin_deal {order_id}')]]
+    async def market_order(self, order_id, is_enough_money):
+        if is_enough_money:
+            btns = [[self.inl_b('begin_deal', action=f'begin_deal {order_id}')]]
+        else:
+            btns = [[self.inl_b('not_enough_money', action='answer_only')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def user_admin_actions(self, user):

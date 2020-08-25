@@ -65,7 +65,7 @@ class OrderSerializer(ModelSerializer):
         fields = (
             'id', 'type', 'broker', 'rate', 'user',
             'limit_from', 'limit_to', 'details',
-            'is_active', 'coefficient'
+            'is_active', 'is_system_active', 'coefficient'
         )
 
 
@@ -102,7 +102,7 @@ class OrderDetailSerializer(ModelSerializer):
         model = Order
         fields = (
             'id', 'type', 'broker', 'rate', 'user', 'limit_from',
-            'limit_to', 'details', 'symbol', 'is_active', 'is_deleted'
+            'limit_to', 'details', 'symbol', 'is_active', 'is_system_active', 'is_deleted'
         )
 
 
@@ -135,7 +135,8 @@ class AggregatedOrderSerializer(ModelSerializer):
             type=self.context['type'],
             symbol=self.context['symbol'],
             is_deleted=False,
-            is_active=True
+            is_active=True,
+            is_system_active=True
         ).count()
 
     def get_best_rate(self, instance: Broker):
@@ -144,7 +145,8 @@ class AggregatedOrderSerializer(ModelSerializer):
             type=self.context['type'],
             symbol=self.context['symbol'],
             is_deleted=False,
-            is_active=True
+            is_active=True,
+            is_system_active=True
         ).order_by(f'{"-" if self.context["type"] == "buy" else ""}rate').first()
         if best_rate_order:
             return best_rate_order.rate

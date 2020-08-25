@@ -81,6 +81,7 @@ class Order(models.Model):
     type = models.CharField(max_length=4)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_system_active = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
 

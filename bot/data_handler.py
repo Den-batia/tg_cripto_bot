@@ -37,7 +37,7 @@ class DataHandler:
         return await rc.start()
 
     async def get_updates(self):
-        notification = NotificationsQueue.get(False)
+        notification = NotificationsQueue.get_nowait()
         while notification is not None:
             print(notification)
             meth = getattr(rc, f'get_update_{notification["type"]}')
@@ -200,7 +200,12 @@ class DataHandler:
         except:
             return await rc.unknown_command()
         is_my = user['id'] == order['user']['id']
-        return await rc.order(order, is_my=is_my)
+        is_enough_money = True
+        if not is_my and order['type'] == 'buy':
+            balance = Decimal((await self._get_account(user['id'], order['symbol']['id']))['balance'])
+            target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
+            is_enough_money = balance >= target_balance
+        return await rc.order(order, is_my=is_my, is_enough_money=is_enough_money)
 
     async def get_user_info(self, telegram_id, nickname):
         user = await api.get_user(telegram_id)

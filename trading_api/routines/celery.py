@@ -19,8 +19,14 @@ def update_rates():
 
 @periodic_task(run_every=timedelta(minutes=2))
 def update_order_rates():
-    from .tasks.update_order_rates import update
+    from .tasks.orders.update_order_rates import update
     update()
+
+
+@periodic_task(run_every=timedelta(seconds=15))
+def update_order_activations():
+    from .tasks.orders.update_order_activation import update_orders_activations
+    update_orders_activations()
 
 
 @periodic_task(run_every=timedelta(minutes=2))
