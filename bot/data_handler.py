@@ -115,9 +115,16 @@ class DataHandler:
     async def cancel(self):
         return await rc.cancel()
 
-    async def accounts(self):
+    async def accounts(self, telegram_id):
+        user = await api.get_user(telegram_id)
         symbols = await api.get_symbols()
-        return await rc.accounts(symbols)
+        accounts = await api.get_accounts(user['id'])
+        rates = await api.get_rates()
+        total_balance = 0
+        for account in accounts['accounts']:
+            rate = next(filter(lambda x: x['symbol']['id'] == account['symbol']['id'], rates))['rate']
+            total_balance += round(Decimal(account['balance']) * Decimal(rate), 2)
+        return await rc.accounts(symbols, accounts['accounts'], total_balance)
 
     async def _get_account(self, user_id, symbol_id):
         user_accounts = (await api.get_accounts(user_id))['accounts']

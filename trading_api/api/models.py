@@ -109,6 +109,12 @@ class Deal(models.Model):
     closed_at = models.DateTimeField(blank=True, null=True, default=None)
 
 
+class Dispute(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
+    deal = models.OneToOneField(Deal, on_delete=models.CASCADE, related_name='dispute')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class UserRate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked')
     target = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')

@@ -7,7 +7,7 @@ from .api import (
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
     NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView, NewDealView,
     DealDetailViewSet, ConfirmDealView, DeclineDealView, SendFiatDealView, SendCryptoDealView, NewMessageView,
-    BalanceView, RateUserView, NicknameChangeView, UsersStatView
+    BalanceView, RateUserView, NicknameChangeView, UsersStatView, RatesViewSet
 )
 
 router = routers.DefaultRouter()
@@ -23,6 +23,7 @@ router.register('v1/deals', DealDetailViewSet, 'deals')
 router.register('v1/users/(?P<user_id>[0-9a-f-]+)/orders', UserOrdersViewSet, 'user-orders')
 router.register('v1/user-info', UserInfoViewSet, 'user-info')
 router.register('v1/order-info', OrderInfoViewSet, 'order-info')
+router.register('v1/rate', RatesViewSet, 'rates')
 
 urlpatterns = router.urls
 

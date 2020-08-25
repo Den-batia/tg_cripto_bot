@@ -8,10 +8,10 @@ from bot.states import EDIT_REQUISITE
 from bot.translations.translations import sm
 
 
-@dp.message_handler(lambda msg: msg.text.startswith(sm('requisites')))
-async def requisites(message: types.Message):
+@dp.callback_query_handler(lambda msg: re.match(r'^requisites$', msg.data))
+async def requisites(message: types.CallbackQuery):
     text, k = await dh.requisites()
-    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await message.message.edit_text(text=text, reply_markup=k)
 
 
 @dp.callback_query_handler(lambda msg: re.match(r'requisite_broker [0-9]+', msg.data))

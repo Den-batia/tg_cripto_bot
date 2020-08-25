@@ -52,9 +52,9 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def accounts(self, symbols):
-        text = await self._get(var_name='accounts')
-        k = await kb.accounts(symbols)
+    async def accounts(self, symbols, accounts, total_balance):
+        text = await self._get(var_name='accounts', total_balance=total_balance)
+        k = await kb.accounts(symbols, accounts)
         return text, k
 
     async def account_not_exists(self, symbol_id):

@@ -47,8 +47,17 @@ class Keyboard:
         ])
         return kb
 
-    async def accounts(self, symbols):
-        btns = [[self.inl_b(symbol['name'].upper(), action=f'account {symbol["id"]}')] for symbol in symbols]
+    async def accounts(self, symbols, accounts):
+        def get_balance(symbol_id):
+            account = next(filter(lambda x: x['symbol']['id'] == symbol_id, accounts), None)
+            return account['balance'] if account else None
+        btns = []
+        for symbol in symbols:
+            name = symbol["name"].upper()
+            balance = get_balance(symbol['id'])
+            if balance:
+                name += f' ({balance})'
+                btns.append([self.inl_b(name, action=f'account {symbol["id"]}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def account(self, account):
@@ -189,7 +198,10 @@ class Keyboard:
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def broker_requisite(self, broker):
-        btns = [[self.inl_b('edit_requisite', action=f'edit_requisite {broker["id"]}')]]
+        btns = [
+            [self.inl_b('edit_requisite', action=f'edit_requisite {broker["id"]}')],
+            [self.inl_b('back', action='requisites')],
+        ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def confirm_deal(self, deal_id):

@@ -3,7 +3,7 @@ from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from .models import User, Text, Symbol, Account, Order, Broker, Requisite, Deal
+from .models import User, Text, Symbol, Account, Order, Broker, Requisite, Deal, Rates
 from crypto.manager import crypto_manager
 
 
@@ -62,7 +62,11 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'type', 'broker', 'rate', 'user', 'limit_from', 'limit_to', 'details', 'is_active', 'coefficient')
+        fields = (
+            'id', 'type', 'broker', 'rate', 'user',
+            'limit_from', 'limit_to', 'details',
+            'is_active', 'coefficient'
+        )
 
 
 class UserInfoSerializer(ModelSerializer):
@@ -152,6 +156,14 @@ class RequisiteSerializer(ModelSerializer):
     class Meta:
         model = Requisite
         fields = ('broker', 'requisite')
+
+
+class RatesSerializer(ModelSerializer):
+    symbol = SymbolSerializer(read_only=True)
+
+    class Meta:
+        model = Rates
+        fields = ('symbol', 'rate')
 
 
 class TextSerializer(ModelSerializer):

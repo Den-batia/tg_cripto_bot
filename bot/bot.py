@@ -32,7 +32,7 @@ async def start(message: types.Message, state):
 
 @dp.message_handler(lambda msg: msg.text.startswith(sm('accounts')))
 async def accounts(message: types.Message):
-    text, k = await dh.accounts()
+    text, k = await dh.accounts(message.from_user.id)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 

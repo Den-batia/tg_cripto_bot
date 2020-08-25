@@ -25,9 +25,13 @@ class API:
             if resp.status != 204:
                 return await resp.json()
 
-    async def get_rate(self):
-        res = await self._call_api(f'/v1/rate')
+    async def get_rate(self, symbol_id):
+        res = await self._call_api(f'/v1/rate/{symbol_id}')
         return res['rate']
+
+    async def get_rates(self):
+        res = await self._call_api(f'/v1/rate')
+        return res
 
     async def get_symbols(self):
         res = await self._call_api(f'/v1/symbols')

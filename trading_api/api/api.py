@@ -14,7 +14,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelV
 from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite, Deal, UserRate
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer, \
-    RequisiteSerializer, DealDetailSerializer
+    RequisiteSerializer, DealDetailSerializer, RatesSerializer
 from crypto.manager import crypto_manager
 
 from utils.redis_queue import NotificationsQueue
@@ -448,6 +448,12 @@ class NicknameChangeView(APIView):
         user.last_nickname_change = datetime.now(timezone.utc)
         user.save()
         return Response(status=204)
+
+
+class RatesViewSet(ReadOnlyModelViewSet):
+    serializer_class = RatesSerializer
+    queryset = Rates.objects.all()
+    lookup_field = 'symbol'
 
 
 class TextViewSet(ReadOnlyModelViewSet):
