@@ -136,6 +136,9 @@ class API:
     async def balance(self):
         return await self._call_api(f'/v1/balance')
 
+    async def users_stat(self):
+        return await self._call_api(f'/v1/users-stat')
+
     async def update_order(self, user_id, order_id, data):
         return await self._call_api(f'/v1/users/{user_id}/orders/{order_id}/', method='patch', _json=data)
 

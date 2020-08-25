@@ -63,6 +63,7 @@
     "message_sent": "Сообщение успешно отправлено",
     "message_received": "Вам пришло сообщение от /tr%{nickname}:\n%{text}",
 
-    "balance": "Блокчейн: %{wallet} %{symbol}\nБаза данных: %{db} %{symbol}\nБаланс: %{balance} %{symbol}"
+    "balance": "Блокчейн: %{wallet} %{symbol}\nБаза данных: %{db} %{symbol}\nБаланс: %{balance} %{symbol}",
+    "users_stat": "Всего пользователей: %{users}\nНовых пользователей за сутки: %{users24h}"
   }
 }

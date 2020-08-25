@@ -213,6 +213,10 @@ class DataHandler:
         balance = await api.balance()
         return await rc.balance(balance)
 
+    async def users_stat(self):
+        users_stat = await api.users_stat()
+        return await rc.users_stat(users_stat)
+
     async def market(self):
         symbols = await api.get_symbols()
         return await rc.market_choose_symbol(symbols)
@@ -377,7 +381,6 @@ class DataHandler:
 
     async def nickname_change(self, telegram_id):
         user = await api.get_user(telegram_id)
-        print(user['last_nickname_change'])
         if (
                 (last_change := user['last_nickname_change']) is not None
                 and
@@ -391,8 +394,8 @@ class DataHandler:
         try:
             await api.change_nickname(user['id'], new_nickname)
         except:
-            return await rc.nickname_change()
-        return await rc.done()
+            return await rc.nickname_change(), False
+        return await rc.done(), True
 
 
 dh = DataHandler()

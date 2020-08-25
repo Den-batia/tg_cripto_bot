@@ -26,6 +26,7 @@ async def cancel_change_nickname(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: re.match(r'^[a-zA-Z0-9]{3,10}$', msg.text), state=NICKNAME_CHANGE)
 async def nickname_change(message: types.Message, state):
-    text, k = await dh.change_nickname(message.from_user.id, message.text)
+    (text, k), status = await dh.change_nickname(message.from_user.id, message.text)
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
-    await state.reset_state(with_data=True)
+    if status:
+        await state.reset_state(with_data=True)

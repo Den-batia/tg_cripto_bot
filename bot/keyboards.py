@@ -78,7 +78,7 @@ class Keyboard:
             [
                 self.inl_b(
                     f'{"📈" if order["type"] == "buy" else "📉"} {order["broker"]}, '
-                    f'{prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])}, {order["rate"]} RUB',
+                    f'{prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])} ₽, {order["rate"]} ₽',
                     action=f'order {order["id"]}'
                 )
             ]
@@ -121,7 +121,7 @@ class Keyboard:
 
     async def symbol_market_action(self, symbol, brokers, action):
         btns = [
-            self.inl_b(f'{broker["name"]} ({broker["orders_cnt"]})', action=f'broker_{action} {symbol["id"]} {broker["id"]}')
+            self.inl_b(f'{broker["name"]} {broker["best_rate"] or 0} ₽, ({broker["orders_cnt"]})', action=f'broker_{action} {symbol["id"]} {broker["id"]}')
             for broker in brokers
         ]
         btns = get_chunks(btns, 2)
@@ -130,7 +130,7 @@ class Keyboard:
 
     async def symbol_broker_market(self, symbol, orders, action):
         btns = [
-            [self.inl_b(f'{order["user"]}, {order["limit_from"]}-{order["limit_to"]} RUB, {order["rate"]}', action=f'order {order["id"]}')]
+            [self.inl_b(f'{order["user"]}, {order["limit_from"]}-{order["limit_to"]} ₽, {order["rate"]}₽', action=f'order {order["id"]}')]
             for order in orders
         ]
         btns.append([self.inl_b('back', action=f'{action} {symbol["id"]}')])

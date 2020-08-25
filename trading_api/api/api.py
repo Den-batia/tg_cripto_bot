@@ -78,7 +78,14 @@ class OrderViewSet(ReadOnlyModelViewSet):
         symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
         ref = get_object_or_404(User, id=self.request.query_params.get('ref'))
-        return Order.objects.filter(~Q(user=ref), broker=broker, symbol=symbol, type=order_type, is_deleted=False, is_active=True)
+        return Order.objects.filter(
+            ~Q(user=ref),
+            broker=broker,
+            symbol=symbol,
+            type=order_type,
+            is_deleted=False,
+            is_active=True
+        ).order_by(f'{"-" if order_type == "buy" else ""}rate')
 
 
 class UserOrdersViewSet(ModelViewSet):
@@ -404,6 +411,15 @@ class BalanceView(APIView):
                 }
             target['balance'] = target['wallet'] - target['db']
             data.append(target)
+        return Response(data=data)
+
+
+class UsersStatView(APIView):
+    def get(self, request, *args, **kwargs):
+        data = {
+            'users': User.objects.count(),
+            'users24h': User.objects.filter(created_at__gt=datetime.now(timezone.utc)-timedelta(days=1)).count()
+        }
         return Response(data=data)
 
 

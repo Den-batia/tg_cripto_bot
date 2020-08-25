@@ -233,7 +233,6 @@ class ResponseComposer:
         return text, k
 
     async def settings(self, user):
-        print(user)
         text = await self._get(var_name='settings', **user)
         k = await kb.settings(user)
         return text, k
@@ -332,6 +331,11 @@ class ResponseComposer:
                 db=b['db'], symbol=b['symbol'].upper(),
                 balance=b['balance']
             )
+        k = await kb.main_menu()
+        return text, k
+
+    async def users_stat(self, users_stat):
+        text = await self._get(var_name='users_stat', **users_stat)
         k = await kb.main_menu()
         return text, k
 

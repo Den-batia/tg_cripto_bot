@@ -119,10 +119,11 @@ class DealDetailSerializer(ModelSerializer):
 
 class AggregatedOrderSerializer(ModelSerializer):
     orders_cnt = SerializerMethodField(read_only=True)
+    best_rate = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Broker
-        fields = ('id', 'name', 'orders_cnt')
+        fields = ('id', 'name', 'orders_cnt', 'best_rate')
 
     def get_orders_cnt(self, instance: Broker):
         return instance.orders.filter(
@@ -132,6 +133,17 @@ class AggregatedOrderSerializer(ModelSerializer):
             is_deleted=False,
             is_active=True
         ).count()
+
+    def get_best_rate(self, instance: Broker):
+        best_rate_order = instance.orders.filter(
+            ~Q(user=self.context['ref']),
+            type=self.context['type'],
+            symbol=self.context['symbol'],
+            is_deleted=False,
+            is_active=True
+        ).order_by(f'{"-" if self.context["type"] == "buy" else ""}rate').first()
+        if best_rate_order:
+            return best_rate_order.rate
 
 
 class RequisiteSerializer(ModelSerializer):

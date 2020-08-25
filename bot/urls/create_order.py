@@ -65,6 +65,16 @@ async def done_choose_limits(message: types.Message, state):
     await state.set_state(CHOOSE_RATE)
 
 
+@dp.message_handler(lambda msg: is_string_a_number(msg.text), state=CHOOSE_LIMITS)
+async def done_choose_limits_only_to(message: types.Message, state):
+    limit_from, limit_to = 1, int(float(message.text))
+    data = await state.get_data()
+    text, k = await dh.choose_rate()
+    await state.set_data({**data, **{'limit_from': limit_from, 'limit_to': limit_to}})
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await state.set_state(CHOOSE_RATE)
+
+
 @dp.message_handler(lambda msg: re.match(r'^-?[0-9]{1,2}%$', msg.text), state=CHOOSE_RATE)
 async def choose_rate_percents(message: types.Message, state):
     coefficient = str(round((int(message.text[:-1]) + 100) / 100, 2))

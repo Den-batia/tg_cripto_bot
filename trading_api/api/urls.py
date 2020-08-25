@@ -7,7 +7,7 @@ from .api import (
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
     NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView, NewDealView,
     DealDetailViewSet, ConfirmDealView, DeclineDealView, SendFiatDealView, SendCryptoDealView, NewMessageView,
-    BalanceView, RateUserView, NicknameChangeView
+    BalanceView, RateUserView, NicknameChangeView, UsersStatView
 )
 
 router = routers.DefaultRouter()
@@ -43,4 +43,5 @@ urlpatterns += [
     path('v1/deals/<str:deal_id>/rate/', RateUserView.as_view(), name='rate-user-deal'),
     path('v1/users/<str:user_id>/nickname/', NicknameChangeView.as_view(), name='nickname-change'),
     path('v1/balance', BalanceView.as_view(), name='balance'),
+    path('v1/users-stat', UsersStatView.as_view(), name='users-stat'),
 ]
