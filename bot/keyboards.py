@@ -1,5 +1,9 @@
+from datetime import timedelta, datetime, timezone
+
 from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup
+from dateutil.parser import parse
+
 from .translations.translations import translate
 from .utils.utils import get_chunks, prettify_number
 
@@ -39,7 +43,7 @@ class Keyboard:
     async def main_menu(self):
         kb = self.get_kb([
             [self.label('accounts'), self.label('trading')],
-            [self.label('about'), self.label('requisites')],
+            [self.label('about'), self.label('settings')],
         ])
         return kb
 
@@ -165,6 +169,18 @@ class Keyboard:
         btns = [[self.inl_b('ref', action='ref')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def settings(self, user):
+        btns = [
+            [self.inl_b('requisites', action='requisites')],
+        ]
+        if (
+                (last_change := user['last_nickname_change']) is None
+                or
+                parse(last_change) + timedelta(days=30) < datetime.now(timezone.utc)
+        ):
+            btns.append([self.inl_b('nickname_change', action='nickname_change')])
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def requisites(self, brokers):
         btns = []
         for broker in brokers:
@@ -191,6 +207,15 @@ class Keyboard:
 
     async def send_crypto(self, deal_id):
         btns = [[self.inl_b('confirm_fiat', action=f'deal_send_crypto {deal_id}')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def user_rate(self, deal_id):
+        btns = [
+            [
+                self.inl_b('like', action=f'deal_send_crypto {deal_id}'),
+                self.inl_b('dislike', action=f'deal_send_crypto {deal_id}')
+            ]
+        ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def get_cancel(self):

@@ -33,6 +33,7 @@ class User(models.Model):
     is_admin = models.BooleanField(default=False)
     is_verify = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_nickname_change = models.DateTimeField(blank=True, null=True, default=None)
 
     REQUIRED_FIELDS = ['id']
     USERNAME_FIELD = 'telegram_id'
@@ -106,6 +107,16 @@ class Deal(models.Model):
     commission = models.DecimalField(max_digits=15, decimal_places=8, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(blank=True, null=True, default=None)
+
+
+class UserRate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked')
+    target = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
+    is_like = models.BooleanField()
+    deal = models.ForeignKey(Deal, on_delete=models.CASCADE, related_name='rates')
+
+    class Meta:
+        unique_together = ('user', 'target', 'deal')
 
 
 class Deposit(models.Model):

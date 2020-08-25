@@ -109,6 +109,11 @@ class API:
         res = await self._call_api(f'/v1/deals/{deal_id}/{action}/', method='post', _json={'ref': user_id})
         return res
 
+    async def rate_user(self, user_id, target_id, deal_id, action):
+        res = await self._call_api(f'/v1/deals/{deal_id}/rate/', method='post',
+                                   _json={'ref': user_id, 'target': target_id, 'is_like': action})
+        return res
+
     async def get_user(self, user_tg_id):
         return await self._call_api(f'/v1/tg-users/{user_tg_id}')
 
@@ -124,6 +129,9 @@ class API:
 
     async def update_user(self, user, data):
         return await self._call_api(f'/v1/users/{user}/', method='patch', _json=data)
+
+    async def change_nickname(self, user_id, new_nickname):
+        return await self._call_api(f'/v1/users/{user_id}/nickname/', method='patch', _json={'nickname': new_nickname})
 
     async def balance(self):
         return await self._call_api(f'/v1/balance')

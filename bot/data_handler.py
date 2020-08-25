@@ -1,7 +1,9 @@
 import math
+from datetime import timedelta, datetime, timezone
 from decimal import Decimal
 
 from aiogram.types import Message
+from dateutil.parser import parse
 
 from .api import api
 from .response_composer import rc
@@ -353,6 +355,14 @@ class DataHandler:
         await api.confirm_decline_deal(user['id'], deal['id'], 'send_crypto')
         return await rc.done()
 
+    async def rate_user(self, telegram_id, deal_id, action):
+        deal = await api.get_deal(deal_id)
+        user = await api.get_user(telegram_id)
+        target_id = deal['seller']['id'] if user['id'] == deal['buyer']['id'] else deal['buyer']['id']
+        action = True if action == 'like' else False
+        await api.rate_user(user['id'], target_id, deal['id'], action)
+        return await rc.done()
+
     async def send_message(self):
         return await rc.send_message()
 
@@ -360,6 +370,29 @@ class DataHandler:
         user = await api.get_user(telegram_id)
         await api.send_message(sender_id=user['id'], receiver_id=user_id, text=text)
         return await rc.message_sent()
+
+    async def settings(self, telegram_id):
+        user = await api.get_user(telegram_id)
+        return await rc.settings(user)
+
+    async def nickname_change(self, telegram_id):
+        user = await api.get_user(telegram_id)
+        print(user['last_nickname_change'])
+        if (
+                (last_change := user['last_nickname_change']) is not None
+                and
+                parse(last_change) + timedelta(days=30) > datetime.now(timezone.utc)
+        ):
+            return await rc.unknown_error()
+        return await rc.nickname_change()
+
+    async def change_nickname(self, telegram_id, new_nickname):
+        user = await api.get_user(telegram_id)
+        try:
+            await api.change_nickname(user['id'], new_nickname)
+        except:
+            return await rc.nickname_change()
+        return await rc.done()
 
 
 dh = DataHandler()

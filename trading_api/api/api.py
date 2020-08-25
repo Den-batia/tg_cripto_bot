@@ -1,4 +1,4 @@
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 from decimal import Decimal
 
 from django.db.models import Q, Sum
@@ -11,7 +11,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 
-from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite, Deal
+from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite, Deal, UserRate
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer, \
     RequisiteSerializer, DealDetailSerializer
@@ -405,6 +405,33 @@ class BalanceView(APIView):
             target['balance'] = target['wallet'] - target['db']
             data.append(target)
         return Response(data=data)
+
+
+class RateUserView(APIView):
+    def post(self, request, *args, **kwargs):
+        deal = get_object_or_404(Deal, id=kwargs['deal_id'])
+        user = get_object_or_404(User, id=request.data['ref'])
+        target = get_object_or_404(User, id=request.data['target'])
+        is_like = request.data['is_like']
+        if user in (deal.seller, deal.buyer) and target in (deal.seller, deal.buyer):
+            UserRate.objects.get_or_create(deal=deal, user=user, target=target, defaults={'is_like': is_like})
+        return Response(status=204)
+
+
+class NicknameChangeView(APIView):
+    def patch(self, request, *args, **kwargs):
+        user = get_object_or_404(User, id=kwargs['user_id'])
+        new_nickname = request.data['nickname']
+        is_exists = User.objects.filter(nickname=new_nickname).exists()
+        if is_exists or 3 > len(new_nickname) > 10 or (
+                user.last_nickname_change is not None and
+                user.last_nickname_change + timedelta(days=30) > datetime.now(timezone.utc)
+        ):
+            raise ValidationError
+        user.nickname = new_nickname
+        user.last_nickname_change = datetime.now(timezone.utc)
+        user.save()
+        return Response(status=204)
 
 
 class TextViewSet(ReadOnlyModelViewSet):

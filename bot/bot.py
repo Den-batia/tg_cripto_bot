@@ -9,6 +9,7 @@ from .urls.requisites import *
 from .urls.begin_deal import *
 from .urls.processing_deal import *
 from .urls.send_message import *
+from .urls.change_nickname import *
 from .urls.edit_order import *
 from .helpers import rate_limit
 from .settings import loop
@@ -52,6 +53,12 @@ async def create_account(message: types.CallbackQuery):
 @dp.message_handler(lambda msg: msg.text.startswith(sm('trading')))
 async def trading(message: types.Message):
     text, k = await dh.market()
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith(sm('settings')))
+async def trading(message: types.Message):
+    text, k = await dh.settings(message.from_user.id)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 

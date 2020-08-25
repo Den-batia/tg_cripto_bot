@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
@@ -24,7 +24,10 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'telegram_id', 'ref_code', 'invited_count', 'is_admin', 'nickname', 'is_verify')
+        fields = (
+            'id', 'telegram_id', 'ref_code', 'invited_count', 'is_admin',
+            'nickname', 'is_verify', 'last_nickname_change'
+        )
 
     def get_invited_count(self, instance: User):
         return User.objects.filter(referred_from=instance).count()
@@ -65,17 +68,25 @@ class OrderSerializer(ModelSerializer):
 class UserInfoSerializer(ModelSerializer):
     deals = SerializerMethodField(read_only=True)
     orders = SerializerMethodField(read_only=True)
+    rates = SerializerMethodField(read_only=True)
     created_at = DateTimeField(format="%Y-%m-%d")
 
     class Meta:
         model = User
-        fields = ('id', 'nickname', 'is_verify', 'created_at', 'deals', 'orders')
+        fields = ('id', 'nickname', 'is_verify', 'created_at', 'deals', 'orders', 'rates')
 
     def get_deals(self, instance: User):
         return Deal.objects.filter((Q(buyer=instance) | Q(seller=instance)), status=3).count()
 
     def get_orders(self, instance: User):
         return instance.orders.filter(is_deleted=False).count()
+
+    def get_rates(self, instance: User):
+        q = instance.likes
+        return {
+            'likes': q.filter(is_like=True).count(),
+            'dislikes': q.filter(is_like=False).count()
+        }
 
 
 class OrderDetailSerializer(ModelSerializer):

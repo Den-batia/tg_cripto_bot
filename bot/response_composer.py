@@ -135,13 +135,13 @@ class ResponseComposer:
     async def get_update_crypto_sent(self, **kwargs):
         deal = kwargs['data']
         text = await self._get(var_name='deal_crypto_sent_notification', symbol=deal.pop('symbol')['name'].upper(), **deal)
-        k = None
+        k = await kb.user_rate(deal['id'])
         return text, k
 
     async def get_update_crypto_received(self, **kwargs):
         deal = kwargs['data']
         text = await self._get(var_name='deal_crypto_received_notification', symbol=deal.pop('symbol')['name'].upper(), **deal)
-        k = None
+        k = await kb.user_rate(deal['id'])
         return text, k
 
     async def get_update_deal_timeout(self, **kwargs):
@@ -230,6 +230,17 @@ class ResponseComposer:
     async def message_sent(self):
         text = await self._get(var_name='message_sent')
         k = await kb.main_menu()
+        return text, k
+
+    async def settings(self, user):
+        print(user)
+        text = await self._get(var_name='settings', **user)
+        k = await kb.settings(user)
+        return text, k
+
+    async def nickname_change(self):
+        text = await self._get(var_name='nickname_change')
+        k = await kb.get_cancel()
         return text, k
 
     async def new_order(self, symbol_id):
