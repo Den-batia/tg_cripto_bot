@@ -201,11 +201,15 @@ class DataHandler:
             return await rc.unknown_command()
         is_my = user['id'] == order['user']['id']
         is_enough_money = True
-        if not is_my and order['type'] == 'buy':
-            balance = Decimal((await self._get_account(user['id'], order['symbol']['id']))['balance'])
-            target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
-            is_enough_money = balance >= target_balance
-        return await rc.order(order, is_my=is_my, is_enough_money=is_enough_money)
+        is_requisites_filled = True
+        if not is_my:
+            if order['type'] == 'buy':
+                balance = Decimal((await self._get_account(user['id'], order['symbol']['id']))['balance'])
+                target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
+                is_enough_money = balance >= target_balance
+                requisite = await self._get_requisite(user['id'], order['broker']['id'])
+                is_requisites_filled = bool(requisite)
+        return await rc.order(order, is_my=is_my, is_enough_money=is_enough_money, is_requisites_filled=is_requisites_filled)
 
     async def get_user_info(self, telegram_id, nickname):
         user = await api.get_user(telegram_id)
@@ -279,9 +283,17 @@ class DataHandler:
         k = await rc.get_main_k()
         return text, k
 
-    def _validate_begin_deal(self, order, seller_account):
+    async def _validate_begin_deal(self, order, seller_account, seller_id):
         if Decimal(order['limit_from']) / Decimal(order['rate']) > Decimal(seller_account['balance']):
             raise Exception
+        if order['type'] == 'buy':
+            balance = Decimal(seller_account['balance'])
+            target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
+            is_enough_money = balance >= target_balance
+            requisite = await self._get_requisite(seller_id, order['broker']['id'])
+            is_requisites_filled = bool(requisite)
+            if not is_requisites_filled or not is_enough_money:
+                raise Exception
 
     def _get_seller_id(self, user, order):
         return order['user']['id'] if order['type'] == ORDER_SELL_TYPE else user['id']
@@ -295,7 +307,7 @@ class DataHandler:
         seller_id = self._get_seller_id(user, order)
         account = await self._get_account(seller_id, order['symbol']['id'])
         try:
-            self._validate_begin_deal(order, account)
+            await self._validate_begin_deal(order, account, seller_id)
         except:
             return await rc.unknown_error(), False
         max_amount = min(order['limit_to'], math.ceil(Decimal(account['balance']) * Decimal(order['rate'])))
@@ -329,7 +341,7 @@ class DataHandler:
         order = await api.get_order_info(data['order_id'])
         account = await self._get_account(data['seller_id'], order['symbol']['id'])
         try:
-            self._validate_begin_deal(order, account)
+            await self._validate_begin_deal(order, account, data['seller_id'])
         except:
             return await rc.unknown_error()
         deal = await api.create_deal(data)

@@ -204,7 +204,7 @@ class ResponseComposer:
         k = await kb.my_orders(orders, symbol_id)
         return text, k
 
-    async def order(self, order, is_my, is_enough_money):
+    async def order(self, order, is_my, is_enough_money, is_requisites_filled):
         text = await self._get(var_name=order['type'], symbol=order['symbol']['name'].upper(), id=order['id'])
         text += '\n\n'
         user = order.pop('user')
@@ -224,7 +224,7 @@ class ResponseComposer:
                 text += await self._get(var_name='order_deactivated_system')
             k = await kb.my_order(order)
         else:
-            k = await kb.market_order(order['id'], is_enough_money)
+            k = await kb.market_order(order['id'], is_enough_money, is_requisites_filled)
         return text, k
 
     async def user(self, user, is_admin):
