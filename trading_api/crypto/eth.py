@@ -6,7 +6,7 @@ from os import environ as env
 
 
 if env.get('TEST'):
-    web3 = Web3(HTTPProvider('https://rinkeby.infura.io/v3/6ebd1c9c66c445eeb9715eb27eab7f60'))
+    web3 = Web3(HTTPProvider('https://ropsten.infura.io/v3/6ebd1c9c66c445eeb9715eb27eab7f60'))
     chain = 4
 else:
     web3 = Web3(HTTPProvider(''))
@@ -48,12 +48,9 @@ class ETH:
         return web3.eth.account.privateKeyToAccount(pk).address
 
     @classmethod
-    def get_balance(cls, pk=None, address=None):
+    def get_balance(cls, pk=None):
         if pk is not None:
             address = cls.get_address_from_pk(pk)
-        elif address is not None:
-            if not web3.isAddress(address.lower()):
-                raise ValueError('Wrong address')
         else:
             address = cls.get_address_from_pk(cls.PK)
 
