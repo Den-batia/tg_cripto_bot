@@ -7,7 +7,7 @@ from os import environ as env
 
 if env.get('TEST'):
     web3 = Web3(HTTPProvider('https://ropsten.infura.io/v3/6ebd1c9c66c445eeb9715eb27eab7f60'))
-    chain = 4
+    chain = 3
 else:
     web3 = Web3(HTTPProvider(''))
     chain = 1
