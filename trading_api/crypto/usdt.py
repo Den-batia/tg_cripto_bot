@@ -18,5 +18,9 @@ class USDT(ETH):
 
     @classmethod
     def get_balance(cls, pk=None):
-        balance = cls.contract.functions.balanceOf(self.address).call()
-        return self.from_wei(balance)
+        if pk is not None:
+            address = cls.get_address_from_pk(pk)
+        else:
+            address = cls.get_address_from_pk(cls.PK)
+        balance = cls.contract.functions.balanceOf(address).call()
+        return cls.from_subunit(balance)
