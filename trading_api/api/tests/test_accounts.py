@@ -8,7 +8,7 @@ from crypto.manager import crypto_manager
 from api.tests.abstract_test import AbstractAPITestCase
 
 
-class SymbolReadonlyTest(AbstractAPITestCase):
+class AccountsTest(AbstractAPITestCase):
     def _get_uri(self, *args):
         return reverse('accounts-detail', args)
 

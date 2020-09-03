@@ -8,7 +8,7 @@ from crypto.manager import crypto_manager
 from api.tests.abstract_test import AbstractAPITestCase
 
 
-class SymbolReadonlyTest(AbstractAPITestCase):
+class AddressCheckTest(AbstractAPITestCase):
 
     def _get_uri(self, *args):
         return reverse('address-check', args)
@@ -24,13 +24,10 @@ class SymbolReadonlyTest(AbstractAPITestCase):
         symbol = get_object_or_404(Symbol, name='eth')
         account = Account(user=user, symbol=symbol, private_key=crypto_manager[symbol.name].generate_wallet())
         account.save()
-        asd = UserAccountsViewSet
-        address = account.private_key
+        address = crypto_manager[symbol.name].get_address_from_pk(account.private_key)
         data = {
             'symbol': symbol.id,
-            'address': '',
-
+            'address': address,
         }
         response = self._make_post_request(data, view=self.view, uri=self.uri)
-        print(account.private_key)
-        print(response.data)
+        self.assertEqual(response.data['is_valid'], True)

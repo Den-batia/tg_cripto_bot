@@ -18,13 +18,14 @@ class AbstractAPITestCase(APITestCase):
     def _make_request(self, user, method, data=None, uri=None, view=None, **kwargs):
         uri = uri or self.uri
         auth = self._get_auth(user.token) if user else {}
-        args = [uri] if method == 'get' else [uri, data]
+        # args = [uri] if method == 'get' else [uri, data]
+        args = [uri, data]
         request = getattr(self.factory, method)(*args, **auth)
         view = view or self.view
         return view(request, **kwargs)
 
-    def _make_get_request(self, user=None, uri=None, view=None, **kwargs) -> Response:
-        return self._make_request(user, 'get', uri=uri, view=view, **kwargs)
+    def _make_get_request(self, data, user=None, uri=None, view=None, **kwargs) -> Response:
+        return self._make_request(user, 'get', data=data, uri=uri, view=view, **kwargs)
 
     def _make_post_request(self, data, user=None, uri=None, **kwargs):
         return self._make_request(user, 'post', data=data, uri=uri, **kwargs)

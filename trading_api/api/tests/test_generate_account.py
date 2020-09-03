@@ -7,7 +7,7 @@ from api.models import Account, User, Symbol
 from api.tests.abstract_test import AbstractAPITestCase
 
 
-class SymbolReadonlyTest(AbstractAPITestCase):
+class GenerateAccountTest(AbstractAPITestCase):
 
     def setUp(self) -> None:
         super().setUp()

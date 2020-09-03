@@ -6,7 +6,7 @@ from api.models import Symbol
 from api.tests.abstract_test import AbstractAPITestCase
 
 
-class SymbolReadonlyTest(AbstractAPITestCase):
+class SymbolListTest(AbstractAPITestCase):
     def _get_uri(self, *args):
         return reverse('symbol-detail', args)
 

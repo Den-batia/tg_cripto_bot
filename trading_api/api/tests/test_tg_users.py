@@ -6,7 +6,7 @@ from api.models import User
 from api.tests.abstract_test import AbstractAPITestCase
 
 
-class SymbolReadonlyTest(AbstractAPITestCase):
+class TgUserTest(AbstractAPITestCase):
     def _get_uri(self, *args):
         return reverse('tg-users-detail', args)
 
