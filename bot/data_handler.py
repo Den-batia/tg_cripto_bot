@@ -39,7 +39,6 @@ class DataHandler:
     async def get_updates(self):
         notification = NotificationsQueue.get_nowait()
         while notification is not None:
-            print(notification)
             meth = getattr(rc, f'get_update_{notification["type"]}')
             text, k = await meth(**notification)
             await send_message(text, chat_id=notification['telegram_id'], reply_markup=k)
@@ -372,6 +371,22 @@ class DataHandler:
         if deal['status'] != 1:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], 'send_fiat')
+        return await rc.done()
+
+    async def open_dispute(self, telegram_id, deal_id):
+        deal = await api.get_deal(deal_id)
+        user = await api.get_user(telegram_id)
+        self._validate_user_in_deal(user, deal)
+        if deal['status'] != 2:
+            return await rc.unknown_error()
+        await api.open_dispute(user['id'], deal['id'])
+        return await rc.done()
+
+    async def admin_solve_dispute(self, deal_id, action):
+        deal = await api.get_deal(deal_id)
+        if deal['status'] != 2:
+            return await rc.unknown_error()
+        await api.admin_solve_dispute(deal['id'], action)
         return await rc.done()
 
     async def send_crypto(self, telegram_id, deal_id):

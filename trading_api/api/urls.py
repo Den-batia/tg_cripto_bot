@@ -7,7 +7,7 @@ from .api import (
     GenerateAccountView, AggregatedOrderView, OrderViewSet, BrokersViewSet, NewOrderView, AddressCheckView,
     NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView, NewDealView,
     DealDetailViewSet, ConfirmDealView, DeclineDealView, SendFiatDealView, SendCryptoDealView, NewMessageView,
-    BalanceView, RateUserView, NicknameChangeView, UsersStatView, RatesViewSet
+    BalanceView, RateUserView, NicknameChangeView, UsersStatView, RatesViewSet, SolveDisputeView, OpenDisputeView
 )
 
 router = routers.DefaultRouter()
@@ -41,6 +41,8 @@ urlpatterns += [
     path('v1/deals/<str:deal_id>/decline/', DeclineDealView.as_view(), name='decline-deal'),
     path('v1/deals/<str:deal_id>/send_fiat/', SendFiatDealView.as_view(), name='send-fiat-deal'),
     path('v1/deals/<str:deal_id>/send_crypto/', SendCryptoDealView.as_view(), name='send-crypto-deal'),
+    path('v1/deals/<str:deal_id>/new-dispute/', OpenDisputeView.as_view(), name='open-dispute-deal'),
+    path('v1/deals/<str:deal_id>/solve-dispute/', SolveDisputeView.as_view(), name='solve-dispute-deal'),
     path('v1/deals/<str:deal_id>/rate/', RateUserView.as_view(), name='rate-user-deal'),
     path('v1/users/<str:user_id>/nickname/', NicknameChangeView.as_view(), name='nickname-change'),
     path('v1/balance', BalanceView.as_view(), name='balance'),

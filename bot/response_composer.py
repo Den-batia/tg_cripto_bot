@@ -139,7 +139,33 @@ class ResponseComposer:
     async def get_update_fiat_sent(self, **kwargs):
         deal = kwargs['data']
         text = await self._get(var_name='deal_fiat_sent_notification', broker=deal['order']['broker']['name'], **deal)
-        k = await kb.send_crypto(deal['id'])
+        k = await kb.send_crypto(deal['id'], deal['dispute'])
+        return text, k
+
+    async def get_update_dispute_opened(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='deal_dispute_opened_notification', **deal)
+        if kwargs['admin']:
+            k = await kb.solve_dispute(deal['id'])
+        else:
+            k = await kb.main_menu()
+        return text, k
+
+    async def get_update_dispute_closed_for_buyer(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='dispute_closed_for_buyer_notification', **deal)
+        k = None
+        return text, k
+
+    async def get_update_dispute_closed_for_seller(self, **kwargs):
+        deal = kwargs['data']
+        text = await self._get(var_name='dispute_closed_for_seller_notification', **deal)
+        k = None
+        return text, k
+
+    async def get_update_ref_earning(self, **kwargs):
+        text = await self._get(var_name='ref_earning_notification', **kwargs)
+        k = None
         return text, k
 
     async def get_update_crypto_sent(self, **kwargs):
@@ -330,7 +356,9 @@ class ResponseComposer:
             if user['id'] == deal['buyer']['id'] and deal['status'] == 1:
                 k = await kb.send_fiat(deal['id'])
             elif user['id'] == deal['seller']['id'] and deal['status'] == 2:
-                k = await kb.send_crypto(deal['id'])
+                k = await kb.send_crypto(deal['id'], dispute=deal['dispute'])
+            elif user['id'] == deal['buyer']['id'] and deal['status'] == 2 and not deal['dispute']:
+                k = await kb.open_dispute(deal['id'])
             elif deal['status'] == 0 and user['id'] == deal['order']['user']['id']:
                 k = await kb.confirm_deal(deal['id'])
         return text, k

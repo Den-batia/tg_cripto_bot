@@ -3,7 +3,7 @@ from rest_framework.fields import SerializerMethodField, DateTimeField
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from .models import User, Text, Symbol, Account, Order, Broker, Requisite, Deal, Rates
+from .models import User, Text, Symbol, Account, Order, Broker, Requisite, Deal, Rates, Dispute
 from crypto.manager import crypto_manager
 
 
@@ -106,18 +106,27 @@ class OrderDetailSerializer(ModelSerializer):
         )
 
 
+class DisputeSerializer(ModelSerializer):
+    initiator = UserInfoSerializer(read_only=True)
+
+    class Meta:
+        model = Dispute
+        fields = ('id', 'initiator')
+
+
 class DealDetailSerializer(ModelSerializer):
     order = OrderDetailSerializer(read_only=True)
     buyer = UserInfoSerializer(read_only=True)
     seller = UserInfoSerializer(read_only=True)
     symbol = SymbolSerializer(read_only=True)
+    dispute = DisputeSerializer(read_only=True)
 
     class Meta:
         model = Deal
         fields = (
             'id', 'requisite', 'order', 'buyer', 'seller', 'rate',
             'status', 'amount_crypto', 'amount_currency', 'commission',
-            'created_at', 'closed_at', 'symbol'
+            'created_at', 'closed_at', 'symbol', 'dispute'
         )
 
 

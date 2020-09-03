@@ -113,6 +113,10 @@ class API:
         res = await self._call_api(f'/v1/deals/{deal_id}/{action}/', method='post', _json={'ref': user_id})
         return res
 
+    async def open_dispute(self, user_id, deal_id):
+        res = await self._call_api(f'/v1/deals/{deal_id}/new-dispute/', method='post', _json={'ref': user_id})
+        return res
+
     async def rate_user(self, user_id, target_id, deal_id, action):
         res = await self._call_api(f'/v1/deals/{deal_id}/rate/', method='post',
                                    _json={'ref': user_id, 'target': target_id, 'is_like': action})
@@ -133,6 +137,9 @@ class API:
 
     async def update_user(self, user, data):
         return await self._call_api(f'/v1/users/{user}/', method='patch', _json=data)
+
+    async def admin_solve_dispute(self, deal_id, action):
+        return await self._call_api(f'/v1/deals/{deal_id}/solve-dispute/', method='post', _json={'action': action})
 
     async def change_nickname(self, user_id, new_nickname):
         return await self._call_api(f'/v1/users/{user_id}/nickname/', method='patch', _json={'nickname': new_nickname})

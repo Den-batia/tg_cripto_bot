@@ -39,3 +39,11 @@ async def deal_rate_user(message: types.CallbackQuery):
     action = action.split('_')[1]
     text, k = await dh.rate_user(message.from_user.id, deal_id, action)
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: re.match(r'^open_dispute [0-9a-z]+$', msg.data))
+async def open_dispute(message: types.CallbackQuery):
+    await message.answer()
+    deal_id = message.data.split()[1]
+    text, k = await dh.open_dispute(message.from_user.id, deal_id)
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)

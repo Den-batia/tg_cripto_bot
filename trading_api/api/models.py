@@ -48,7 +48,7 @@ class User(models.Model):
 
 
 class Symbol(models.Model):
-    name = models.CharField(max_length=4, unique=True)
+    name = models.CharField(max_length=5, unique=True)
     min_withdraw = models.DecimalField(max_digits=15, decimal_places=8, default='0.01')
     commission = models.DecimalField(max_digits=15, decimal_places=8, default='0.005')
 
@@ -113,6 +113,7 @@ class Deal(models.Model):
 class Dispute(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
     deal = models.OneToOneField(Deal, on_delete=models.CASCADE, related_name='dispute')
+    initiator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='disputes')
     created_at = models.DateTimeField(auto_now_add=True)
 
 
