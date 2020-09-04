@@ -53,7 +53,7 @@ def process_withdraws_eth():
     confirm()
 
 
-@periodic_task(run_every=timedelta(minutes=20))
+@periodic_task(run_every=timedelta(minutes=20 if os.environ.get('TEST') is None else 2))
 def withdraw_btc():
     from .tasks.crypto.btc.withdraw import withdraw
     withdraw()

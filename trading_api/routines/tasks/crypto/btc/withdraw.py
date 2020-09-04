@@ -1,4 +1,5 @@
 import logging
+from datetime import timezone, datetime
 
 from django.db.transaction import atomic
 
@@ -7,6 +8,8 @@ from utils.redis_queue import NotificationsQueue
 
 from api.models import Symbol
 
+from api.api import BalanceManagementMixin
+
 logger = logging.getLogger('withdraw')
 
 
@@ -14,11 +17,16 @@ def withdraw():
     symbol = Symbol.objects.get(name='btc')
     to_withdraw = symbol.withdraws.filter(confirmed_at__isnull=True)
     to_withdraw_dict = {}
+    bm = BalanceManagementMixin()
     with atomic():
         for withdraw_object in to_withdraw:
-            account = withdraw_object.user.accounts.filter(symbol=withdraw_object.symbol).get()
-            account.frozen -= (withdraw_object.amount + withdraw_object.commission_service)
-            account.save()
+            bm.add_frozen(
+                -(withdraw_object.amount + withdraw_object.commission_service),
+                withdraw_object.user,
+                symbol
+            )
+            withdraw_object.confirmed_at = datetime.now(timezone.utc)
+            withdraw_object.save()
             to_withdraw_dict[withdraw_object.address] = withdraw_object.amount
         if not to_withdraw_dict:
             return
