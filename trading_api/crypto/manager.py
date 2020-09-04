@@ -1,3 +1,4 @@
+from .btc import BTC
 from .eth import ETH
 from .usdt import USDT
 
@@ -5,6 +6,7 @@ from .usdt import USDT
 class Manager:
     def __init__(self):
         self.currencies = {
+            'btc': BTC,
             'eth': ETH,
             'usdt': USDT
         }

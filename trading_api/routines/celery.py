@@ -53,6 +53,18 @@ def process_withdraws_eth():
     confirm()
 
 
+@periodic_task(run_every=timedelta(minutes=20))
+def withdraw_btc():
+    from .tasks.crypto.btc.withdraw import withdraw
+    withdraw()
+
+
+@periodic_task(run_every=timedelta(seconds=15))
+def deposit_btc():
+    from .tasks.crypto.btc.deposit import process_deposit
+    process_deposit()
+
+
 @periodic_task(run_every=timedelta(seconds=15))
 def deal_process_timeouts():
     from .tasks.deals.timeouts import process_timeouts

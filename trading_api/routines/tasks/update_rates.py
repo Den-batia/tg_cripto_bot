@@ -9,10 +9,11 @@ logger = logging.getLogger('update_rates')
 
 def get_rates():
     rates = requests.get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,tether,prizm&vs_currencies=rub'
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,tether,prizm,bitcoin&vs_currencies=rub'
     ).json()
     rates['eth'] = rates.pop('ethereum')
     rates['usdt'] = rates.pop('tether')
+    rates['btc'] = rates.pop('bitcoin')
     logger.debug(f'UPDATE RATE, new rate = {rates}')
     return rates
 
