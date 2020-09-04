@@ -24,7 +24,7 @@ class AbstractAPITestCase(APITestCase):
         view = view or self.view
         return view(request, **kwargs)
 
-    def _make_get_request(self, data, user=None, uri=None, view=None, **kwargs) -> Response:
+    def _make_get_request(self, data=None, user=None, uri=None, view=None, **kwargs) -> Response:
         return self._make_request(user, 'get', data=data, uri=uri, view=view, **kwargs)
 
     def _make_post_request(self, data, user=None, uri=None, **kwargs):
