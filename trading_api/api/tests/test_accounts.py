@@ -29,4 +29,3 @@ class AccountsTest(AbstractAPITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data['telegram_id'], user.telegram_id)
         self.assertGreaterEqual(len(response.data['accounts']), 0)
-        print(response.data)
