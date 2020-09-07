@@ -59,9 +59,9 @@ class ETH:
     @classmethod
     def get_gas_price(cls):
         url = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle'
-        gas_price = int(requests.get(url).json()['result']['ProposeGasPrice'])
+        gas_price = int(requests.get(url).json()['result']['FastGasPrice'])
         if gas_price > 1000:
-            gas_price = 100
+            gas_price = 1000
         return gas_price
 
     @classmethod

@@ -6,7 +6,7 @@ from api.models import Symbol
 
 
 def add_symbols(*args):
-    Symbol.objects.create(name='btc', min_withdraw=0.01, commission=0.0005)
+    Symbol.objects.create(name='btc', min_withdraw=0.001, commission=0.0005)
 
 
 class Migration(migrations.Migration):

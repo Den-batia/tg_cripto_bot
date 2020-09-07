@@ -242,8 +242,8 @@ class Keyboard:
     async def user_rate(self, deal_id):
         btns = [
             [
-                self.inl_b('like', action=f'deal_send_crypto {deal_id}'),
-                self.inl_b('dislike', action=f'deal_send_crypto {deal_id}')
+                self.inl_b('like', action=f'deal_like {deal_id}'),
+                self.inl_b('dislike', action=f'deal_dislike {deal_id}')
             ]
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
