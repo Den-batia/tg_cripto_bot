@@ -1,15 +1,11 @@
-
-
 from rest_framework.generics import get_object_or_404
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
 
 from api.api import NewWithdrawView
 from api.models import Account, User, Symbol, Broker, Order, Requisite, Deal
 from api.tests.abstract_test import AbstractAPITestCase
-from unittest.mock import patch
 
-from crypto.manager import crypto_manager
 
 
 class NewWithdrawTest(AbstractAPITestCase):
@@ -27,7 +23,7 @@ class NewWithdrawTest(AbstractAPITestCase):
         symbol = get_object_or_404(Symbol, name='eth')
         account = Account.objects.create(user=user,
                                          symbol=symbol,
-                                         private_key=crypto_manager[symbol.name].generate_wallet(),
+                                         private_key='private_key',
                                          balance=10)
 
         data = {
@@ -47,7 +43,7 @@ class NewWithdrawTest(AbstractAPITestCase):
         symbol = get_object_or_404(Symbol, name='eth')
         account = Account.objects.create(user=user,
                                          symbol=symbol,
-                                         private_key=crypto_manager[symbol.name].generate_wallet(),
+                                         private_key='private_key',
                                          )
 
         data = {
@@ -65,7 +61,7 @@ class NewWithdrawTest(AbstractAPITestCase):
         symbol = get_object_or_404(Symbol, name='eth')
         account = Account.objects.create(user=user,
                                          symbol=symbol,
-                                         private_key=crypto_manager[symbol.name].generate_wallet(),
+                                         private_key='private_key',
                                          balance=10)
 
         data = {

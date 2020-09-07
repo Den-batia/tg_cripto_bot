@@ -28,7 +28,7 @@ class DealDeclineTest(AbstractAPITestCase):
         requisite = Requisite.objects.create(user=user, broker=broker, requisite='заливать лаве сюда => 1234....1345')
         account = Account.objects.create(user=user,
                                          symbol=symbol,
-                                         private_key=crypto_manager[symbol.name].generate_wallet(),
+                                         private_key='private_key',
                                          balance=10,
                                          frozen=3)
 
@@ -47,7 +47,7 @@ class DealDeclineTest(AbstractAPITestCase):
         }
         response = self._make_post_request(data, view=self.view, uri=self._get_uri(deal_id=deal.id), deal_id=deal.id)
         self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
-        self.assertEqual(Deal.objects.filter(id=deal.id).get().status, 2)
+        self.assertEqual(Deal.objects.get(id=deal.id).status, 2)
 
     @patch('utils.redis_queue.NotificationsQueue.put')
     def test_account_status_not_1(self, put):
