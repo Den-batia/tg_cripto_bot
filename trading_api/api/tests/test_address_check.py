@@ -22,7 +22,7 @@ class AddressCheckTest(AbstractAPITestCase):
         user = User(telegram_id=11234)
         user.save()
         symbol = get_object_or_404(Symbol, name='eth')
-        account = Account(user=user, symbol=symbol, private_key=crypto_manager[symbol.name].generate_wallet())
+        account = Account(user=user, symbol=symbol, private_key='0x1111111111111111111111111111111111111111111111111111111111111111')
         account.save()
         address = crypto_manager[symbol.name].get_address_from_pk(account.private_key)
         data = {

@@ -19,4 +19,4 @@ class BrokersTest(AbstractAPITestCase):
         broker = Broker.objects.create(name='Мой банк')
         response = self._make_get_request(view=self.view, uri=self.uri)
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(Broker.objects.filter(name=broker.name).get().id, broker.id)
+        self.assertEqual(Broker.objects.get(name=broker.name).id, broker.id)

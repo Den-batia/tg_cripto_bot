@@ -57,7 +57,7 @@ class DealConfirmTest(AbstractAPITestCase):
         requisite = Requisite.objects.create(user=user, broker=broker, requisite='заливать лаве сюда => 1234....1345')
         account = Account.objects.create(user=user,
                                          symbol=symbol,
-                                         private_key=crypto_manager[symbol.name].generate_wallet(),
+                                         private_key='private_key',
                                          balance=10)
 
         order = Order.objects.create(broker=broker,

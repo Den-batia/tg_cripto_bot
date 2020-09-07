@@ -77,4 +77,4 @@ class UserOrdersTest(AbstractAPITestCase):
 
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data['limit_from'], data['limit_from'])
-        self.assertEqual(response.data['rate'], str(data['coefficient'] * Rates.objects.filter(symbol=symbol).get().rate))
+        self.assertEqual(response.data['rate'], str(data['coefficient'] * Rates.objects.get(symbol=symbol).rate))
