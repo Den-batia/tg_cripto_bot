@@ -17,5 +17,11 @@ def create():
             with atomic():
                 tx_hash = ETH.create_tx_in(account.private_key)
                 amount = ETH.get_tx_amount(tx_hash)
-                Deposit.objects.create(user=account.user, amount=amount, tx_hash=tx_hash, symbol=symbol)
+                Deposit.objects.create(
+                    user=account.user,
+                    amount=amount,
+                    tx_hash=tx_hash,
+                    address=ETH.get_address_from_pk(account.private_key),
+                    symbol=symbol
+                )
 

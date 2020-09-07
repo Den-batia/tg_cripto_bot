@@ -13,6 +13,7 @@ bitarray==1.2.2
 celery==4.4.6
 certifi==2020.6.20
 chardet==3.0.4
+coverage==5.2.1
 cytoolz==0.10.1
 Django==3.0.8
 django-dotenv==1.4.2
@@ -42,6 +43,7 @@ protobuf==3.12.2
 psycopg2-binary==2.8.5
 pycryptodome==3.9.8
 pyrsistent==0.16.0
+python-bitcoinrpc==1.0
 python-dateutil==2.8.1
 python-i18n==0.3.7
 pytz==2020.1

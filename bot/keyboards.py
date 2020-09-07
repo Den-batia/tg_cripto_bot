@@ -222,8 +222,21 @@ class Keyboard:
         btns = [[self.inl_b('fiat_sent', action=f'deal_send_fiat {deal_id}')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def send_crypto(self, deal_id):
+    async def send_crypto(self, deal_id, dispute):
         btns = [[self.inl_b('confirm_fiat', action=f'deal_send_crypto {deal_id}')]]
+        if not dispute:
+            btns.append([self.inl_b('open_dispute', action=f'open_dispute {deal_id}')])
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def open_dispute(self, deal_id):
+        btns = [[self.inl_b('open_dispute', action=f'open_dispute {deal_id}')]]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
+    async def solve_dispute(self, deal_id):
+        btns = [
+            [self.inl_b('dispute_for_buyer', action=f'dispute_admin_buyer_win {deal_id}')],
+            [self.inl_b('dispute_for_seller', action=f'dispute_admin_seller_win {deal_id}')]
+        ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def user_rate(self, deal_id):

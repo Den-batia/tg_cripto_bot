@@ -36,3 +36,15 @@ async def users_stat(message: types.Message):
     else:
         text, k = await dh.users_stat()
         await send_message(text=text, reply_markup=k, chat_id=message.from_user.id)
+
+
+@dp.callback_query_handler(lambda msg: re.match(r'^dispute_admin_(buyer|seller)_win [0-9a-z]+$', msg.data))
+async def admin_solve_dispute(message: types.CallbackQuery):
+    await message.answer()
+    if not await dh.is_user_admin(message.from_user.id):
+        text, k = await dh.unknown_command()
+        await send_message(text, chat_id=message.from_user.id, reply_markup=k)
+    else:
+        action, deal_id = message.data.split()
+        action = action.split('_')[2]
+        await dh.admin_solve_dispute(deal_id, action)

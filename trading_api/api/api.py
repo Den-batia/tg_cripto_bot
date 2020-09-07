@@ -1,6 +1,7 @@
 from datetime import timezone, datetime, timedelta
 from decimal import Decimal
 
+from django.db.backends.utils import logger
 from django.db.models import Q, Sum
 from django.db.transaction import atomic
 from rest_framework.exceptions import ValidationError, NotFound
@@ -11,7 +12,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 
-from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite, Deal, UserRate
+from .models import User, Text, Symbol, Account, Broker, Order, Rates, Withdraw, Requisite, Deal, UserRate, Dispute
 from .serializers import UserSerializer, TextSerializer, SymbolSerializer, UserAccountsSerializer, \
     AggregatedOrderSerializer, OrderSerializer, BrokerSerializer, OrderDetailSerializer, UserInfoSerializer, \
     RequisiteSerializer, DealDetailSerializer, RatesSerializer
@@ -165,7 +166,15 @@ class GenerateAccountView(APIView):
         symbol = get_object_or_404(Symbol, id=request.data.get('symbol'))
         if Account.objects.filter(user=user, symbol=symbol).exists():
             raise ValidationError
-        Account.objects.create(user=user, symbol=symbol, private_key=crypto_manager[symbol.name].generate_wallet())
+        if symbol.name == 'usdt':
+            symbol_eth = Symbol.objects.get(name='eth')
+            ethereum_account, _ = Account.objects.get_or_create(
+                user=user, symbol=symbol_eth, defaults=crypto_manager['eth'].generate_wallet()
+            )
+            pk = ethereum_account.private_key
+        else:
+            pk = crypto_manager[symbol.name].generate_wallet()
+        Account.objects.create(user=user, symbol=symbol, private_key=pk)
         return Response(status=HTTP_204_NO_CONTENT)
 
 
@@ -181,6 +190,9 @@ class ValidateAddressMixin:
 class BalanceManagementMixin:
     def get_account(self, user: User, symbol: Symbol):
         return user.accounts.filter(symbol=symbol).get()
+
+    def is_account_exists(self, user: User, symbol: Symbol):
+        return user.accounts.filter(symbol=symbol).exists()
 
     def validate_balance(self, user: User, symbol: Symbol, target_amount: Decimal):
         account = self.get_account(user, symbol)
@@ -206,12 +218,14 @@ class BalanceManagementMixin:
         account.save()
 
     def add_frozen(self, amount, user, symbol):
+        logger.info(f'adding frozen {amount} {symbol.name} to /tr{user.nickname}')
         account = self.get_account(user, symbol)
         account.frozen += amount
         self.validate_account_change(account)
         account.save()
 
     def add_balance(self, amount, user, symbol):
+        logger.info(f'adding balance {amount} {symbol.name} to /tr{user.nickname}')
         account = self.get_account(user, symbol)
         account.balance += amount
         self.validate_account_change(account)
@@ -288,6 +302,7 @@ class UpdateDealMixin(BalanceManagementMixin):
     buyer_message_type = ''
     seller_message_type = ''
     saved_deal = None
+    validate_ref = True
 
     @property
     def deal(self):
@@ -296,22 +311,60 @@ class UpdateDealMixin(BalanceManagementMixin):
         return self.saved_deal
 
     def get_deal(self) -> Deal:
-        ref = get_object_or_404(User, id=self.request.data['ref'])
-        return get_object_or_404(
-            Deal.objects.filter(
-                (Q(buyer=ref) | Q(seller=ref)),
-                status__in=self.target_statuses
-            ),
-            id=self.kwargs['deal_id']
-        )
+        q = Deal.objects.filter(status__in=self.target_statuses)
+        if self.validate_ref:
+            ref = get_object_or_404(User, id=self.request.data['ref'])
+            q.filter(Q(buyer=ref) | Q(seller=ref))
+        return get_object_or_404(q, id=self.kwargs['deal_id'])
 
-    def _send_notification(self, telegram_id, message_type):
+    def process_ref_earning(self, ref, amount):
+        self.add_balance(amount, ref, self.deal.symbol)
+        NotificationsQueue.put(
+            {
+                'telegram_id': ref.telegram_id,
+                'type': 'ref_earning',
+                'referral': self.deal.buyer.nickname,
+                'amount': amount,
+                'symbol': self.deal.symbol.name.upper()
+            }
+        )
+        acc = self.get_account(ref, self.deal.symbol)
+        acc.earned_from_ref += amount
+        acc.save()
+
+    def process_deal(self, deal):
+        with atomic():
+            deal.status = 3
+            deal.save()
+            self.add_frozen(-deal.amount_crypto, deal.seller, deal.symbol)
+            commission = round(Decimal('0.01') * deal.amount_crypto, 8)
+            earning = deal.amount_crypto - commission
+            if (ref := deal.buyer.referred_from) and self.is_account_exists(ref, deal.symbol):
+                to_ref = round(commission / Decimal(2), 8)
+                self.process_ref_earning(ref, to_ref)
+                commission = commission - to_ref
+            deal.commission = commission
+            deal.closed_at = datetime.now(timezone.utc)
+            self.add_balance(earning, deal.buyer, deal.symbol)
+            self.send_notifications()
+
+    def return_deal(self, deal):
+        with atomic():
+            deal.status = -1
+            deal.save()
+            self.unfreeze(deal.amount_crypto, deal.seller, deal.symbol)
+            self.send_notifications()
+
+    def _send_notification(self, telegram_id, message_type, add_data=None):
+        if add_data is None:
+            add_data = {}
         for mt in message_type:
             NotificationsQueue.put(
                 {
                     'telegram_id': telegram_id,
                     'type': mt,
-                    'data': DealDetailSerializer(self.deal).data
+                    'data': DealDetailSerializer(self.deal).data,
+                    **add_data
                 }
             )
 
@@ -345,11 +398,7 @@ class DeclineDealView(APIView, UpdateDealMixin):
     seller_message_type = 'deal_declined'
 
     def post(self, request, *args, **kwargs):
-        with atomic():
-            self.deal.status = -1
-            self.deal.save()
-            self.unfreeze(self.deal.amount_crypto, self.deal.seller, self.deal.symbol)
-            self.send_notifications()
+        self.return_deal(self.deal)
         return Response(status=204)
 
 
@@ -365,22 +414,60 @@ class SendFiatDealView(APIView, UpdateDealMixin):
         return Response(status=204)
 
 
+class OpenDisputeView(APIView, UpdateDealMixin):
+    target_statuses = [2]
+
+    def post(self, request, *args, **kwargs):
+        ref = get_object_or_404(User, id=self.request.data['ref'])
+        is_exists = Dispute.objects.filter(deal=self.deal).exists()
+        if is_exists:
+            raise ValidationError
+        else:
+            Dispute.objects.create(deal=self.deal, initiator=ref)
+            self.send_notifications()
+        return Response(status=204)
+
+    def send_notifications(self):
+        telegram_ids = [
+            {'telegram_id': self.deal.seller.telegram_id, 'admin': False},
+            {'telegram_id': self.deal.buyer.telegram_id, 'admin': False}
+        ]
+        for admin in User.objects.filter(is_admin=True).all():
+            telegram_ids.append({'telegram_id': admin.telegram_id, 'admin': True})
+        for telegram_id in telegram_ids:
+            self._send_notification(
+                telegram_id['telegram_id'],
+                message_type=('dispute_opened',),
+                add_data={'admin': telegram_id['admin']}
+            )
+
+
 class SendCryptoDealView(APIView, UpdateDealMixin):
     target_statuses = [2]
     seller_message_type = 'crypto_sent'
     buyer_message_type = 'crypto_received'
 
     def post(self, request, *args, **kwargs):
-        with atomic():
-            self.deal.status = 3
-            self.deal.save()
-            self.add_frozen(-self.deal.amount_crypto, self.deal.seller, self.deal.symbol)
-            commission = Decimal('0.001') * self.deal.amount_crypto
-            earning = self.deal.amount_crypto - commission
-            self.deal.commission = commission
-            self.deal.closed_at = datetime.now(timezone.utc)
-            self.add_balance(earning, self.deal.seller, self.deal.symbol)
-            self.send_notifications()
+        self.process_deal(self.deal)
+        return Response(status=204)
+
+
+class SolveDisputeView(APIView, UpdateDealMixin):
+    target_statuses = [2]
+    validate_ref = False
+
+    def post(self, request, *args, **kwargs):
+        action = request.data['action']
+        if action == 'seller':
+            self.seller_message_type = 'dispute_closed_for_seller'
+            self.buyer_message_type = 'dispute_closed_for_seller'
+            self.return_deal(self.deal)
+
+        elif action == 'buyer':
+            self.seller_message_type = 'dispute_closed_for_buyer'
+            self.buyer_message_type = 'dispute_closed_for_buyer'
+            self.process_deal(self.deal)
+
         return Response(status=204)
 
 
