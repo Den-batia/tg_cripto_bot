@@ -1,3 +1,4 @@
+import os
 from datetime import timezone, datetime, timedelta
 from decimal import Decimal
 
@@ -191,6 +192,22 @@ class BalanceManagementMixin:
     def get_account(self, user: User, symbol: Symbol):
         return user.accounts.filter(symbol=symbol).get()
 
+    def get_system_user(self):
+        return User.objects.filter(telegram_id=int(os.environ.get('SYSTEM_USER_TG'))).get()
+
+    def add_commission(self, amount: Decimal, symbol: Symbol, notify=True):
+        user = self.get_system_user()
+        self.add_balance(amount, user, symbol)
+        if notify:
+            NotificationsQueue.put(
+                {
+                    'telegram_id': user.telegram_id,
+                    'type': 'new_commission_system',
+                    'amount': amount,
+                    'symbol': symbol.name.upper()
+                }
+            )
+
     def is_account_exists(self, user: User, symbol: Symbol):
         return user.accounts.filter(symbol=symbol).exists()
 
@@ -337,15 +354,17 @@ class UpdateDealMixin(BalanceManagementMixin):
             deal.status = 3
             deal.save()
             self.add_frozen(-deal.amount_crypto, deal.seller, deal.symbol)
-            commission = round(Decimal('0.01') * deal.amount_crypto, 8)
+            commission = round(deal.symbol.deals_commission * deal.amount_crypto, 8)
             earning = deal.amount_crypto - commission
             if (ref := deal.buyer.referred_from) and self.is_account_exists(ref, deal.symbol):
-                to_ref = round(commission / Decimal(2), 8)
+                ref_part = deal.buyer.referred_from.ref_part
+                to_ref = round(commission * ref_part, 8)
                 self.process_ref_earning(ref, to_ref)
                 commission = commission - to_ref
             deal.commission = commission
             deal.closed_at = datetime.now(timezone.utc)
             self.add_balance(earning, deal.buyer, deal.symbol)
+            self.add_commission(commission, deal.symbol)
             self.send_notifications()
 
     def return_deal(self, deal):

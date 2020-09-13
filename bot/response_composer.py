@@ -190,6 +190,11 @@ class ResponseComposer:
         k = await kb.send_message(kwargs['user'])
         return text, k
 
+    async def get_update_new_commission_system(self, **kwargs):
+        text = await self._get(var_name='new_commission_system', **kwargs)
+        k = None
+        return text, k
+
     async def cancel(self):
         text = await self._get(var_name='cancel')
         k = await kb.main_menu()

@@ -1,13 +1,12 @@
-from rest_framework.generics import get_object_or_404
-from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from unittest.mock import patch
 
 from api.api import SendFiatDealView
 from api.models import Account, User, Symbol, Broker, Order, Requisite, Deal
 from api.tests.abstract_test import AbstractAPITestCase
-from unittest.mock import patch
-
 from crypto.manager import crypto_manager
+from rest_framework.generics import get_object_or_404
+from rest_framework.reverse import reverse
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
 
 
 class DealDeclineTest(AbstractAPITestCase):

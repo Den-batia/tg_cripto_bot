@@ -66,6 +66,7 @@
     "dispute_closed_for_buyer_notification": "Спор по сделке /d%{id} закрыт в пользу покупателя",
     "dispute_closed_for_seller_notification": "Спор по сделке /d%{id} закрыт в пользу продавца",
     "ref_earning_notification": "Ваш реферрал /tr%{referral} провел сделку и принес Вам %{amount} %{symbol}",
+    "new_commission_system": "Комиссия: %{amount} %{symbol}",
 
     "send_message": "Напишите сообщение",
     "message_sent": "Сообщение успешно отправлено",

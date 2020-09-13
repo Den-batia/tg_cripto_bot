@@ -28,6 +28,7 @@ class User(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
     telegram_id = models.BigIntegerField(unique=True, blank=True, null=True)
     referred_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, default=None, null=True)
+    ref_part = models.DecimalField(max_digits=6, decimal_places=3, default=0.5)
     ref_code = models.CharField(default=random_ref_code, unique=True, max_length=16)
     nickname = models.CharField(default=random_nickname, unique=True, max_length=10)
     is_admin = models.BooleanField(default=False)
@@ -51,6 +52,7 @@ class Symbol(models.Model):
     name = models.CharField(max_length=5, unique=True)
     min_withdraw = models.DecimalField(max_digits=15, decimal_places=8, default='0.01')
     commission = models.DecimalField(max_digits=15, decimal_places=8, default='0.005')
+    deals_commission = models.DecimalField(max_digits=5, decimal_places=5, default=0.001)
 
 
 class Account(models.Model):
