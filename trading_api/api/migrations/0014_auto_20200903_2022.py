@@ -2,13 +2,12 @@
 
 from django.db import migrations, models
 
-from api.models import Symbol
 
-
-
-def add_symbols(*args):
-    Symbol.objects.create(name='usdt', min_withdraw=10, commission=5)
-    Symbol.objects.create(name='prizm', min_withdraw=10, commission=1)
+def add_symbols(apps, schema_editor):
+    Symbol = apps.get_model("api", "Symbol")
+    db_alias = schema_editor.connection.alias
+    Symbol.objects.using(db_alias).create(name='usdt', min_withdraw=10, commission=5)
+    Symbol.objects.using(db_alias).create(name='prizm', min_withdraw=10, commission=1)
 
 
 class Migration(migrations.Migration):
