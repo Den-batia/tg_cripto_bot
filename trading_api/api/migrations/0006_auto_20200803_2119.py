@@ -6,15 +6,20 @@ from django.utils.timezone import utc
 from api.models import Symbol, Broker
 
 
-def add_symbol_brokers(*args, **kwargs):
+def add_symbol_brokers(apps, schema_editor):
     brokers = [
         'Сбербанк', 'Тинькофф', 'ВТБ', 'Альфа-Банк', 'Приват-Банк',
         'Каспий-Банк', 'Газпромбанк', 'Банк Открытие',
         'QIWI', 'Яндекс', 'ADV cash', 'Payeer', 'Банковский перевод'
     ]
+    Symbol = apps.get_model("api", "Symbol")
+    db_alias = schema_editor.connection.alias
     objects = [Broker(name=name) for name in brokers]
-    Broker.objects.bulk_create(objects)
-    Symbol.objects.create(name='eth', min_withdraw=0.01, commission=0.005)
+    Broker.objects.using(db_alias).bulk_create(objects)
+
+    Symbol = apps.get_model("api", "Symbol")
+    db_alias = schema_editor.connection.alias
+    Symbol.objects.using(db_alias).create(name='eth', min_withdraw=0.01, commission=0.005)
 
 
 class Migration(migrations.Migration):
