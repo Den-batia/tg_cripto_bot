@@ -17,7 +17,6 @@ def add_symbol_brokers(apps, schema_editor):
     Broker.objects.using(db_alias).bulk_create(objects)
 
     Symbol = apps.get_model("api", "Symbol")
-    db_alias = schema_editor.connection.alias
     Symbol.objects.using(db_alias).create(name='eth', min_withdraw=0.01, commission=0.005)
 
 
