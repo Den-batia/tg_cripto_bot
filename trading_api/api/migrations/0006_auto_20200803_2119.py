@@ -3,7 +3,6 @@
 import datetime
 from django.db import migrations, models
 from django.utils.timezone import utc
-from api.models import Symbol, Broker
 
 
 def add_symbol_brokers(apps, schema_editor):
@@ -12,7 +11,7 @@ def add_symbol_brokers(apps, schema_editor):
         'Каспий-Банк', 'Газпромбанк', 'Банк Открытие',
         'QIWI', 'Яндекс', 'ADV cash', 'Payeer', 'Банковский перевод'
     ]
-    Symbol = apps.get_model("api", "Symbol")
+    Broker = apps.get_model("api", "Broker")
     db_alias = schema_editor.connection.alias
     objects = [Broker(name=name) for name in brokers]
     Broker.objects.using(db_alias).bulk_create(objects)
