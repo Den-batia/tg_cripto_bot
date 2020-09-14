@@ -42,7 +42,7 @@ class Brokers(admin.ModelAdmin, ExportCsvMixin):
 
 
 class Symbols(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ('name', 'commission', 'min_withdraw', 'deal_commission')
+    list_display = ('name', 'commission', 'min_withdraw', 'deals_commission')
     actions = ["export_as_csv"]
 
 
