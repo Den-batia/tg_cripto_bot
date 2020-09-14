@@ -122,10 +122,9 @@ class ETH:
 
     @classmethod
     def get_tx_amount(cls, tx_hash):
-        for _ in range(5):
+        for _ in range(100):
             tx = web3.eth.getTransaction(tx_hash)
             if tx:
                 return cls.from_subunit(int(tx['value']))
             time.sleep(3)
 
-        raise Exception('No transaction')
