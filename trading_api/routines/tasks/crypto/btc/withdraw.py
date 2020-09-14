@@ -32,7 +32,9 @@ def withdraw():
             return
         tx_hash = BTC.send_many(venue=to_withdraw_dict)
     commission_net = BTC.get_transaction_fee(tx_hash)
+    total_commission = -commission_net
     for i, withdraw_object in enumerate(to_withdraw):
+        total_commission += withdraw_object.commission_service
         if i == 0:
             withdraw_object.commission_blockchain = commission_net
         withdraw_object.tx_hash = tx_hash
@@ -44,3 +46,5 @@ def withdraw():
                 'link': BTC.get_link(tx_hash)
             }
         )
+
+    bm.add_commission(total_commission, symbol)

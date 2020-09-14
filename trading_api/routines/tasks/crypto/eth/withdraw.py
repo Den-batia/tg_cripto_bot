@@ -32,6 +32,7 @@ def send_tx(withdraw_object: Withdraw):
             'link': ETH.get_link(tx_hash)
         }
     )
+    bm.add_commission(withdraw_object.commission_service - withdraw_object.commission_blockchain, withdraw_object.symbol)
 
 
 def create():
