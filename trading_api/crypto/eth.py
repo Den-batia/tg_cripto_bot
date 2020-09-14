@@ -9,7 +9,7 @@ if env.get('TEST'):
     web3 = Web3(HTTPProvider('https://ropsten.infura.io/v3/6ebd1c9c66c445eeb9715eb27eab7f60'))
     chain = 3
 else:
-    web3 = Web3(HTTPProvider(''))
+    web3 = Web3(HTTPProvider('https://mainnet.infura.io/v3/f413f73cb5dd41cfa4251127c4078bf4'))
     chain = 1
 
 
