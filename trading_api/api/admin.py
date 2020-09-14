@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib import admin
 from django.contrib.admin import AdminSite
 
-from .models import User, Account
+from .models import User, Account, Broker, Symbol, Order, Deal, Deposit, Withdraw
 
 
 class MyAdminSite(AdminSite):
@@ -36,4 +36,44 @@ class Users(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
 
+class Brokers(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('name',)
+    actions = ["export_as_csv"]
+
+
+class Symbols(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('name', 'commission', 'min_withdraw', 'deal_commission')
+    actions = ["export_as_csv"]
+
+
+class Orders(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'limit_from', 'limit_to', 'rate', 'type', 'symbol', 'user', 'is_deleted', 'is_active', 'is_active')
+    list_filter = ('type', 'symbol')
+    actions = ["export_as_csv"]
+
+
+class Deals(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'rate', 'status', 'rate', 'amount_crypto', 'amount_currency', 'commission', 'created_at', 'closed_at', 'buyer', 'seller', 'symbol')
+    list_filter = ('status', 'symbol')
+    actions = ["export_as_csv"]
+
+
+class Deposits(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'tx_hash', 'created_at', 'confirmed_at', 'amount', 'symbol', 'user')
+    list_filter = ('symbol', 'user')
+    actions = ["export_as_csv"]
+
+
+class Withdraws(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'tx_hash', 'address', 'created_at', 'confirmed_at', 'amount', 'symbol', 'user', 'commission_service', 'commission_blockchain')
+    list_filter = ('symbol', 'user')
+    actions = ["export_as_csv"]
+
+
 admin_site.register(User, Users)
+admin_site.register(Broker, Brokers)
+admin_site.register(Symbol, Symbols)
+admin_site.register(Order, Orders)
+admin_site.register(Deal, Deals)
+admin_site.register(Deposit, Deposits)
+admin_site.register(Withdraw, Withdraws)
