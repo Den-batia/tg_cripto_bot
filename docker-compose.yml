@@ -14,6 +14,8 @@ services:
       - postgres
     expose:
       - 8080
+    ports:
+      - 8080:8080
 
   celery:
     build: trading_api
