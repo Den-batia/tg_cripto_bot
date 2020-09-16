@@ -66,7 +66,7 @@ def deposit_btc():
 
 
 @periodic_task(run_every=timedelta(minutes=1))
-def deposit_btc():
+def deposit_usdt():
     from .tasks.crypto.usdt.deposit import deposit
     deposit()
 
