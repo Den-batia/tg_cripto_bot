@@ -21,6 +21,10 @@ def create():
                 if balance_usdt > 0:
                     tx_hash = USDT.deposit(account.private_key)
                     USDT.wait_for_tx_done(tx_hash)
+                    usdt_account = account.user.accounts.filter(symbol=symbol).first()
+                    if usdt_account:
+                        usdt_account.wallet_balance = 0
+                        usdt_account.save()
                 tx_hash = ETH.create_tx_in(account.private_key)
                 amount = ETH.get_tx_amount(tx_hash)
                 Deposit.objects.create(

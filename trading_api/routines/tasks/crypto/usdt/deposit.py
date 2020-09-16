@@ -24,6 +24,7 @@ def deposit():
             with atomic():
                 amount = balance_usdt - account.wallet_balance
                 account.wallet_balance = balance_usdt
+                account.balance += amount
                 account.save()
                 dep = Deposit.objects.create(
                     user=account.user,
