@@ -4,7 +4,8 @@ import time
 from api.models import Symbol, Deposit
 from django.db.transaction import atomic
 
-from crypto.eth import ETH, USDT
+from crypto.eth import ETH
+from crypto.usdt import USDT
 
 logger = logging.getLogger('create_eth_deposits')
 
