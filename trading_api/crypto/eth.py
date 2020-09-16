@@ -134,3 +134,6 @@ class ETH:
                 continue
             return cls.from_subunit(int(tx['value']))
 
+    @classmethod
+    def wait_for_tx_done(cls, tx_hash):
+        web3.eth.waitForTransactionReceipt(tx_hash, timeout=1000, poll_latency=0.5)

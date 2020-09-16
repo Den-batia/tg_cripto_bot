@@ -162,7 +162,7 @@ class DataHandler:
         symbol = await api.get_symbol(symbol_id)
         user = await api.get_user(telegram_id)
         account = await self._get_account(user['id'], symbol_id)
-        if Decimal(account['balance']) < Decimal(symbol['min_withdraw']):
+        if Decimal(account['balance']) < Decimal(symbol['min_transaction']):
             return await rc.not_enough_money_withdraw(), False
         return await rc.enter_address(), True
 
@@ -175,7 +175,7 @@ class DataHandler:
         account = await self._get_account(user['id'], symbol_id)
         return await rc.enter_amount_withdraw(
             balance=account['balance'],
-            min_withdraw=symbol['min_withdraw'],
+            min_withdraw=symbol['min_transaction'],
             symbol=symbol['name'].upper()
         ), True
 
@@ -185,7 +185,7 @@ class DataHandler:
         account = await self._get_account(user['id'], symbol_id)
         if (
                 not is_string_a_number(amount) or
-                (amount := Decimal(amount)) < Decimal(symbol['min_withdraw']) or
+                (amount := Decimal(amount)) < Decimal(symbol['min_transaction']) or
                 amount > Decimal(account['balance'])
         ):
             return await rc.wrong_amount(), False

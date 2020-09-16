@@ -50,7 +50,7 @@ class User(models.Model):
 
 class Symbol(models.Model):
     name = models.CharField(max_length=5, unique=True)
-    min_withdraw = models.DecimalField(max_digits=15, decimal_places=8, default='0.01')
+    min_transaction = models.DecimalField(max_digits=15, decimal_places=8, default='0.01')
     commission = models.DecimalField(max_digits=15, decimal_places=8, default='0.005')
     deals_commission = models.DecimalField(max_digits=5, decimal_places=5, default=0.001)
 
@@ -63,6 +63,7 @@ class Account(models.Model):
     symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='accounts')
     private_key = models.CharField(max_length=128)
     earned_from_ref = models.DecimalField(max_digits=15, decimal_places=8, default=0)
+    wallet_balance = models.DecimalField(max_digits=15, decimal_places=8, default=0)
 
 
 class Broker(models.Model):

@@ -1,20 +1,44 @@
 from decimal import Decimal
 
-from .eth import web3, ETH
+from ethtoken.abi import EIP20_ABI
 
-CONTRACT_ADDRESS = web3.toChecksumAddress('0x96A62428509002a7aE5F6AD29E4750d852A3f3D7')
-CONTRACT_ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_subtractedValue","type":"uint256"}],"name":"decreaseApproval","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimalFactor","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_amount","type":"uint256"}],"name":"getTokens","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_addedValue","type":"uint256"}],"name":"increaseApproval","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_polyDistributionContractAddress","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]'
+from .eth import web3, ETH, chain
+
+CONTRACT_ADDRESS = web3.toChecksumAddress('0xdac17f958d2ee523a2206206994597c13d831ec7')
 
 
 class USDT(ETH):
-    contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=CONTRACT_ABI)
+    contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=EIP20_ABI)
 
-    def _get_gas_and_gas_price(self, to, val, t):
-        gas = self.contract.functions.transfer(to, val).estimateGas({'from': t['from']})
-        gas_price = web3.eth.gasPrice
-        t['gas'] = gas
-        t['gasPrice'] = self.get_gas_price()
+    @classmethod
+    def from_subunit(cls, val):
+        sign = 1
+        if val < 0:
+            val = abs(val)
+            sign = -1
+        return sign * web3.fromWei(val, 'picoether')
+
+    @classmethod
+    def to_subunit(cls, val):
+        sign = 1
+        if val < 0:
+            val = abs(val)
+            sign = -1
+        return sign * web3.toWei(val, 'picoether')
+
+    @classmethod
+    def get_gas_and_gas_price(cls, to, val, pk):
+        gas = cls.contract.functions.transfer(
+            to, cls.to_subunit(val)
+        ).estimateGas(
+            {'from': cls.get_address_from_pk(pk)}
+        )
+        gas_price = cls.get_gas_price()
         return gas, gas_price
+
+    @classmethod
+    def get_target_eth_amount(cls, gas, gas_price):
+        return gas * web3.fromWei(gas_price, 'gwei')
 
     @classmethod
     def get_balance(cls, pk=None):
@@ -24,3 +48,21 @@ class USDT(ETH):
             address = cls.get_address_from_pk(cls.PK)
         balance = cls.contract.functions.balanceOf(address).call()
         return cls.from_subunit(balance)
+
+    @classmethod
+    def deposit(cls, pk):
+        target_address = cls.get_address_from_pk(cls.PK)
+        amount = cls.get_balance(pk)
+        gas, gas_price = cls.get_gas_and_gas_price(target_address, amount, pk)
+        txn = cls.contract.functions.transfer(
+            target_address,
+            amount
+        ).buildTransaction({
+            'chainId': chain,
+            'gas': gas,
+            'value': cls.from_subunit(amount),
+            'gasPrice': web3.toWei(gas_price, 'gwei'),
+            'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(pk)),
+        })
+        signed = web3.eth.account.signTransaction(txn, private_key=pk)
+        return web3.eth.sendRawTransaction(signed.rawTransaction).hex()

@@ -215,8 +215,8 @@ class ResponseComposer:
         k = await kb.get_cancel()
         return text, k
 
-    async def enter_amount_withdraw(self, balance, min_withdraw, symbol):
-        text = await self._get(var_name='enter_amount_withdraw', balance=balance, min_withdraw=min_withdraw, symbol=symbol)
+    async def enter_amount_withdraw(self, balance, min_transaction, symbol):
+        text = await self._get(var_name='enter_amount_withdraw', balance=balance, min_withdraw=min_transaction, symbol=symbol)
         k = await kb.get_cancel()
         return text, k
 
