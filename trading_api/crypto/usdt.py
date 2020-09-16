@@ -66,3 +66,19 @@ class USDT(ETH):
         })
         signed = web3.eth.account.signTransaction(txn, private_key=pk)
         return web3.eth.sendRawTransaction(signed.rawTransaction).hex()
+
+    @classmethod
+    def withdraw(cls, target_address, amount):
+        gas, gas_price = cls.get_gas_and_gas_price(target_address, amount, cls.PK)
+        txn = cls.contract.functions.transfer(
+            target_address,
+            amount
+        ).buildTransaction({
+            'chainId': chain,
+            'gas': gas,
+            'value': amount,
+            'gasPrice': web3.toWei(gas_price, 'gwei'),
+            'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(cls.PK)),
+        })
+        signed = web3.eth.account.signTransaction(txn, private_key=cls.PK)
+        return web3.eth.sendRawTransaction(signed.rawTransaction).hex()
