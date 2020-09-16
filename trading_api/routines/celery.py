@@ -65,6 +65,12 @@ def deposit_btc():
     process_deposit()
 
 
+@periodic_task(run_every=timedelta(minutes=1))
+def deposit_btc():
+    from .tasks.crypto.usdt.deposit import deposit
+    deposit()
+
+
 @periodic_task(run_every=timedelta(seconds=15))
 def deal_process_timeouts():
     from .tasks.deals.timeouts import process_timeouts
