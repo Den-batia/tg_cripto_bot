@@ -54,6 +54,8 @@ class USDT(ETH):
         target_address = cls.get_address_from_pk(cls.PK)
         amount = cls.get_balance(pk)
         gas, gas_price = cls.get_gas_and_gas_price(target_address, amount, pk)
+        print(cls.to_subunit(amount))
+        print(amount)
         txn = cls.contract.functions.transfer(
             target_address,
             cls.to_subunit(amount)
