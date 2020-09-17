@@ -60,7 +60,6 @@ class USDT(ETH):
         ).buildTransaction({
             'chainId': chain,
             'gas': gas,
-            'value': cls.from_subunit(amount),
             'gasPrice': web3.toWei(gas_price, 'gwei'),
             'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(pk)),
         })
@@ -78,6 +77,7 @@ class USDT(ETH):
             'gas': gas,
             'gasPrice': web3.toWei(gas_price, 'gwei'),
             'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(cls.PK)),
+            # 'data': cls.contract.caller.transfer(web3.toChecksumAddress(target_address), amount),
         })
         signed = web3.eth.account.signTransaction(txn, private_key=cls.PK)
         return web3.eth.sendRawTransaction(signed.rawTransaction).hex()
