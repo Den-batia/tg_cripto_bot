@@ -67,17 +67,22 @@ class USDT(ETH):
         return web3.eth.sendRawTransaction(signed.rawTransaction).hex()
 
     @classmethod
-    def withdraw(cls, target_address, amount):
-        gas, gas_price = cls.get_gas_and_gas_price(target_address, amount, cls.PK)
+    def withdraw(cls, target_address, amount, gas, gwei):
         txn = cls.contract.functions.transfer(
             target_address,
             amount
         ).buildTransaction({
             'chainId': chain,
             'gas': gas,
-            'gasPrice': web3.toWei(gas_price, 'gwei'),
-            'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(cls.PK)),
-            # 'data': cls.contract.caller.transfer(web3.toChecksumAddress(target_address), amount),
+            'gasPrice': web3.toWei(gwei, 'gwei'),
+            'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(cls.PK))
         })
         signed = web3.eth.account.signTransaction(txn, private_key=cls.PK)
         return web3.eth.sendRawTransaction(signed.rawTransaction).hex()
+
+    # noinspection PyMethodOverriding
+    @classmethod
+    def get_net_commission(cls, gas, gas_price):
+        gas_price = web3.toWei(gas_price, 'gwei')
+        return web3.fromWei(gas * gas_price, 'ether')
+

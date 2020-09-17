@@ -71,6 +71,12 @@ def deposit_usdt():
     deposit()
 
 
+@periodic_task(run_every=timedelta(minutes=1))
+def deposit_usdt():
+    from .tasks.crypto.usdt.withdraw import withdraw
+    withdraw()
+
+
 @periodic_task(run_every=timedelta(seconds=15))
 def deal_process_timeouts():
     from .tasks.deals.timeouts import process_timeouts

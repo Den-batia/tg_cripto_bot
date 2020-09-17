@@ -37,7 +37,7 @@ def send_tx(withdraw_object: Withdraw):
 
 def create():
     symbol = Symbol.objects.get(name='eth')
-    is_withdrawing = symbol.withdraws.filter(tx_hash__isnull=False, confirmed_at__isnull=True).exists()
+    is_withdrawing = Withdraw.objects.filter(tx_hash__isnull=False, confirmed_at__isnull=True, symbol__name__in=('eth', 'usdt')).exists()
     if not is_withdrawing:
         tx_to_send = symbol.withdraws.filter(tx_hash__isnull=True).first()
         if tx_to_send is not None:
