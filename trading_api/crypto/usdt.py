@@ -86,3 +86,7 @@ class USDT(ETH):
         gas_price = web3.toWei(gas_price, 'gwei')
         return web3.fromWei(gas * gas_price, 'ether')
 
+    @classmethod
+    def to_checksum(cls, address):
+        return web3.toChecksumAddress(address)
+

@@ -8,7 +8,7 @@ from utils.redis_queue import NotificationsQueue
 
 def send_tx(withdraw_object: Withdraw):
     gas, gas_price = USDT.get_gas_and_gas_price(
-        withdraw_object.address,
+        USDT.to_checksum(withdraw_object.address),
         withdraw_object.amount,
         withdraw_object.user.accounts.filter(symbol__name='usdt').get().private_key
     )
