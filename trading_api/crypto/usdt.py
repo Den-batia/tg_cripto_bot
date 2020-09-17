@@ -76,7 +76,6 @@ class USDT(ETH):
         ).buildTransaction({
             'chainId': chain,
             'gas': gas,
-            'value': amount,
             'gasPrice': web3.toWei(gas_price, 'gwei'),
             'nonce': web3.eth.getTransactionCount(cls.get_address_from_pk(cls.PK)),
         })
