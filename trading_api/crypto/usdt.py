@@ -56,7 +56,7 @@ class USDT(ETH):
         gas, gas_price = cls.get_gas_and_gas_price(target_address, amount, pk)
         txn = cls.contract.functions.transfer(
             target_address,
-            amount
+            cls.to_subunit(amount)
         ).buildTransaction({
             'chainId': chain,
             'gas': gas,
