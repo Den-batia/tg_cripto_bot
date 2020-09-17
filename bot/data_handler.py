@@ -175,7 +175,7 @@ class DataHandler:
         account = await self._get_account(user['id'], symbol_id)
         return await rc.enter_amount_withdraw(
             balance=account['balance'],
-            min_withdraw=symbol['min_transaction'],
+            min_transaction=symbol['min_transaction'],
             symbol=symbol['name'].upper()
         ), True
 
