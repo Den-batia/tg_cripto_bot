@@ -20,7 +20,7 @@ def send_tx(withdraw_object: Withdraw):
             withdraw_object.symbol
         )
         tx_hash = USDT.withdraw(
-            target_address=withdraw_object.address,
+            target_address=USDT.to_checksum(withdraw_object.address),
             amount=withdraw_object.amount,
             gas=gas,
             gwei=gas_price
