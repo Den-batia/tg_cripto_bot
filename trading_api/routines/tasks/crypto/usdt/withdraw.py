@@ -23,7 +23,7 @@ def send_tx(withdraw_object: Withdraw):
             target_address=withdraw_object.address,
             amount=withdraw_object.amount,
             gas=gas,
-            gas_price=gas_price
+            gwei=gas_price
         )
         withdraw_object.commission_blockchain = USDT.get_net_commission(gas, gas_price) * Rates.objects.get(symbol__name='usdt').rate
         withdraw_object.tx_hash = tx_hash
