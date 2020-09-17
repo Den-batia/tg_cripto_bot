@@ -70,7 +70,7 @@ class USDT(ETH):
     def withdraw(cls, target_address, amount, gas, gwei):
         txn = cls.contract.functions.transfer(
             target_address,
-            amount
+            cls.to_subunit(amount)
         ).buildTransaction({
             'chainId': chain,
             'gas': gas,
