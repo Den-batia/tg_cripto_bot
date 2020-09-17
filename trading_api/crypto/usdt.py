@@ -28,6 +28,7 @@ class USDT(ETH):
 
     @classmethod
     def get_gas_and_gas_price(cls, to, val, pk):
+        print(to, val, pk)
         gas = cls.contract.functions.transfer(
             to, cls.to_subunit(val)
         ).estimateGas(
