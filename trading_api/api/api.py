@@ -81,7 +81,6 @@ class OrderViewSet(ReadOnlyModelViewSet):
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
         ref = get_object_or_404(User, id=self.request.query_params.get('ref'))
         return Order.objects.filter(
-            ~Q(user=ref),
             broker=broker,
             symbol=symbol,
             type=order_type,

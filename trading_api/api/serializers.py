@@ -140,7 +140,6 @@ class AggregatedOrderSerializer(ModelSerializer):
 
     def get_orders_cnt(self, instance: Broker):
         return instance.orders.filter(
-            ~Q(user=self.context['ref']),
             type=self.context['type'],
             symbol=self.context['symbol'],
             is_deleted=False,
@@ -150,7 +149,6 @@ class AggregatedOrderSerializer(ModelSerializer):
 
     def get_best_rate(self, instance: Broker):
         best_rate_order = instance.orders.filter(
-            ~Q(user=self.context['ref']),
             type=self.context['type'],
             symbol=self.context['symbol'],
             is_deleted=False,
