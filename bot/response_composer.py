@@ -230,9 +230,9 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def my_orders(self, orders, symbol_id):
+    async def my_orders(self, orders, symbol):
         text = await self._get(var_name='my_orders')
-        k = await kb.my_orders(orders, symbol_id)
+        k = await kb.my_orders(orders, symbol)
         return text, k
 
     async def order(self, order, is_my, is_enough_money, is_requisites_filled):

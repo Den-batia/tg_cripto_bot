@@ -82,19 +82,19 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def my_orders(self, orders, symbol_id):
+    async def my_orders(self, orders, symbol):
         btns = [
             [
                 self.inl_b(
                     f'{"📈" if order["type"] == "buy" else "📉"} {order["broker"]}, '
-                    f'{order["symbol"]["name"].upper()}, {prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])} ₽, {order["rate"]} ₽',
+                    f'{symbol["name"].upper()}, {prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])} ₽, {order["rate"]} ₽',
                     action=f'order {order["id"]}'
                 )
             ]
             for order in orders
         ]
-        btns.append([self.inl_b('new_order', action=f'new_order {symbol_id}')])
-        btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol_id}')])
+        btns.append([self.inl_b('new_order', action=f'new_order {symbol["id"]}')])
+        btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol["id"]}')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def my_order(self, order):
