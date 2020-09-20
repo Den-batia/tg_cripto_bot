@@ -24,7 +24,7 @@
     "broker_sell": "Продажа %{symbol}\n<b>%{broker}</b>",
     "deposit_notification": "Новое поступление на сумму %{amount} %{symbol}",
     "withdraw_notification": "Перевод осуществлен: %{link}",
-    "referral": "Приглашай друзей и зарабатывай 0.5% от оборота друзей!",
+    "referral": "Приглашай друзей и зарабатывай 30% от суммы комиссий вашего реферала!",
     "return_main_menu": "Возврат в главное меню",
     "unknown_error": "Возникла неизвестная ошибка!",
     "unknown_command": "Неизвестная команда!",

@@ -134,12 +134,12 @@ class Keyboard:
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def symbol_market_action(self, symbol, brokers, action):
-        btns = [
-            self.inl_b(f'{broker["name"]} {broker["best_rate"] or 0} ₽, ({broker["orders_cnt"]})', action=f'broker_{action} {symbol["id"]} {broker["id"]}')
+        btns = [[
+            self.inl_b(f'✅ {broker["name"]} {broker["best_rate"] or 0} ₽, ({broker["orders_cnt"]})',
+                       action=f'broker_{action} {symbol["id"]} {broker["id"]}')
             for broker in brokers
-        ]
-        btns = get_chunks(btns, 2)
-        btns.append([self.inl_b('back', action=f'market_choose_symbol {symbol["id"]}')])
+        ], [self.inl_b('back', action=f'market_choose_symbol {symbol["id"]}')]]
+        # btns = get_chunks(btns, 2)
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def symbol_broker_market(self, symbol, orders, action):

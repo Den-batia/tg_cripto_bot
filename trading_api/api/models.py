@@ -28,7 +28,7 @@ class User(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid4, editable=False)
     telegram_id = models.BigIntegerField(unique=True, blank=True, null=True)
     referred_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, default=None, null=True)
-    ref_part = models.DecimalField(max_digits=6, decimal_places=3, default=0.5)
+    ref_part = models.DecimalField(max_digits=6, decimal_places=3, default=0.3)
     ref_code = models.CharField(default=random_ref_code, unique=True, max_length=16)
     nickname = models.CharField(default=random_nickname, unique=True, max_length=10)
     is_admin = models.BooleanField(default=False)
