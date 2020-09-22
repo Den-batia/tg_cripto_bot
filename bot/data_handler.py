@@ -301,6 +301,10 @@ class DataHandler:
     def _get_buyer_id(self, user, order):
         return user['id'] if order['type'] == ORDER_SELL_TYPE else order['user']['id']
 
+    def get_max_amount_deal(self, commission, balance, order):
+        balance_limit = math.ceil(balance * Decimal(order['rate']) * (1 - commission))
+        return min(order['limit_to'], balance_limit)
+
     async def begin_deal(self, telegram_id, order_id):
         user = await api.get_user(telegram_id)
         order = await api.get_order_info(order_id)
@@ -310,7 +314,11 @@ class DataHandler:
             await self._validate_begin_deal(order, account, seller_id)
         except:
             return await rc.unknown_error(), False
-        max_amount = min(order['limit_to'], math.ceil(Decimal(account['balance']) * Decimal(order['rate'])))
+        max_amount = self.get_max_amount_deal(
+            commission=Decimal(order['symbol']['deals_commission']),
+            balance=Decimal(account['balance']),
+            order=order
+        )
         return await rc.enter_amount_begin_deal(order['limit_from'], max_amount), True
 
     async def begin_deal_confirmation(self, telegram_id, order_id, amount):
@@ -319,7 +327,11 @@ class DataHandler:
         order = await api.get_order_info(order_id)
         seller_id = self._get_seller_id(user, order)
         account = await self._get_account(seller_id, order['symbol']['id'])
-        max_amount = min(order['limit_to'], math.ceil(Decimal(account['balance']) * Decimal(order['rate'])))
+        max_amount = self.get_max_amount_deal(
+            commission=Decimal(order['symbol']['deals_commission']),
+            balance=Decimal(account['balance']),
+            order=order
+        )
         if amount > max_amount or amount < order['limit_from']:
             text, k = await rc.wrong_amount()
             await send_message(chat_id=telegram_id, text=text, reply_markup=k)

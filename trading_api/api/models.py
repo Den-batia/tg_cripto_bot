@@ -105,6 +105,8 @@ class Deal(models.Model):
     rate = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.SmallIntegerField(default=0)
     amount_crypto = models.DecimalField(max_digits=15, decimal_places=8)
+    amount_crypto_blocked = models.DecimalField(max_digits=15, decimal_places=8)
+    amount_crypto_send = models.DecimalField(max_digits=15, decimal_places=8)
     amount_currency = models.DecimalField(max_digits=15, decimal_places=2)
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_deals')
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_deals')

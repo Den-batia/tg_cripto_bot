@@ -286,6 +286,8 @@ class NewDealView(APIView, BalanceManagementMixin):
         amount = Decimal(request.data['amount'])
         order = get_object_or_404(Order.objects.filter(is_active=True, is_deleted=False), id=request.data['order_id'])
         symbol = order.symbol
+        amount_crypto_block = amount_crypto + round(amount_crypto * symbol.deals_commission, 8)
+        amount_crypto_send = amount_crypto - round(amount_crypto * symbol.deals_commission, 8)
         rate = Decimal(request.data['rate'])
         requisite = request.data['requisite']
         buyer = get_object_or_404(User, id=request.data['buyer_id'])
@@ -295,12 +297,13 @@ class NewDealView(APIView, BalanceManagementMixin):
             if requisite is None:
                 raise ValidationError
             requisite = requisite.requisite
-        self._validate_new_deal(seller, symbol, amount_crypto)
+        self._validate_new_deal(seller, symbol, amount_crypto_block)
         with atomic():
             self.freeze(amount_crypto, seller, symbol)
             deal = Deal.objects.create(
                 seller=seller, buyer=buyer, order=order, rate=rate, requisite=requisite,
-                amount_crypto=amount_crypto, amount_currency=amount, symbol=symbol
+                amount_crypto=amount_crypto, amount_currency=amount, symbol=symbol,
+                amount_crypto_blocked=amount_crypto_block, amount_crypto_send=amount_crypto_send
             )
             data = DealDetailSerializer(deal).data
             NotificationsQueue.put(
@@ -352,17 +355,16 @@ class UpdateDealMixin(BalanceManagementMixin):
         with atomic():
             deal.status = 3
             deal.save()
-            self.add_frozen(-deal.amount_crypto, deal.seller, deal.symbol)
-            commission = round(deal.symbol.deals_commission * deal.amount_crypto, 8)
-            earning = deal.amount_crypto - commission
+            self.add_frozen(-deal.amount_crypto_blocked, deal.seller, deal.symbol)
+            commission = deal.amount_crypto_blocked - deal.amount_crypto_send
             if (ref := deal.buyer.referred_from) and self.is_account_exists(ref, deal.symbol):
                 ref_part = deal.buyer.referred_from.ref_part
-                to_ref = round(commission * ref_part, 8)
+                to_ref = round((deal.amount_crypto - deal.amount_crypto_send) * ref_part, 8)
                 self.process_ref_earning(ref, to_ref)
                 commission = commission - to_ref
             deal.commission = commission
             deal.closed_at = datetime.now(timezone.utc)
-            self.add_balance(earning, deal.buyer, deal.symbol)
+            self.add_balance(deal.amount_crypto_send, deal.buyer, deal.symbol)
             self.add_commission(commission, deal.symbol)
             self.send_notifications()
 
@@ -370,7 +372,7 @@ class UpdateDealMixin(BalanceManagementMixin):
         with atomic():
             deal.status = -1
             deal.save()
-            self.unfreeze(deal.amount_crypto, deal.seller, deal.symbol)
+            self.unfreeze(deal.amount_crypto_blocked, deal.seller, deal.symbol)
             self.send_notifications()
 
     def _send_notification(self, telegram_id, message_type, add_data=None):
