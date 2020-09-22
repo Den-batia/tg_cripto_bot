@@ -50,7 +50,7 @@ class ResponseComposer:
     async def about(self, symbols):
         text = await self._get(var_name='about')
         for symbol in symbols:
-            text += f"\n{symbol['commission']} {symbol['name'].upper()}"
+            text += f"\n{float(symbol['commission'])} {symbol['name'].upper()}"
         k = await kb.ref()
         return text, k
 
