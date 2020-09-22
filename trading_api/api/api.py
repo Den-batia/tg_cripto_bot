@@ -351,17 +351,26 @@ class UpdateDealMixin(BalanceManagementMixin):
         acc.earned_from_ref += amount
         acc.save()
 
+    # noinspection DuplicatedCode
     def process_deal(self, deal):
         with atomic():
             deal.status = 3
             deal.save()
             self.add_frozen(-deal.amount_crypto_blocked, deal.seller, deal.symbol)
             commission = deal.amount_crypto_blocked - deal.amount_crypto_send
+
             if (ref := deal.buyer.referred_from) and self.is_account_exists(ref, deal.symbol):
                 ref_part = deal.buyer.referred_from.ref_part
                 to_ref = round((deal.amount_crypto - deal.amount_crypto_send) * ref_part, 8)
                 self.process_ref_earning(ref, to_ref)
                 commission = commission - to_ref
+
+            if (ref := deal.seller.referred_from) and self.is_account_exists(ref, deal.symbol):
+                ref_part = deal.seller.referred_from.ref_part
+                to_ref = round((deal.amount_crypto_blocked - deal.amount_crypto) * ref_part, 8)
+                self.process_ref_earning(ref, to_ref)
+                commission = commission - to_ref
+
             deal.commission = commission
             deal.closed_at = datetime.now(timezone.utc)
             self.add_balance(deal.amount_crypto_send, deal.buyer, deal.symbol)

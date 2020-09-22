@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.utils import executor
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from bot.states import WITHDRAW_CHOOSE_ADDRESS, WITHDRAW_CHOOSE_AMOUNT
+from bot.states import WITHDRAW_CHOOSE_ADDRESS, WITHDRAW_CHOOSE_AMOUNT, POLICY_AGREE
 from .urls.admin import *
 from .urls.create_order import *
 from .urls.requisites import *
@@ -12,7 +12,7 @@ from .urls.send_message import *
 from .urls.change_nickname import *
 from .urls.edit_order import *
 from .helpers import rate_limit
-from .settings import loop
+from .settings import loop, bot
 from .translations.translations import sm
 
 
@@ -24,10 +24,19 @@ async def get_id(message: types.Message):
 
 @dp.message_handler(commands=['start'], state='*')
 @rate_limit(1)
-async def start(message: types.Message, state):
+async def start(message: types.Message, state: FSMContext):
     await state.reset_state(with_data=True)
     text, k = await dh.start(msg=message)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await bot.send_document(message.from_user.id, open('bot/agreement.docx', mode='rb'))
+    await state.set_state(POLICY_AGREE)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith(sm('confirm_policy')), state=POLICY_AGREE)
+async def agreement(message: types.Message, state: FSMContext):
+    text, k = await dh.policy_confirmed()
+    await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
+    await state.reset_state()
 
 
 @dp.message_handler(lambda msg: msg.text.startswith(sm('accounts')))

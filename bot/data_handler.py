@@ -34,6 +34,9 @@ class DataHandler:
         except:
             ref_code = get_ref_code(msg)
             await api.register_user(msg.from_user.id, ref_code)
+        return await rc.agree_policy()
+
+    async def policy_confirmed(self):
         return await rc.start()
 
     async def get_updates(self):

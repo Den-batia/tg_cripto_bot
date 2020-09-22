@@ -19,6 +19,11 @@ class ResponseComposer:
     async def _big_number_str(self, value):
         return "{:,}".format(value)
 
+    async def agree_policy(self):
+        text = await self._get(var_name='agree_policy')
+        k = await kb.confirm_policy()
+        return text, k
+
     async def start(self):
         text = await self._get(var_name='start')
         k = await kb.main_menu()

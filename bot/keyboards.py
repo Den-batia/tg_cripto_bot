@@ -40,6 +40,12 @@ class Keyboard:
             formed_btns.append([self.inl_b(name) for name in row])
         return formed_btns
 
+    async def confirm_policy(self):
+        kb = self.get_kb([
+            [self.label('confirm_policy')]
+        ])
+        return kb
+
     async def main_menu(self):
         kb = self.get_kb([
             [self.label('accounts'), self.label('trading')],
