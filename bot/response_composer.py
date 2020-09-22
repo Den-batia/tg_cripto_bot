@@ -47,8 +47,10 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def about(self):
+    async def about(self, symbols):
         text = await self._get(var_name='about')
+        for symbol in symbols:
+            text += f"\n{symbol['commission']} {symbol['name'].upper()}"
         k = await kb.ref()
         return text, k
 

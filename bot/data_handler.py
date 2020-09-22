@@ -107,7 +107,8 @@ class DataHandler:
         return await self.get_order_info(telegram_id, order_id)
 
     async def about(self):
-        return await rc.about()
+        symbols = await api.get_symbols()
+        return await rc.about(symbols)
 
     async def some_error(self):
         return await rc.unknown_error()
