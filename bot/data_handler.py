@@ -289,14 +289,16 @@ class DataHandler:
 
     async def _validate_begin_deal(self, order, seller_account, seller_id):
         if Decimal(order['limit_from']) / Decimal(order['rate']) > Decimal(seller_account['balance']):
+            logger.warning('balance should be more than limit_from')
             raise Exception
         if order['type'] == 'buy':
             balance = Decimal(seller_account['balance'])
-            target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
+            target_balance = Decimal(order['limit_from']) / Decimal(order['rate']) * (1 + Decimal(order['symbol']['deals_commission']))
             is_enough_money = balance >= target_balance
             requisite = await self._get_requisite(seller_id, order['broker']['id'])
             is_requisites_filled = bool(requisite)
             if not is_requisites_filled or not is_enough_money:
+                logger.warning('requisites not filled or not enough money')
                 raise Exception
 
     def _get_seller_id(self, user, order):
@@ -316,7 +318,8 @@ class DataHandler:
         account = await self._get_account(seller_id, order['symbol']['id'])
         try:
             await self._validate_begin_deal(order, account, seller_id)
-        except:
+        except Exception as e:
+            logger.exception(e)
             return await rc.unknown_error(), False
         max_amount = self.get_max_amount_deal(
             commission=Decimal(order['symbol']['deals_commission']),
