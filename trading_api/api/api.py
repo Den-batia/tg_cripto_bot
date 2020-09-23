@@ -299,7 +299,7 @@ class NewDealView(APIView, BalanceManagementMixin):
             requisite = requisite.requisite
         self._validate_new_deal(seller, symbol, amount_crypto_block)
         with atomic():
-            self.freeze(amount_crypto, seller, symbol)
+            self.freeze(amount_crypto_block, seller, symbol)
             deal = Deal.objects.create(
                 seller=seller, buyer=buyer, order=order, rate=rate, requisite=requisite,
                 amount_crypto=amount_crypto, amount_currency=amount, symbol=symbol,
