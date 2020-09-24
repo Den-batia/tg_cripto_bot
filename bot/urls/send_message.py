@@ -41,6 +41,19 @@ async def send_message_confirmed_file(message: types.Message, state: FSMContext)
     await state.reset_state()
 
 
+@dp.message_handler(content_types=[ContentType.PHOTO], state=SEND_MESSAGE)
+async def send_message_confirmed_file(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    text, k = await dh.send_message_confirmed(
+        message.from_user.id,
+        data['user_id'],
+        message.caption,
+        message.photo[0].file_id
+    )
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+    await state.reset_state()
+
+
 @dp.message_handler(lambda msg: len(msg.text) > 0, state=SEND_MESSAGE)
 async def send_message_confirmed(message: types.Message, state: FSMContext):
     data = await state.get_data()
