@@ -131,9 +131,8 @@ class Keyboard:
 
     async def user_admin_actions(self, user):
         btns = [
-            [
-                self.inl_b('unverify' if user['is_verify'] else 'verify', action=f'verify {user["nickname"]}')
-            ]
+            [self.inl_b('unverify' if user['is_verify'] else 'verify', action=f'verify {user["nickname"]}')],
+            [self.inl_b('send_message', action=f'send_message {user["id"]}')]
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
