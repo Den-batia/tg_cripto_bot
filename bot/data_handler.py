@@ -404,7 +404,7 @@ class DataHandler:
         if deal['status'] != 1:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], 'send_fiat')
-        return await rc.done()
+        return await rc.fiat_sent()
 
     async def open_dispute(self, telegram_id, deal_id):
         deal = await api.get_deal(deal_id)
