@@ -59,14 +59,13 @@ class UserAccountsSerializer(ModelSerializer):
 class OrderSerializer(ModelSerializer):
     broker = SlugRelatedField('name', read_only=True)
     user = SlugRelatedField('nickname', read_only=True)
-    symbol = SymbolSerializer(read_only=True)
 
     class Meta:
         model = Order
         fields = (
             'id', 'type', 'broker', 'rate', 'user',
             'limit_from', 'limit_to', 'details',
-            'is_active', 'is_system_active', 'coefficient', 'symbol'
+            'is_active', 'is_system_active', 'coefficient'
         )
 
 

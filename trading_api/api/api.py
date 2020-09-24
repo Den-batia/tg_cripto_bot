@@ -95,7 +95,8 @@ class UserOrdersViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = get_object_or_404(User, id=self.kwargs['user_id'])
-        return user.orders.filter(is_deleted=False).order_by('created_at')
+        symbol = get_object_or_404(Symbol.objects.filter(is_active=True), id=self.request.query_params['symbol_id'])
+        return user.orders.filter(is_deleted=False, symbol=symbol).order_by('created_at')
 
     def perform_destroy(self, instance: Order):
         instance.is_deleted = True
