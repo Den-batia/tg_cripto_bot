@@ -2,6 +2,7 @@ import re
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ContentType
 
 from bot.data_handler import dh, send_message
 from bot.settings import dp
@@ -23,6 +24,19 @@ async def send_new_message(message: types.CallbackQuery, state: FSMContext):
 async def cancel_send_message(message: types.Message, state: FSMContext):
     await state.reset_state()
     text, k = await dh.cancel()
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+    await state.reset_state()
+
+
+@dp.message_handler(content_types=[ContentType.DOCUMENT], state=SEND_MESSAGE)
+async def send_message_confirmed_file(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    text, k = await dh.send_message_confirmed(
+        message.from_user.id,
+        data['user_id'],
+        message.caption,
+        message.document.file_id
+    )
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state()
 

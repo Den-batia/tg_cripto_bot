@@ -445,9 +445,9 @@ class DataHandler:
     async def send_message(self):
         return await rc.send_message()
 
-    async def send_message_confirmed(self, telegram_id, user_id, text):
+    async def send_message_confirmed(self, telegram_id, user_id, text, file_id=None):
         user = await api.get_user(telegram_id)
-        await api.send_message(sender_id=user['id'], receiver_id=user_id, text=text)
+        await api.send_message(sender_id=user['id'], receiver_id=user_id, text=text, file_id=file_id)
         return await rc.message_sent()
 
     async def settings(self, telegram_id):

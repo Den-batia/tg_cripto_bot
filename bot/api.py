@@ -104,9 +104,14 @@ class API:
         res = await self._call_api(f'/v1/deals/{deal_id}')
         return res
 
-    async def send_message(self, sender_id, receiver_id, text):
+    async def send_message(self, sender_id, receiver_id, text, file_id):
         res = await self._call_api(f'/v1/messages/new', method='post',
-                                   _json={'sender_id': sender_id, 'receiver_id': receiver_id, 'text': text})
+                                   _json={
+                                       'sender_id': sender_id,
+                                       'receiver_id': receiver_id,
+                                       'text': text,
+                                       'file_id': file_id
+                                   })
         return res
 
     async def confirm_decline_deal(self, user_id, deal_id, action):
