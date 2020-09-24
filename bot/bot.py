@@ -75,7 +75,7 @@ async def trading(message: types.Message):
 async def account(message: types.CallbackQuery):
     await message.answer()
     text, k = await dh.symbol_market(int(message.data.split()[1]))
-    await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
+    await message.message.edit_text(text=text, reply_markup=k)
 
 
 @dp.callback_query_handler(lambda msg: re.match(r'(buy|sell) [0-9]+', msg.data))
