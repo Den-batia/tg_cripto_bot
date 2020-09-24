@@ -89,7 +89,6 @@ class Keyboard:
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def my_orders(self, orders, symbol):
-        print(orders)
         btns = [
             [
                 self.inl_b(
