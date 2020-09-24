@@ -509,11 +509,13 @@ class NewMessageView(APIView):
         sender = get_object_or_404(User, id=request.data['sender_id'])
         receiver = get_object_or_404(User, id=request.data['receiver_id'])
         text = request.data['text']
+        file_id = request.data.get('file_id')
         NotificationsQueue.put(
             {
                 'telegram_id': receiver.telegram_id,
                 'type': 'message_received',
                 'text': text,
+                'file_id': file_id,
                 'user': {'nickname': sender.nickname, 'id': str(sender.id)}
             }
         )

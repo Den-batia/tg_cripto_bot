@@ -45,6 +45,8 @@ class DataHandler:
             meth = getattr(rc, f'get_update_{notification["type"]}')
             text, k = await meth(**notification)
             await send_message(text, chat_id=notification['telegram_id'], reply_markup=k)
+            if file_id := notification.get('file_id'):
+                await bot.send_document(notification['telegram_id'], file_id)
             notification = NotificationsQueue.get(False)
 
     async def my_orders(self, telegram_id, symbol_id):
