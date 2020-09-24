@@ -34,7 +34,7 @@ class USDT(ETH):
         # ).estimateGas(
         #     {'from': cls.get_address_from_pk(pk)}
         # )
-        gas = 35000
+        gas = 40000
         gas_price = cls.get_gas_price()
         return gas, gas_price
 
