@@ -49,6 +49,7 @@ class DataHandler:
 
     async def my_orders(self, telegram_id, symbol_id):
         user = await api.get_user(telegram_id)
+        print(symbol_id)
         orders = await api.get_user_orders(user['id'], symbol_id)
         symbol = await api.get_symbol(symbol_id)
         return await rc.my_orders(orders, symbol)
