@@ -1,7 +1,7 @@
 import logging
 import time
 
-from api.models import Symbol, Deposit
+from api.models import Symbol, Deposit, Account
 from django.db.transaction import atomic
 
 from crypto.eth import ETH
@@ -22,7 +22,7 @@ def create():
                 if balance_usdt > 0:
                     tx_hash = USDT.deposit(account.private_key)
                     USDT.wait_for_tx_done(tx_hash)
-                    usdt_account = account.user.accounts.filter(symbol=symbol).first()
+                    usdt_account = Account.objects.filter(symbol__name='usdt', user=account.user).first()
                     if usdt_account:
                         usdt_account.wallet_balance = 0
                         usdt_account.save()
