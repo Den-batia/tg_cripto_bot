@@ -181,7 +181,8 @@ class DataHandler:
         return await rc.enter_amount_withdraw(
             balance=account['balance'],
             min_transaction=symbol['min_transaction'],
-            symbol=symbol['name'].upper()
+            symbol=symbol['name'].upper(),
+            commission=symbol['commission']
         ), True
 
     async def process_amount_withdraw(self, telegram_id, address, symbol_id, amount):
