@@ -104,13 +104,14 @@ class API:
         res = await self._call_api(f'/v1/deals/{deal_id}')
         return res
 
-    async def send_message(self, sender_id, receiver_id, text, file_id):
+    async def send_message(self, sender_id, receiver_id, text, file_id, photo_id):
         res = await self._call_api(f'/v1/messages/new', method='post',
                                    _json={
                                        'sender_id': sender_id,
                                        'receiver_id': receiver_id,
                                        'text': text,
-                                       'file_id': file_id
+                                       'file_id': file_id,
+                                       'photo_id': photo_id
                                    })
         return res
 
