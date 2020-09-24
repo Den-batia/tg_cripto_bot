@@ -317,7 +317,7 @@ class DataHandler:
         return user['id'] if order['type'] == ORDER_SELL_TYPE else order['user']['id']
 
     def get_max_amount_deal(self, commission, balance, order):
-        balance_limit = math.ceil(balance * Decimal(order['rate']) * (1 - commission))
+        balance_limit = math.ceil(balance * Decimal(order['rate']) * (1 - commission)) - 1
         return min(order['limit_to'], balance_limit)
 
     async def begin_deal(self, telegram_id, order_id):
