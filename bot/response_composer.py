@@ -47,6 +47,21 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
+    async def error_deal_creation(self):
+        text = await self._get(var_name='error_deal_creation')
+        k = await kb.main_menu()
+        return text, k
+
+    async def deal_confirmed(self):
+        text = await self._get(var_name='deal_confirmed')
+        k = await kb.main_menu()
+        return text, k
+
+    async def deal_declined(self):
+        text = await self._get(var_name='deal_declined')
+        k = await kb.main_menu()
+        return text, k
+
     async def about(self, symbols):
         text = await self._get(var_name='about')
         for symbol in symbols:
@@ -242,7 +257,7 @@ class ResponseComposer:
         k = await kb.my_orders(orders, symbol)
         return text, k
 
-    async def order(self, order, is_my, is_enough_money, is_requisites_filled):
+    async def order(self, order, is_my, is_enough_money, is_requisites_filled, account_exists):
         text = await self._get(var_name=order['type'], symbol=order['symbol']['name'].upper(), id=order['id'])
         text += '\n\n'
         user = order.pop('user')
@@ -262,7 +277,7 @@ class ResponseComposer:
                 text += await self._get(var_name='order_deactivated_system')
             k = await kb.my_order(order)
         else:
-            k = await kb.market_order(order['id'], is_enough_money, is_requisites_filled)
+            k = await kb.market_order(order['id'], is_enough_money, is_requisites_filled, account_exists)
         return text, k
 
     async def user(self, user, is_admin):

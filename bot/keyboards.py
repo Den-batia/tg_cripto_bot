@@ -118,8 +118,10 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def market_order(self, order_id, is_enough_money, is_requisites_filled):
-        if not is_enough_money:
+    async def market_order(self, order_id, is_enough_money, is_requisites_filled, account_exists):
+        if not account_exists:
+            btns = [[self.inl_b('create_account_first', action='answer_only')]]
+        elif not is_enough_money:
             btns = [[self.inl_b('not_enough_money', action='answer_only')]]
         elif not is_requisites_filled:
             btns = [[self.inl_b('fill_requisite', action='answer_only')]]

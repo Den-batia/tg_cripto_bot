@@ -206,14 +206,23 @@ class DataHandler:
         is_my = user['id'] == order['user']['id']
         is_enough_money = True
         is_requisites_filled = True
+        my_account = await self._get_account(user['id'], order['symbol']['id'])
+        account_exists = my_account is not None
         if not is_my:
             if order['type'] == 'buy':
-                balance = Decimal((await self._get_account(user['id'], order['symbol']['id']))['balance'])
-                target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
-                is_enough_money = balance >= target_balance
+                if account_exists:
+                    balance = Decimal(account['balance'])
+                    target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
+                    is_enough_money = balance >= target_balance
                 requisite = await self._get_requisite(user['id'], order['broker']['id'])
                 is_requisites_filled = bool(requisite)
-        return await rc.order(order, is_my=is_my, is_enough_money=is_enough_money, is_requisites_filled=is_requisites_filled)
+        return await rc.order(
+            order,
+            is_my=is_my,
+            is_enough_money=is_enough_money,
+            is_requisites_filled=is_requisites_filled,
+            account_exists=account_exists
+        )
 
     async def get_user_info(self, telegram_id, nickname):
         user = await api.get_user(telegram_id)
@@ -320,7 +329,7 @@ class DataHandler:
             await self._validate_begin_deal(order, account, seller_id)
         except Exception as e:
             logger.exception(e)
-            return await rc.unknown_error(), False
+            return await rc.error_deal_creation(), False
         max_amount = self.get_max_amount_deal(
             commission=Decimal(order['symbol']['deals_commission']),
             balance=Decimal(account['balance']),
@@ -382,7 +391,11 @@ class DataHandler:
         if deal['status'] != 0:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], action)
-        return await rc.done()
+        answers = {
+            'confirm': rc.deal_confirmed,
+            'decline': rc.deal_declined
+        }
+        return await answers[action]()
 
     async def send_fiat(self, telegram_id, deal_id):
         deal = await api.get_deal(deal_id)
