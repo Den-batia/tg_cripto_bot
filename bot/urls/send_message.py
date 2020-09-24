@@ -35,7 +35,7 @@ async def send_message_confirmed_file(message: types.Message, state: FSMContext)
         message.from_user.id,
         data['user_id'],
         message.caption,
-        message.document.file_id
+        file_id=message.document.file_id
     )
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state()
@@ -48,7 +48,7 @@ async def send_message_confirmed_file(message: types.Message, state: FSMContext)
         message.from_user.id,
         data['user_id'],
         message.caption,
-        message.photo[0].file_id
+        photo_id=message.photo[0].file_id
     )
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state()

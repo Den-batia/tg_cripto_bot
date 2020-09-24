@@ -47,6 +47,8 @@ class DataHandler:
             await send_message(text, chat_id=notification['telegram_id'], reply_markup=k)
             if file_id := notification.get('file_id'):
                 await bot.send_document(notification['telegram_id'], file_id)
+            if photo_id := notification.get('photo_id'):
+                await bot.send_photo(notification['telegram_id'], photo_id)
             notification = NotificationsQueue.get(False)
 
     async def my_orders(self, telegram_id, symbol_id):
@@ -445,9 +447,9 @@ class DataHandler:
     async def send_message(self):
         return await rc.send_message()
 
-    async def send_message_confirmed(self, telegram_id, user_id, text, file_id=None):
+    async def send_message_confirmed(self, telegram_id, user_id, text, file_id=None, photo_id=None):
         user = await api.get_user(telegram_id)
-        await api.send_message(sender_id=user['id'], receiver_id=user_id, text=text, file_id=file_id)
+        await api.send_message(sender_id=user['id'], receiver_id=user_id, text=text, file_id=file_id, photo_id=photo_id)
         return await rc.message_sent()
 
     async def settings(self, telegram_id):
