@@ -50,7 +50,7 @@ class NewUserView(APIView):
 
 class SymbolsViewSet(ReadOnlyModelViewSet):
     serializer_class = SymbolSerializer
-    queryset = Symbol.objects.all()
+    queryset = Symbol.objects.filter(is_active=True).all()
 
 
 class BrokersViewSet(ReadOnlyModelViewSet):
@@ -77,7 +77,7 @@ class OrderViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         order_type = self.request.query_params.get('type')
-        symbol = get_object_or_404(Symbol, id=self.request.query_params.get('symbol'))
+        symbol = get_object_or_404(Symbol.objects.filter(is_active=True), id=self.request.query_params.get('symbol'))
         broker = get_object_or_404(Broker, id=self.request.query_params.get('broker'))
         ref = get_object_or_404(User, id=self.request.query_params.get('ref'))
         return Order.objects.filter(
@@ -139,7 +139,7 @@ class UserInfoViewSet(RetrieveModelMixin, GenericViewSet):
 class NewOrderView(APIView):
     def post(self, request, *args, **kwargs):
         brokers = Broker.objects.filter(id__in=request.data['brokers']).all()
-        symbol = get_object_or_404(Symbol, id=request.data['symbol'])
+        symbol = get_object_or_404(Symbol.objects.filter(is_active=True), id=request.data['symbol'])
         limit_from = request.data['limit_from']
         limit_to = request.data['limit_to']
         order_type = request.data['type']
@@ -163,7 +163,7 @@ class NewOrderView(APIView):
 class GenerateAccountView(APIView):
     def post(self, request, *args, **kwargs):
         user = get_object_or_404(User, id=request.data.get('user_id'))
-        symbol = get_object_or_404(Symbol, id=request.data.get('symbol'))
+        symbol = get_object_or_404(Symbol.objects.filter(is_active=True), id=request.data.get('symbol'))
         if Account.objects.filter(user=user, symbol=symbol).exists():
             raise ValidationError
         if symbol.name == 'usdt':
@@ -258,7 +258,7 @@ class AddressCheckView(APIView, ValidateAddressMixin):
 
 class NewWithdrawView(APIView, ValidateAddressMixin, BalanceManagementMixin):
     def post(self, request, *args, **kwargs):
-        symbol = get_object_or_404(Symbol, id=request.data['symbol'])
+        symbol = get_object_or_404(Symbol.objects.filter(is_active=True), id=request.data['symbol'])
         user = get_object_or_404(User, id=request.data['user_id'])
         address = request.data['address']
         amount = Decimal(request.data['amount'])
@@ -274,7 +274,7 @@ class NewWithdrawView(APIView, ValidateAddressMixin, BalanceManagementMixin):
 
 class DealDetailViewSet(RetrieveModelMixin, GenericViewSet):
     serializer_class = DealDetailSerializer
-    queryset = Deal.objects
+    queryset = Deal.objects.all()
 
 
 class NewDealView(APIView, BalanceManagementMixin):
@@ -518,7 +518,7 @@ class NewMessageView(APIView):
 
 class BalanceView(APIView):
     def get(self, request, *args, **kwargs):
-        symbols = Symbol.objects.all()
+        symbols = Symbol.objects.filter(is_active=True).all()
         data = []
         for symbol in symbols:
             try:
