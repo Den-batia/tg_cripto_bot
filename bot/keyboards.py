@@ -228,8 +228,11 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def send_fiat(self, deal_id):
-        btns = [[self.inl_b('fiat_sent', action=f'deal_send_fiat {deal_id}')]]
+    async def send_fiat(self, deal_id, user_id):
+        btns = [
+            [self.inl_b('fiat_sent', action=f'deal_send_fiat {deal_id}')],
+            [self.inl_b('send_message', action=f'send_message {user_id}')]
+        ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def send_crypto(self, deal_id, dispute):
