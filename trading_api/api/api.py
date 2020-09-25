@@ -125,7 +125,7 @@ class UserBrokerView(APIView):
         user = get_object_or_404(User, id=kwargs['user_id'])
         broker = get_object_or_404(Broker, id=kwargs['broker_id'])
         requisite = request.data['requisite']
-        add_info = request.data['add_info']
+        add_info = request.data.get('add_info')
         target, created = Requisite.objects.update_or_create(user=user, broker=broker, defaults={'requisite': requisite, 'add_info': add_info})
         return Response(data=RequisiteSerializer(target).data)
 
