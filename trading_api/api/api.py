@@ -418,9 +418,13 @@ class UpdateDealMixin(BalanceManagementMixin):
 
 class ConfirmDealView(APIView, UpdateDealMixin):
     target_statuses = [0]
-    buyer_message_type = ('deal_accepted', 'requisite_only')
+    buyer_message_type = ['requisite_only']
 
     def post(self, request, *args, **kwargs):
+        if self.deal.order.type == 'sell':
+            self.buyer_message_type.insert(0, 'deal_accepted')
+        else:
+            self.seller_message_type = ['deal_accepted']
         with atomic():
             self.deal.status = 1
             self.deal.save()
