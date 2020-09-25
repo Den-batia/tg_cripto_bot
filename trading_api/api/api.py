@@ -418,7 +418,7 @@ class UpdateDealMixin(BalanceManagementMixin):
 
 class ConfirmDealView(APIView, UpdateDealMixin):
     target_statuses = [0]
-    buyer_message_type = ['deal_accepted', 'requisite_only']
+    buyer_message_type = ('deal_accepted', 'requisite_only')
 
     def post(self, request, *args, **kwargs):
         with atomic():
