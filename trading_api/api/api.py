@@ -239,14 +239,14 @@ class BalanceManagementMixin:
         account.save()
 
     def add_frozen(self, amount, user, symbol):
-        logger.info(f'adding frozen {amount} {symbol.name} to /tr{user.nickname}')
+        logger.info(f'adding frozen {amount} {symbol.name} to /_{user.nickname}')
         account = self.get_account(user, symbol)
         account.frozen += amount
         self.validate_account_change(account)
         account.save()
 
     def add_balance(self, amount, user, symbol):
-        logger.info(f'adding balance {amount} {symbol.name} to /tr{user.nickname}')
+        logger.info(f'adding balance {amount} {symbol.name} to /_{user.nickname}')
         account = self.get_account(user, symbol)
         account.balance += amount
         self.validate_account_change(account)
