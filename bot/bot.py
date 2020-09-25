@@ -157,7 +157,7 @@ async def get_deal_text(message: types.Message):
 
 @dp.message_handler(lambda msg: re.match(r'^/_[0-9a-z]+$', msg.text))
 async def get_user(message: types.Message):
-    nickname = message.text[3:]
+    nickname = message.text[2:]
     text, k = await dh.get_user_info(message.from_user.id, nickname)
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
