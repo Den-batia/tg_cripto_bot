@@ -126,7 +126,7 @@ class DealDetailSerializer(ModelSerializer):
         fields = (
             'id', 'requisite', 'order', 'buyer', 'seller', 'rate',
             'status', 'amount_crypto', 'amount_currency', 'commission',
-            'created_at', 'closed_at', 'symbol', 'dispute'
+            'created_at', 'closed_at', 'symbol', 'dispute', 'add_info'
         )
 
 
@@ -164,7 +164,7 @@ class RequisiteSerializer(ModelSerializer):
 
     class Meta:
         model = Requisite
-        fields = ('broker', 'requisite')
+        fields = ('broker', 'requisite', 'add_info')
 
 
 class RatesSerializer(ModelSerializer):

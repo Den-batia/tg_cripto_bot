@@ -93,6 +93,7 @@ class Requisite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requisites')
     broker = models.ForeignKey(Broker, on_delete=models.CASCADE, related_name='requisites')
     requisite = models.CharField(max_length=128)
+    add_info = models.CharField(max_length=256, blank=True, default=None, null=True)
 
     class Meta:
         unique_together = ('user', 'broker')
@@ -103,6 +104,7 @@ class Deal(models.Model):
     symbol = models.ForeignKey(Symbol, on_delete=models.PROTECT, related_name='deals')
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='deals')
     requisite = models.CharField(max_length=128, blank=True, default='')
+    add_info = models.CharField(max_length=128, blank=True, default='')
     rate = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.SmallIntegerField(default=0)
     amount_crypto = models.DecimalField(max_digits=15, decimal_places=8)

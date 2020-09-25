@@ -153,6 +153,9 @@ class ResponseComposer:
     async def get_update_deal_accepted(self, **kwargs):
         deal = kwargs['data']
         text = await self._get(var_name='deal_accepted_notification', broker=deal['order']['broker']['name'], **deal)
+        if deal['add_info']:
+            text += '\n'
+            text += await self._get(var_name='add_info', add_info=deal['add_info'])
         k = None
         return text, k
 
@@ -359,12 +362,18 @@ class ResponseComposer:
         return text, k
 
     async def broker_requisite(self, requisite, broker):
-        text = await self._get(var_name='requisite_settings', requisite=requisite, broker_name=broker['name'])
+        text = await self._get(var_name='requisite_settings', requisite=requisite['requisite'],
+                               add_info=requisite['add_info'], broker_name=broker['name'])
         k = await kb.broker_requisite(broker)
         return text, k
 
     async def edit_broker_requisite(self, broker):
         text = await self._get(var_name='edit_broker_requisite', broker_name=broker['name'])
+        k = await kb.get_cancel()
+        return text, k
+
+    async def edit_broker_requisite_add_info(self, broker):
+        text = await self._get(var_name='edit_broker_requisite_add_info', broker_name=broker['name'])
         k = await kb.get_cancel()
         return text, k
 

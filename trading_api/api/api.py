@@ -293,7 +293,8 @@ class NewDealView(APIView, BalanceManagementMixin):
         amount_crypto_block = amount_crypto + round(amount_crypto * symbol.deals_commission, 8)
         amount_crypto_send = amount_crypto - round(amount_crypto * symbol.deals_commission, 8)
         rate = Decimal(request.data['rate'])
-        requisite = request.data['requisite']
+        requisite = request.data.get('requisite')
+        add_info = request.data.get('add_info')
         buyer = get_object_or_404(User, id=request.data['buyer_id'])
         seller = get_object_or_404(User, id=request.data['seller_id'])
         if requisite is None:
@@ -301,13 +302,14 @@ class NewDealView(APIView, BalanceManagementMixin):
             if requisite is None:
                 raise ValidationError
             requisite = requisite.requisite
+            add_info = add_info
         self._validate_new_deal(seller, symbol, amount_crypto_block)
         with atomic():
             self.freeze(amount_crypto_block, seller, symbol)
             deal = Deal.objects.create(
                 seller=seller, buyer=buyer, order=order, rate=rate, requisite=requisite,
                 amount_crypto=amount_crypto, amount_currency=amount, symbol=symbol,
-                amount_crypto_blocked=amount_crypto_block, amount_crypto_send=amount_crypto_send
+                amount_crypto_blocked=amount_crypto_block, amount_crypto_send=amount_crypto_send, add_info=add_info
             )
             data = DealDetailSerializer(deal).data
             NotificationsQueue.put(

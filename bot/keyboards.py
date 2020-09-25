@@ -210,11 +210,13 @@ class Keyboard:
         btns = get_chunks(btns, 2)
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def broker_requisite(self, broker):
+    async def broker_requisite(self, broker, requisite_exists):
         btns = [
-            [self.inl_b('edit_requisite', action=f'edit_requisite {broker["id"]}')],
-            [self.inl_b('back', action='requisites')],
+            [self.inl_b('edit_requisite', action=f'edit_requisite {broker["id"]}')]
         ]
+        if requisite_exists:
+            btns.append([self.inl_b('edit_add_info', action=f'edit_add_info {broker["id"]}')])
+        btns.append([self.inl_b('back', action='requisites')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def confirm_deal(self, deal_id):

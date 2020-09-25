@@ -41,6 +41,7 @@
     "requisites_settings": "Выберите брокера",
     "requisite_settings": "Текущие реквизиты по %{broker_name}\n<b>%{requisite}</b>",
     "edit_broker_requisite": "Выберите новые реквизиты для %{broker_name}",
+    "edit_broker_requisite_add_info": "Выберите доп инфо по реквизитам для %{broker_name}",
 
     "order_deactivated_system": "‼️ <i><b>Ордер деактивирован системой</b>\nОрдер будет активирован как только Вы заполните реквизиты, либо пополните баланс. Если вы только что создали объявление и были соблюдены все условия, ордер активируется в ближайшее время</i>",
     "order_deactivated_notification": "‼️ Ваш ордер /o%{id} деактивирован системой",
@@ -55,8 +56,8 @@
     "deal": "Сделка: /d%{id}\nПродавец: /tr%{seller}\nПокупатель: /tr%{buyer}\nСумма в валюте: <b>%{amount_currency} RUB</b>\nСумма в монетах: <b>%{amount_crypto} %{symbol}</b>\nКурс: <b>%{rate} RUB</b>\nБрокер: <b>%{broker}</b>",
 
     "error_deal_creation": "Ошибка при создании сделки",
-    "deal_confirmed_buy": "Сделка подтверждена!\nОжидайте поступления средств.\n<b>Не подтверждайте перевод, не получив оплату!</b>",
-    "deal_confirmed_sell": "Сделка подтверждена!\nОжидайте подтверждения получения оплаты продавцом!",
+    "deal_confirmed_sell": "Сделка подтверждена!\nОжидайте поступления средств.\n<b>Не подтверждайте перевод, не получив оплату!</b>",
+    "deal_confirmed_buy": "Сделка подтверждена!\nОжидайте подтверждения получения оплаты продавцом!",
     "deal_declined": "Сделка отменена",
     "fiat_sent": "Средства отправлены",
     "crypto_sent": "Средства отправлены",
@@ -64,6 +65,7 @@
     "new_deal_notification_sell": "купить у Вас",
     "new_deal_notification_buy": "продать Вам",
     "deal_accepted_notification": "‼️ Сделка подтверждена\nПожалуйста переведите %{amount_currency} RUB\nБрокер: <b>%{broker}</b>\nРеквизиты: <b>%{requisite}</b>",
+    "add_info": "Доп. инфо: <b>%{add_info}</b>",
     "deal_fiat_sent_notification": "‼️ Покупатель отправил средства\nСумма: <b>%{amount_currency} RUB</b>\nБрокер: <b>%{broker}</b>\nРеквизиты: <b>%{requisite}</b>\n\nПожалуйста, подтвердите перевод",
     "deal_crypto_sent_notification": "‼️ Вы успешно отправили <b>%{amount_crypto} %{symbol}</b>",
     "deal_crypto_received_notification": "‼️ Вы получили <b>%{amount_crypto} %{symbol}</b>",

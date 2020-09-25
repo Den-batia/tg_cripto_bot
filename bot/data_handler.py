@@ -220,7 +220,7 @@ class DataHandler:
                     target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
                     is_enough_money = balance >= target_balance
                 requisite = await self._get_requisite(user['id'], order['broker']['id'])
-                is_requisites_filled = bool(requisite)
+                is_requisites_filled = bool(requisite) and bool(requisite['requisite'])
         return await rc.order(
             order,
             is_my=is_my,
@@ -278,9 +278,9 @@ class DataHandler:
 
     async def _get_requisite(self, user_id, broker_id):
         try:
-            requisite = (await api.get_user_requisite(user_id, broker_id=broker_id))['requisite']
+            requisite = await api.get_user_requisite(user_id, broker_id=broker_id)
         except:
-            requisite = ''
+            requisite = None
         return requisite
 
     async def requisites_broker(self, telegram_id, broker_id):
@@ -296,7 +296,19 @@ class DataHandler:
     async def update_requisite(self, telegram_id, broker_id, requisite):
         user = await api.get_user(telegram_id)
         broker = await api.get_broker(broker_id)
-        await api.patch_user_requisite(user['id'], broker['id'], requisite)
+        await api.patch_user_requisite(user['id'], broker['id'], {'requisite': requisite})
+        text, _ = await self.requisites_broker(telegram_id, broker_id)
+        k = await rc.get_main_k()
+        return text, k
+
+    async def edit_add_info(self, broker_id):
+        broker = await api.get_broker(broker_id)
+        return await rc.edit_broker_requisite_add_info(broker)
+
+    async def update_add_info(self, telegram_id, broker_id, add_info):
+        user = await api.get_user(telegram_id)
+        broker = await api.get_broker(broker_id)
+        await api.patch_user_requisite(user['id'], broker['id'], {'add_info': add_info})
         text, _ = await self.requisites_broker(telegram_id, broker_id)
         k = await rc.get_main_k()
         return text, k
@@ -310,7 +322,7 @@ class DataHandler:
             target_balance = Decimal(order['limit_from']) / Decimal(order['rate']) * (1 + Decimal(order['symbol']['deals_commission']))
             is_enough_money = balance >= target_balance
             requisite = await self._get_requisite(seller_id, order['broker']['id'])
-            is_requisites_filled = bool(requisite)
+            is_requisites_filled = bool(requisite) and bool(requisite['requisite'])
             if not is_requisites_filled or not is_enough_money:
                 logger.warning('requisites not filled or not enough money')
                 raise Exception
@@ -361,7 +373,9 @@ class DataHandler:
             requisite = await self._get_requisite(user['id'], order['broker']['id'])
         else:
             requisite = None
-        new_data['requisite'] = requisite
+        if requisite:
+            new_data['requisite'] = requisite['requisite']
+            new_data['add_info'] = requisite['add_info']
         new_data['amount_crypto'] = str(round_down(amount / Decimal(order['rate'])))
         new_data['amount'] = str(amount)
         new_data['seller_id'] = self._get_seller_id(user, order)
