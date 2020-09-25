@@ -389,7 +389,10 @@ class ResponseComposer:
                                broker=order.pop('broker')['name'], **order)
         if requisite is not None:
             text += '\n\n'
-            text += await self._get(var_name='deal_requisite', requisite=requisite)
+            text += await self._get(var_name='deal_requisite', requisite=requisite['requisite'])
+            if requisite['add_info']:
+                text += '\n'
+                text += await self._get(var_name='add_info', add_info=requisite['add_info'])
         k = await kb.are_you_sure()
         return text, k
 
