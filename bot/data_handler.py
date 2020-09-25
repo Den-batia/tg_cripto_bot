@@ -216,7 +216,7 @@ class DataHandler:
         if not is_my:
             if order['type'] == 'buy':
                 if account_exists:
-                    balance = Decimal(account['balance'])
+                    balance = Decimal(my_account['balance'])
                     target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
                     is_enough_money = balance >= target_balance
                 requisite = await self._get_requisite(user['id'], order['broker']['id'])
@@ -437,7 +437,7 @@ class DataHandler:
         if deal['status'] != 2:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], 'send_crypto')
-        return await rc.done()
+        return await rc.crypto_sent()
 
     async def rate_user(self, telegram_id, deal_id, action):
         deal = await api.get_deal(deal_id)
