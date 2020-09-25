@@ -52,9 +52,12 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def deal_confirmed(self, order_type):
+    async def deal_confirmed(self, order_type, seller):
         text = await self._get(var_name=f'deal_confirmed_{order_type}')
-        k = await kb.main_menu()
+        if order_type == 'sell':
+            k = await kb.send_message(seller)
+        else:
+            k = await kb.main_menu()
         return text, k
 
     async def deal_declined(self):

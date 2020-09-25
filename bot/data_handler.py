@@ -424,6 +424,7 @@ class DataHandler:
         args = []
         if action == 'confirm':
             args.append(deal['order']['type'])
+            args.append(deal['seller'])
         return await answers[action](*args)
 
     async def send_fiat(self, telegram_id, deal_id):
