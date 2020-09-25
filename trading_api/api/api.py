@@ -406,12 +406,12 @@ class UpdateDealMixin(BalanceManagementMixin):
 
     def send_notifications(self):
         if self.buyer_message_type:
-            if not isinstance(self.buyer_message_type, tuple):
+            if not isinstance(self.buyer_message_type, (tuple, list)):
                 self.buyer_message_type = (self.buyer_message_type,)
             self._send_notification(self.deal.buyer.telegram_id, self.buyer_message_type)
 
         if self.seller_message_type:
-            if not isinstance(self.seller_message_type, tuple):
+            if not isinstance(self.seller_message_type, (tuple, list)):
                 self.seller_message_type = (self.seller_message_type,)
             self._send_notification(self.deal.seller.telegram_id, self.seller_message_type)
 
