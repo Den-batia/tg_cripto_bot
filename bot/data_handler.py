@@ -296,7 +296,12 @@ class DataHandler:
     async def update_requisite(self, telegram_id, broker_id, requisite):
         user = await api.get_user(telegram_id)
         broker = await api.get_broker(broker_id)
-        await api.patch_user_requisite(user['id'], broker['id'], {'requisite': requisite})
+        old_requisite = await self._get_requisite(user['id'], broker_id)
+        if old_requisite is None:
+            body = {'requisite': requisite}
+        else:
+            body = {'requisite': requisite, 'add_info': old_requisite['add_info']}
+        await api.patch_user_requisite(user['id'], broker['id'], body)
         text, _ = await self.requisites_broker(telegram_id, broker_id)
         k = await rc.get_main_k()
         return text, k
@@ -308,10 +313,12 @@ class DataHandler:
     async def update_add_info(self, telegram_id, broker_id, add_info):
         user = await api.get_user(telegram_id)
         broker = await api.get_broker(broker_id)
-        await api.patch_user_requisite(user['id'], broker['id'], {'add_info': add_info})
-        text, _ = await self.requisites_broker(telegram_id, broker_id)
-        k = await rc.get_main_k()
-        return text, k
+        old_requisite = await self._get_requisite(user['id'], broker_id)
+        if old_requisite is not None:
+            await api.patch_user_requisite(user['id'], broker['id'], {'add_info': add_info, 'requisite': old_requisite['requisite']})
+            text, _ = await self.requisites_broker(telegram_id, broker_id)
+            k = await rc.get_main_k()
+            return text, k
 
     async def _validate_begin_deal(self, order, seller_account, seller_id):
         if Decimal(order['limit_from']) / Decimal(order['rate']) > Decimal(seller_account['balance']):
