@@ -92,7 +92,7 @@ class Keyboard:
         btns = [
             [
                 self.inl_b(
-                    f'{"ПОКУПКА" if order["type"] == "buy" else "ПРОДАЖА"} {order["broker"]}, '
+                    f'{"покупка" if order["type"] == "buy" else "продажа"}, {order["broker"]}, '
                     f'{symbol["name"].upper()}, {prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])} ₽, {order["rate"]} ₽',
                     action=f'order {order["id"]}'
                 )
