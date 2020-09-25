@@ -421,8 +421,10 @@ class ConfirmDealView(APIView, UpdateDealMixin):
     buyer_message_type = ['requisite_only']
 
     def post(self, request, *args, **kwargs):
-        if self.deal.order.type == 'buy':
-            self.seller_message_type = ['deal_accepted']
+        if self.deal.order.type == 'sell':
+            self.buyer_message_type.insert(0, 'deal_accepted')
+        # else:
+        #     self.seller_message_type = ['deal_accepted']
         with atomic():
             self.deal.status = 1
             self.deal.save()
