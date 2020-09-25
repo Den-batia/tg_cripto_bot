@@ -52,8 +52,8 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def deal_confirmed(self):
-        text = await self._get(var_name='deal_confirmed')
+    async def deal_confirmed(self, order_type):
+        text = await self._get(var_name=f'deal_confirmed_{order_type}')
         k = await kb.main_menu()
         return text, k
 

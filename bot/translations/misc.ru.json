@@ -55,7 +55,8 @@
     "deal": "Сделка: /d%{id}\nПродавец: /tr%{seller}\nПокупатель: /tr%{buyer}\nСумма в валюте: <b>%{amount_currency} RUB</b>\nСумма в монетах: <b>%{amount_crypto} %{symbol}</b>\nКурс: <b>%{rate} RUB</b>\nБрокер: <b>%{broker}</b>",
 
     "error_deal_creation": "Ошибка при создании сделки",
-    "deal_confirmed": "Сделка подтверждена",
+    "deal_confirmed_buy": "Сделка подтверждена!\nОжидайте поступления средств.\n<b>Не подтверждайте перевод, не получив оплату!</b>",
+    "deal_confirmed_sell": "Сделка подтверждена!\nОжидайте подтверждения получения оплаты продавцом!",
     "deal_declined": "Сделка отменена",
     "new_deal_notification": "‼️ <b>Новая сделка</b>\n\nПользователь /tr%{nickname} хочет %{action} <b>%{amount_crypto} %{symbol}</b> по курсу <b>%{rate} RUB/%{symbol}</b>\nСумма: <b>%{amount_currency} RUB</b>",
     "new_deal_notification_sell": "купить у Вас",

@@ -400,7 +400,10 @@ class DataHandler:
             'confirm': rc.deal_confirmed,
             'decline': rc.deal_declined
         }
-        return await answers[action]()
+        args = []
+        if action == 'confirm':
+            args.append(deal['order']['type'])
+        return await answers[action](*args)
 
     async def send_fiat(self, telegram_id, deal_id):
         deal = await api.get_deal(deal_id)
