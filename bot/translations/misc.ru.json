@@ -58,6 +58,7 @@
     "deal_confirmed": "Сделка подтверждена",
     "deal_declined": "Сделка отменена",
     "fiat_sent": "Средства отправлены",
+    "crypto_sent": "Средства отправлены",
     "new_deal_notification": "‼️ <b>Новая сделка</b>\n\nПользователь /tr%{nickname} хочет %{action} <b>%{amount_crypto} %{symbol}</b> по курсу <b>%{rate} RUB/%{symbol}</b>\nСумма: <b>%{amount_currency} RUB</b>",
     "new_deal_notification_sell": "купить у Вас",
     "new_deal_notification_buy": "продать Вам",

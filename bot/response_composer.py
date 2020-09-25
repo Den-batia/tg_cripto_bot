@@ -67,6 +67,11 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
+    async def crypto_sent(self):
+        text = await self._get(var_name='crypto_sent')
+        k = await kb.main_menu()
+        return text, k
+
     async def about(self, symbols):
         text = await self._get(var_name='about')
         for symbol in symbols:
