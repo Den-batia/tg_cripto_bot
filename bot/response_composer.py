@@ -369,7 +369,10 @@ class ResponseComposer:
             add_info = ''
             requisite = ''
         text = await self._get(var_name='requisite_settings', requisite=requisite,
-                               add_info=add_info, broker_name=broker['name'])
+                               broker_name=broker['name'])
+        if add_info:
+            text += '\n'
+            text += await self._get(var_name='add_info', add_info=add_info)
         k = await kb.broker_requisite(broker, requisite_exists=bool(requisite))
         return text, k
 
