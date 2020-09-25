@@ -406,25 +406,21 @@ class UpdateDealMixin(BalanceManagementMixin):
 
     def send_notifications(self):
         if self.buyer_message_type:
-            if not isinstance(self.buyer_message_type, (tuple, list)):
+            if not isinstance(self.buyer_message_type, tuple):
                 self.buyer_message_type = (self.buyer_message_type,)
             self._send_notification(self.deal.buyer.telegram_id, self.buyer_message_type)
 
         if self.seller_message_type:
-            if not isinstance(self.seller_message_type, (tuple, list)):
+            if not isinstance(self.seller_message_type, tuple):
                 self.seller_message_type = (self.seller_message_type,)
             self._send_notification(self.deal.seller.telegram_id, self.seller_message_type)
 
 
 class ConfirmDealView(APIView, UpdateDealMixin):
     target_statuses = [0]
-    buyer_message_type = ['requisite_only']
+    buyer_message_type = ['deal_accepted', 'requisite_only']
 
     def post(self, request, *args, **kwargs):
-        if self.deal.order.type == 'sell':
-            self.buyer_message_type.insert(0, 'deal_accepted')
-        # else:
-        #     self.seller_message_type = ['deal_accepted']
         with atomic():
             self.deal.status = 1
             self.deal.save()
