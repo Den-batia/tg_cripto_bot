@@ -362,6 +362,7 @@ class ResponseComposer:
         return text, k
 
     async def broker_requisite(self, requisite, broker):
+        print(requisite)
         if requisite:
             requisite = requisite['requisite']
             add_info = requisite['add_info']
