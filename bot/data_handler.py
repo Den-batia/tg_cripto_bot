@@ -216,7 +216,7 @@ class DataHandler:
         if not is_my:
             if order['type'] == 'buy':
                 if account_exists:
-                    balance = Decimal(account['balance'])
+                    balance = Decimal(my_account['balance'])
                     target_balance = Decimal(order['limit_from']) / Decimal(order['rate'])
                     is_enough_money = balance >= target_balance
                 requisite = await self._get_requisite(user['id'], order['broker']['id'])
