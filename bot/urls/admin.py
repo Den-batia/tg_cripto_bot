@@ -6,7 +6,7 @@ from bot.data_handler import dh, send_message
 from bot.settings import dp
 
 
-@dp.callback_query_handler(lambda msg: re.match(r'^verify [0-9a-z]+$', msg.data))
+@dp.callback_query_handler(lambda msg: re.match(r'^verify [0-9a-zA-Z_]+$', msg.data))
 async def verify_user(message: types.CallbackQuery):
     await message.answer()
     if not await dh.is_user_admin(message.from_user.id):
