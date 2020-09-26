@@ -80,7 +80,7 @@ class Order(models.Model):
     limit_from = models.IntegerField(validators=[MinValueValidator(1)])
     limit_to = models.IntegerField(validators=[MinValueValidator(1)])
     rate = models.DecimalField(max_digits=10, decimal_places=2)
-    coefficient = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
+    coefficient = models.DecimalField(max_digits=5, decimal_places=3, blank=True, null=True)
     details = models.CharField(max_length=512, default='')
     type = models.CharField(max_length=4)
     created_at = models.DateTimeField(auto_now_add=True)

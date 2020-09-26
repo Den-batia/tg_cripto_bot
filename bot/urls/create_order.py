@@ -55,7 +55,7 @@ async def done_choose_brokers(message: types.CallbackQuery, state):
     await send_message(text=text, chat_id=message.message.chat.id, reply_markup=k)
 
 
-@dp.message_handler(lambda msg: re.match(r'^[0-9\w]+-[0-9\w]+$', msg.text), state=CHOOSE_LIMITS)
+@dp.message_handler(lambda msg: re.match(r'^[0-9 ]+-[0-9 ]+$', msg.text), state=CHOOSE_LIMITS)
 async def done_choose_limits(message: types.Message, state):
     limit_from, limit_to = map(lambda x: int(x.replace(' ', '')), message.text.split('-'))
     data = await state.get_data()
