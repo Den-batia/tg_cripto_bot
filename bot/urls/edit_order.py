@@ -37,6 +37,7 @@ async def cancel_send_message(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(lambda msg: re.match(r'^-?[0-9]{1,2}%$', msg.text), state=EDIT_ORDER_RATE)
+@dp.message_handler(lambda msg: re.match(r'^-?[0-9.]{1,3}%$', msg.text), state=EDIT_ORDER_RATE)
 async def edit_rate_percents(message: types.Message, state):
     coefficient = str(round((int(message.text[:-1]) + 100) / 100, 2))
     data = await state.get_data()
@@ -53,7 +54,7 @@ async def edit_rate_fixed(message: types.Message, state):
     await state.reset_state(with_data=True)
 
 
-@dp.message_handler(lambda msg: re.match(r'^[0-9\w]+-[0-9\w]+$', msg.text), state=EDIT_ORDER_LIMITS)
+@dp.message_handler(lambda msg: re.match(r'^[0-9 ]+-[0-9 ]+$', msg.text), state=EDIT_ORDER_LIMITS)
 async def edit_limits(message: types.Message, state):
     limit_from, limit_to = map(lambda x: int(x.replace(' ', '')), message.text.split('-'))
     data = await state.get_data()
