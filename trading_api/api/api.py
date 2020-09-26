@@ -174,7 +174,7 @@ class GenerateAccountView(APIView):
         if symbol.name == 'usdt':
             symbol_eth = Symbol.objects.get(name='eth')
             ethereum_account, _ = Account.objects.get_or_create(
-                user=user, symbol=symbol_eth, defaults=crypto_manager['eth'].generate_wallet()
+                user=user, symbol=symbol_eth, defaults={'private_key': crypto_manager['eth'].generate_wallet()}
             )
             pk = ethereum_account.private_key
         else:
