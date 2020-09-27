@@ -11,6 +11,15 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 
+single_jobs = {
+    'usdt_dep': False,
+    'eth_dep': False,
+    'btc_dep': False,
+    'usdt_width': False,
+    'eth_width': False,
+}
+
+
 @periodic_task(run_every=timedelta(minutes=1))
 def update_rates():
     from .tasks.update_rates import update
@@ -32,7 +41,10 @@ def update_order_activations():
 @periodic_task(run_every=timedelta(minutes=2))
 def create_deposits_eth():
     from .tasks.crypto.eth.create_deposits import create
+    if single_jobs['eth_dep']:
+        return
     create()
+    single_jobs['eth_dep'] = False
 
 
 @periodic_task(run_every=timedelta(seconds=30))
@@ -44,7 +56,10 @@ def process_deposits_eth():
 @periodic_task(run_every=timedelta(seconds=10))
 def create_withdraws_eth():
     from .tasks.crypto.eth.withdraw import create
+    if single_jobs['eth_width']:
+        return
     create()
+    single_jobs['eth_width'] = False
 
 
 @periodic_task(run_every=timedelta(seconds=10))
@@ -62,19 +77,28 @@ def withdraw_btc():
 @periodic_task(run_every=timedelta(seconds=15))
 def deposit_btc():
     from .tasks.crypto.btc.deposit import process_deposit
+    if single_jobs['btc_dep']:
+        return
     process_deposit()
+    single_jobs['btc_dep'] = False
 
 
 @periodic_task(run_every=timedelta(minutes=1))
 def deposit_usdt():
     from .tasks.crypto.usdt.deposit import deposit
+    if single_jobs['usdt_dep']:
+        return
     deposit()
+    single_jobs['usdt_dep'] = False
 
 
 @periodic_task(run_every=timedelta(minutes=1))
 def deposit_usdt():
     from .tasks.crypto.usdt.withdraw import withdraw
+    if single_jobs['usdt_width']:
+        return
     withdraw()
+    single_jobs['usdt_width'] = False
 
 
 @periodic_task(run_every=timedelta(seconds=15))

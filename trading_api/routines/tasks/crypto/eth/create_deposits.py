@@ -20,10 +20,9 @@ def create():
             with atomic():
                 balance_usdt = USDT.get_balance(pk=account.private_key)
                 if balance_usdt > 0:
-                    print(balance_usdt)
                     tx_hash = USDT.deposit(account.private_key)
-                    USDT.wait_for_tx_done(tx_hash)
-                    print(tx_hash)
+                    tx = USDT.wait_for_tx_done(tx_hash)
+                    print(tx)
                     usdt_account = Account.objects.filter(symbol__name='usdt', user=account.user).first()
                     if usdt_account:
                         usdt_account.wallet_balance = 0
