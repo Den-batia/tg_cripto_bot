@@ -165,7 +165,8 @@ class Keyboard:
             [
                 self.inl_b(symbol['name'].upper(), action=f'new_order {symbol["id"]}')
                 for symbol in symbols
-            ]
+            ],
+            [self.inl_b('back', action='my_orders')]
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
