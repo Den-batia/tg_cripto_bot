@@ -18,15 +18,15 @@ def create():
         balance = ETH.get_balance(pk=account.private_key)
         if balance > symbol.min_transaction:
             with atomic():
-                balance_usdt = USDT.get_balance(pk=account.private_key)
+                usdt_account = Account.objects.filter(symbol__name='usdt', user=account.user).first()
+                balance_usdt = USDT.get_balance(pk=usdt_account.private_key)
                 if balance_usdt > 0:
                     tx_hash = USDT.deposit(account.private_key)
                     tx = USDT.wait_for_tx_done(tx_hash)
                     print(tx)
-                    usdt_account = Account.objects.filter(symbol__name='usdt', user=account.user).first()
-                    if usdt_account:
-                        usdt_account.wallet_balance = 0
-                        usdt_account.save()
+                if usdt_account.wallet_balance > 0:
+                    usdt_account.wallet_balance = 0
+                    usdt_account.save()
                 tx_hash = ETH.create_tx_in(account.private_key)
                 amount = ETH.get_tx_amount(tx_hash)
                 Deposit.objects.create(
