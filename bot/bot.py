@@ -65,6 +65,13 @@ async def trading(message: types.Message):
     await send_message(text=text, chat_id=message.chat.id, reply_markup=k)
 
 
+@dp.callback_query_handler(lambda msg: msg.data == 'trading')
+async def trading(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.market()
+    await message.message.edit_text(text, reply_markup=k)
+
+
 @dp.message_handler(lambda msg: msg.text.startswith(sm('settings')))
 async def trading(message: types.Message):
     text, k = await dh.settings(message.from_user.id)
@@ -99,10 +106,10 @@ async def symbol_broker_market(message: types.CallbackQuery):
     await message.message.edit_text(text=text, reply_markup=k)
 
 
-@dp.callback_query_handler(lambda msg: re.match(r'^my_orders [0-9]+$', msg.data))
+@dp.callback_query_handler(lambda msg: re.match(r'^my_orders$', msg.data))
 async def my_orders(message: types.CallbackQuery):
-    symbol_id = int(message.data.split()[1])
-    text, k = await dh.my_orders(message.from_user.id, symbol_id)
+    await message.answer()
+    text, k = await dh.my_orders(message.from_user.id)
     await message.message.edit_text(text=text, reply_markup=k)
 
 

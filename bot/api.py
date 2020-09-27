@@ -61,8 +61,8 @@ class API:
         res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}&ref={user_id}')
         return res
 
-    async def get_user_orders(self, user_id, symbol_id):
-        res = await self._call_api(f'/v1/users/{user_id}/orders?symbol={symbol_id}')
+    async def get_user_orders(self, user_id):
+        res = await self._call_api(f'/v1/users/{user_id}/orders')
         return res
 
     async def get_user_requisite(self, user_id, broker_id):

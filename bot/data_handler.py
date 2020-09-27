@@ -51,14 +51,17 @@ class DataHandler:
                 await bot.send_photo(notification['telegram_id'], photo_id)
             notification = NotificationsQueue.get(False)
 
-    async def my_orders(self, telegram_id, symbol_id):
+    async def my_orders(self, telegram_id):
         user = await api.get_user(telegram_id)
-        orders = await api.get_user_orders(user['id'], symbol_id)
-        symbol = await api.get_symbol(symbol_id)
-        return await rc.my_orders(orders, symbol)
+        orders = await api.get_user_orders(user['id'])
+        return await rc.my_orders(orders)
 
-    async def new_order(self, symbol_id):
-        return await rc.new_order(symbol_id)
+    async def new_order(self):
+        symbols = await api.get_symbols()
+        return await rc.new_order(symbols)
+
+    async def new_order_symbol(self, symbol_id):
+        return await rc.new_order_symbol(symbol_id)
 
     async def new_order_brokers(self):
         brokers = await api.get_brokers()

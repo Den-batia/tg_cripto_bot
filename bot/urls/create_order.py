@@ -10,10 +10,18 @@ from bot.translations.translations import sm
 from bot.utils.utils import is_string_a_number
 
 
+@dp.callback_query_handler(lambda msg: msg.data == 'new_order')
+async def new_order(message: types.CallbackQuery):
+    await message.answer()
+    text, k = await dh.new_order()
+    await message.message.edit_text(text=text, reply_markup=k)
+
+
 @dp.callback_query_handler(lambda msg: re.match(r'^new_order [0-9]+$', msg.data))
 async def new_order(message: types.CallbackQuery):
+    await message.answer()
     symbol_id = int(message.data.split()[1])
-    text, k = await dh.new_order(symbol_id)
+    text, k = await dh.new_order_symbol(symbol_id)
     await message.message.edit_text(text=text, reply_markup=k)
 
 

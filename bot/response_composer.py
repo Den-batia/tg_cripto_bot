@@ -269,9 +269,9 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def my_orders(self, orders, symbol):
+    async def my_orders(self, orders):
         text = await self._get(var_name='my_orders')
-        k = await kb.my_orders(orders, symbol)
+        k = await kb.my_orders(orders)
         return text, k
 
     async def order(self, order, is_my, is_enough_money, is_requisites_filled, account_exists):
@@ -325,7 +325,12 @@ class ResponseComposer:
         k = await kb.get_cancel()
         return text, k
 
-    async def new_order(self, symbol_id):
+    async def new_order(self, symbols):
+        text = await self._get(var_name='new_order')
+        k = await kb.new_order(symbols)
+        return text, k
+
+    async def new_order_symbol(self, symbol_id):
         text = await self._get(var_name='new_order')
         k = await kb.new_order_create(symbol_id)
         return text, k
