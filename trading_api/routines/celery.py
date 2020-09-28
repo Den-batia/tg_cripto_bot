@@ -43,6 +43,7 @@ def create_deposits_eth():
     from .tasks.crypto.eth.create_deposits import create
     if single_jobs['eth_dep']:
         return
+    single_jobs['eth_dep'] = True
     create()
     single_jobs['eth_dep'] = False
 
@@ -58,6 +59,7 @@ def create_withdraws_eth():
     from .tasks.crypto.eth.withdraw import create
     if single_jobs['eth_width']:
         return
+    single_jobs['eth_width'] = True
     create()
     single_jobs['eth_width'] = False
 
@@ -79,6 +81,7 @@ def deposit_btc():
     from .tasks.crypto.btc.deposit import process_deposit
     if single_jobs['btc_dep']:
         return
+    single_jobs['btc_dep'] = True
     process_deposit()
     single_jobs['btc_dep'] = False
 
@@ -89,6 +92,7 @@ def deposit_usdt():
     print(single_jobs['usdt_dep'])
     if single_jobs['usdt_dep']:
         return
+    single_jobs['usdt_dep'] = True
     deposit()
     single_jobs['usdt_dep'] = False
 
@@ -98,6 +102,7 @@ def deposit_usdt():
     from .tasks.crypto.usdt.withdraw import withdraw
     if single_jobs['usdt_width']:
         return
+    single_jobs['usdt_width'] = True
     withdraw()
     single_jobs['usdt_width'] = False
 
