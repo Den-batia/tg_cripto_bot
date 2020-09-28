@@ -19,7 +19,6 @@ services:
 
   celery:
     build: trading_api
-    container_name: trading_celery
     networks:
       - proxy
     command: celery -A routines worker -B -l info
