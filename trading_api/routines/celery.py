@@ -98,7 +98,7 @@ def deposit_usdt():
 
 
 @periodic_task(run_every=timedelta(minutes=1))
-def deposit_usdt():
+def withdraw_usdt():
     from .tasks.crypto.usdt.withdraw import withdraw_usdt
     if single_jobs['usdt_width']:
         return
