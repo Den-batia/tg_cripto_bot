@@ -86,6 +86,7 @@ def deposit_btc():
 @periodic_task(run_every=timedelta(minutes=1))
 def deposit_usdt():
     from .tasks.crypto.usdt.deposit import deposit
+    print(single_jobs['usdt_dep'])
     if single_jobs['usdt_dep']:
         return
     deposit()

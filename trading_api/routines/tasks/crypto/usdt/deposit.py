@@ -30,7 +30,7 @@ def deposit():
                 dep = Deposit.objects.create(
                     user=account.user,
                     amount=amount,
-                    address=ETH.get_address_from_pk(account.private_key),
+                    address=USDT.get_address_from_pk(account.private_key),
                     symbol=symbol,
                     confirmed_at=datetime.now(timezone.utc)
                 )
