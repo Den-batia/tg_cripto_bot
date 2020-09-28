@@ -39,7 +39,7 @@ def send_tx(withdraw_object: Withdraw):
                       withdraw_object.symbol)
 
 
-def withdraw():
+def withdraw_usdt():
     symbol = Symbol.objects.get(name='usdt')
     is_withdrawing = Withdraw.objects.filter(tx_hash__isnull=False, confirmed_at__isnull=True, symbol__name__in=('eth', 'usdt')).exists()
     if not is_withdrawing:

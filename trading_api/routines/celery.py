@@ -40,11 +40,11 @@ def update_order_activations():
 
 @periodic_task(run_every=timedelta(minutes=2))
 def create_deposits_eth():
-    from .tasks.crypto.eth.create_deposits import create
+    from .tasks.crypto.eth.create_deposits import create_deposit_eth
     if single_jobs['eth_dep']:
         return
     single_jobs['eth_dep'] = True
-    create()
+    create_deposit_eth()
     single_jobs['eth_dep'] = False
 
 
@@ -88,22 +88,22 @@ def deposit_btc():
 
 @periodic_task(run_every=timedelta(minutes=1))
 def deposit_usdt():
-    from .tasks.crypto.usdt.deposit import deposit
+    from .tasks.crypto.usdt.deposit import deposit_usdt
     print(single_jobs['usdt_dep'])
     if single_jobs['usdt_dep']:
         return
     single_jobs['usdt_dep'] = True
-    deposit()
+    deposit_usdt()
     single_jobs['usdt_dep'] = False
 
 
 @periodic_task(run_every=timedelta(minutes=1))
 def deposit_usdt():
-    from .tasks.crypto.usdt.withdraw import withdraw
+    from .tasks.crypto.usdt.withdraw import withdraw_usdt
     if single_jobs['usdt_width']:
         return
     single_jobs['usdt_width'] = True
-    withdraw()
+    withdraw_usdt()
     single_jobs['usdt_width'] = False
 
 

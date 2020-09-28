@@ -14,7 +14,7 @@ from api.models import Deposit
 logger = logging.getLogger('usdt_deposits')
 
 
-def deposit():
+def deposit_usdt():
     symbol = Symbol.objects.get(name='usdt')
     accounts = symbol.accounts.all()
     for account in accounts:

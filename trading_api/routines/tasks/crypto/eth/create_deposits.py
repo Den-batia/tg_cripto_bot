@@ -10,7 +10,7 @@ from crypto.usdt import USDT
 logger = logging.getLogger('create_eth_deposits')
 
 
-def create():
+def create_deposit_eth():
     symbol = Symbol.objects.get(name='eth')
     accounts = symbol.accounts.all()
     for account in accounts:
