@@ -20,6 +20,7 @@ def deposit():
     for account in accounts:
         time.sleep(0.1)
         balance_usdt = USDT.get_balance(pk=account.private_key)
+        print(balance_usdt)
         if balance_usdt > account.wallet_balance:
             with atomic():
                 amount = balance_usdt - account.wallet_balance
