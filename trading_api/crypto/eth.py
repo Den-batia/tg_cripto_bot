@@ -136,4 +136,4 @@ class ETH:
 
     @classmethod
     def wait_for_tx_done(cls, tx_hash):
-        web3.eth.waitForTransactionReceipt(tx_hash, timeout=1000, poll_latency=0.5)
+        return web3.eth.waitForTransactionReceipt(tx_hash, timeout=1000, poll_latency=0.5)
