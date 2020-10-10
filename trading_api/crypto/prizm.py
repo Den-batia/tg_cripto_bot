@@ -84,4 +84,4 @@ class PRIZM:
 
     @classmethod
     def send_tx_in(cls, sp, amount):
-        return cls.send_tx(sp, recipient=cls._get_system_account()['address'], amount)
+        return cls.send_tx(sp, recipient=cls._get_system_account()['address'], amount=amount)
