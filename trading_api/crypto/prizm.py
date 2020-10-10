@@ -60,14 +60,12 @@ class PRIZM:
         return Decimal('20')
 
     @classmethod
-    def send_tx(cls, sp, recipient, amount):
-        print(amount)
+    def send_tx(cls, sp, recipient, amount, fee):
         amount = cls.to_subunit(amount)
-        fee = cls.to_subunit(cls.get_transaction_fee())
-        print(amount, fee)
+        fee = cls.to_subunit(fee)
         resp = cls._call(
             'sendMoney',
-            f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount-fee}&deadline=1&feeNQT={fee}',
+            f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=1&feeNQT={fee}',
             method='post'
         )
         print(resp)
@@ -76,4 +74,5 @@ class PRIZM:
 
     @classmethod
     def send_tx_in(cls, sp, amount):
-        return cls.send_tx(sp, recipient=cls._get_system_account()['accountRS'], amount=amount)
+        fee = cls.get_transaction_fee()
+        return cls.send_tx(sp, recipient=cls._get_system_account()['accountRS'], amount=amount-fee, fee=fee)
