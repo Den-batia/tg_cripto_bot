@@ -79,6 +79,7 @@ class PRIZM:
     def send_tx(cls, sp, recipient, amount):
         amount = cls.to_subunit(amount)
         resp = cls._call('sendMoney', f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=1')
+        print(resp)
         if resp['broadcasted']:
             return resp['fullHash']
 
