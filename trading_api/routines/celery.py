@@ -11,13 +11,15 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 
-single_jobs = {
-    'usdt_dep': False,
-    'eth_dep': False,
-    'btc_dep': False,
-    'usdt_width': False,
-    'eth_width': False,
-}
+single_jobs = dict.fromkeys(
+    [
+        'usdt_dep', 'usdt_width',
+        'eth_dep', 'eth_width',
+        'btc_dep', 'btc_dep',
+        'prizm_dep'
+    ],
+    False
+)
 
 
 @periodic_task(run_every=timedelta(minutes=1))
@@ -104,6 +106,16 @@ def withdraw_usdt():
     single_jobs['usdt_width'] = True
     withdraw_usdt()
     single_jobs['usdt_width'] = False
+
+
+@periodic_task(run_every=timedelta(minutes=1))
+def deposit_prizm():
+    from .tasks.crypto.prizm.deposit import deposit_prizm
+    if single_jobs['prizm_dep']:
+        return
+    single_jobs['prizm_dep'] = True
+    deposit_prizm()
+    single_jobs['prizm_dep'] = False
 
 
 @periodic_task(run_every=timedelta(seconds=15))

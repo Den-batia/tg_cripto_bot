@@ -44,9 +44,13 @@ class PRIZM:
         return {'address': data['accountRS'], 'public_key': data['publicKey']}
 
     @classmethod
+    def _get_system_account(cls):
+        return cls._get_account(sp=env['PRIZM_SP'])
+
+    @classmethod
     def get_balance(cls, pk=None):
         if pk is None:
-            pk = cls._get_account(sp=env['PRIZM_SP'])['account']
+            pk = cls._get_system_account()['account']
         res = cls._call('getAccount', f'&account={pk}')
         return cls.from_subunit(Decimal(res.get('balanceNQT', 0)))
 
@@ -57,10 +61,6 @@ class PRIZM:
     @classmethod
     def create_tx_out(cls, address, amount_btc, blocks_target=70):
         return cls.RPC().sendtoaddress(address, amount_btc, '', '', False, False, blocks_target)
-
-    @classmethod
-    def send_many(cls, venue: dict):
-        return cls.RPC().sendmany("", venue)
 
     @classmethod
     def get_transaction_fee(cls, txid):
@@ -74,3 +74,14 @@ class PRIZM:
     @classmethod
     def get_link(cls, tx_hash):
         return cls.LINK + tx_hash
+
+    @classmethod
+    def send_tx(cls, sp, recipient, amount):
+        amount = cls.to_subunit(amount)
+        resp = cls._call('sendMoney', f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=1')
+        if resp['broadcasted']:
+            return resp['fullHash']
+
+    @classmethod
+    def send_tx_in(cls, sp, amount):
+        return cls.send_tx(sp, recipient=cls._get_system_account()['address'], amount)
