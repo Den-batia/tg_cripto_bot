@@ -128,8 +128,7 @@ async def cancel(message: types.Message):
 @dp.callback_query_handler(lambda msg: msg.data.startswith('get_address'))
 async def get_address(message: types.CallbackQuery):
     await message.answer()
-    text = f'<pre>{message.data.split()[1]}</pre>'
-    await send_message(text=text, chat_id=message.message.chat.id)
+    await dh.get_address(telegram_id=message.from_user.id, symbol=int(message.data.split()[1]))
 
 
 @dp.callback_query_handler(lambda msg: re.match(r'^order [0-9a-z]+$', msg.data))

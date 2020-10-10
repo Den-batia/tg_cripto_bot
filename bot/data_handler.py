@@ -150,6 +150,13 @@ class DataHandler:
         else:
             return await rc.account(account, user)
 
+    async def get_address(self, telegram_id, symbol_id):
+        user = await api.get_user(telegram_id)
+        account = await self._get_account(user['id'], symbol_id)
+        requisites = [account['address']] if isinstance(account['address'], str) else account['address'].values()
+        for requisite in requisites:
+            await send_message(f'<pre>{requisite}</pre>', chat_id=telegram_id)
+
     async def create_account(self, telegram_id, symbol_id):
         user = await api.get_user(telegram_id)
         account = await self._get_account(user['id'], symbol_id)
