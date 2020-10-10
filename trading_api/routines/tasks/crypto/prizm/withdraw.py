@@ -29,19 +29,20 @@ def withdraw():
                 recipient=withdraw_object.address,
                 sp=withdraw_object.user_id
             )
-            commission_net = PRIZM.get_commission()
+            if tx_hash:
+                commission_net = PRIZM.get_commission()
 
-            withdraw_object.confirmed_at = datetime.now(timezone.utc)
-            withdraw_object.commission_blockchain = commission_net
-            withdraw_object.tx_hash = tx_hash
-            withdraw_object.save()
+                withdraw_object.confirmed_at = datetime.now(timezone.utc)
+                withdraw_object.commission_blockchain = commission_net
+                withdraw_object.tx_hash = tx_hash
+                withdraw_object.save()
 
-            NotificationsQueue.put(
-                {
-                    'telegram_id': withdraw_object.user.telegram_id,
-                    'type': 'withdraw',
-                    'link': PRIZM.get_link(tx_hash)
-                }
-            )
+                NotificationsQueue.put(
+                    {
+                        'telegram_id': withdraw_object.user.telegram_id,
+                        'type': 'withdraw',
+                        'link': PRIZM.get_link(tx_hash)
+                    }
+                )
 
-            bm.add_commission(withdraw_object.commission_service - commission_net, symbol)
+                bm.add_commission(withdraw_object.commission_service - commission_net, symbol)
