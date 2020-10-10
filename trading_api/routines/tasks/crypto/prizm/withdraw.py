@@ -17,8 +17,8 @@ def withdraw_prizm():
     symbol = Symbol.objects.get(name='prizm')
     to_withdraw = symbol.withdraws.filter(confirmed_at__isnull=True)
     bm = BalanceManagementMixin()
-    with atomic():
-        for withdraw_object in to_withdraw:
+    for withdraw_object in to_withdraw:
+        with atomic():
             bm.add_frozen(
                 -(withdraw_object.amount + withdraw_object.commission_service),
                 withdraw_object.user,
