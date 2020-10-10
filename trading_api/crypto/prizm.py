@@ -76,9 +76,13 @@ class PRIZM:
         return cls.LINK + tx_hash
 
     @classmethod
+    def get_commission(cls):
+        return Decimal('20')
+
+    @classmethod
     def send_tx(cls, sp, recipient, amount):
         amount = cls.to_subunit(amount)
-        fee = cls.to_subunit(Decimal('20'))
+        fee = cls.to_subunit(cls.get_commission())
         resp = cls._call(
             'sendMoney',
             f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount-fee}&deadline=1&feeNQT={fee}',
