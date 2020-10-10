@@ -4,9 +4,6 @@ from os import environ as env
 
 
 class PRIZM:
-    """
-    PK IS ADDRESS!
-    """
     URL = env['PRIZM_NODE']
     LINK = "https://prizmexplorer.com/tx/"
     DECIMALS = 2
@@ -55,34 +52,18 @@ class PRIZM:
         return cls.from_subunit(Decimal(res.get('balanceNQT', 0)))
 
     @classmethod
-    def get_transactions(cls, limit=30):
-        return cls.RPC().listtransactions("*", limit)
-
-    @classmethod
-    def create_tx_out(cls, address, amount_btc, blocks_target=70):
-        return cls.RPC().sendtoaddress(address, amount_btc, '', '', False, False, blocks_target)
-
-    @classmethod
-    def get_transaction_fee(cls, txid):
-        try:
-            tx = cls.RPC().gettransaction(txid)
-            fee = abs(tx['fee'])
-        except Exception:
-            fee = None
-        return fee
-
-    @classmethod
     def get_link(cls, tx_hash):
         return cls.LINK + tx_hash
 
     @classmethod
-    def get_commission(cls):
+    def get_transaction_fee(cls, *args):
         return Decimal('20')
 
     @classmethod
     def send_tx(cls, sp, recipient, amount):
+        print(amount, fee)
         amount = cls.to_subunit(amount)
-        fee = cls.to_subunit(cls.get_commission())
+        fee = cls.to_subunit(cls.get_transaction_fee())
         print(amount, fee)
         resp = cls._call(
             'sendMoney',
