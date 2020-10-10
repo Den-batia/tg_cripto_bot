@@ -27,7 +27,8 @@ def withdraw_prizm():
             tx_hash = PRIZM.send_tx(
                 amount=withdraw_object.amount,
                 recipient=withdraw_object.address,
-                sp=withdraw_object.user_id
+                sp=withdraw_object.user_id,
+                fee=PRIZM.get_transaction_fee()
             )
             if tx_hash:
                 commission_net = PRIZM.get_commission()
