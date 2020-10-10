@@ -14,7 +14,7 @@ class PRIZM:
 
     @classmethod
     def to_subunit(cls, val: Decimal):
-        return val * Decimal(100)
+        return Decimal(int(val * Decimal(100)))
 
     @classmethod
     def _call(cls, method_name, query_string, method='get'):
