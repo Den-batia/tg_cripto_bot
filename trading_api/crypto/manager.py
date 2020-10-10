@@ -1,5 +1,6 @@
 from .btc import BTC
 from .eth import ETH
+from .prizm import PRIZM
 from .usdt import USDT
 
 
@@ -8,7 +9,8 @@ class Manager:
         self.currencies = {
             'btc': BTC,
             'eth': ETH,
-            'usdt': USDT
+            'usdt': USDT,
+            'prizm': PRIZM
         }
 
     def __getitem__(self, item):
