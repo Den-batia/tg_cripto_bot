@@ -16,7 +16,7 @@ single_jobs = dict.fromkeys(
         'usdt_dep', 'usdt_width',
         'eth_dep', 'eth_width',
         'btc_dep', 'btc_dep',
-        'prizm_dep'
+        'prizm_dep', 'prizm_width'
     ],
     False
 )
@@ -116,6 +116,16 @@ def deposit_prizm():
     single_jobs['prizm_dep'] = True
     deposit_prizm()
     single_jobs['prizm_dep'] = False
+
+
+@periodic_task(run_every=timedelta(minutes=1))
+def withdraw_prizm():
+    from .tasks.crypto.prizm.withdraw import withdraw_prizm
+    if single_jobs['prizm_width']:
+        return
+    single_jobs['prizm_width'] = True
+    withdraw_prizm()
+    single_jobs['prizm_width'] = False
 
 
 @periodic_task(run_every=timedelta(seconds=15))

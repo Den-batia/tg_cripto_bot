@@ -13,7 +13,7 @@ from api.api import BalanceManagementMixin
 logger = logging.getLogger('withdraw')
 
 
-def withdraw():
+def withdraw_prizm():
     symbol = Symbol.objects.get(name='prizm')
     to_withdraw = symbol.withdraws.filter(confirmed_at__isnull=True)
     bm = BalanceManagementMixin()
