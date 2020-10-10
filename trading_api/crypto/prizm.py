@@ -83,6 +83,7 @@ class PRIZM:
     def send_tx(cls, sp, recipient, amount):
         amount = cls.to_subunit(amount)
         fee = cls.to_subunit(cls.get_commission())
+        print(amount, fee)
         resp = cls._call(
             'sendMoney',
             f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount-fee}&deadline=1&feeNQT={fee}',
