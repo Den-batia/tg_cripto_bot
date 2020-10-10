@@ -45,7 +45,7 @@ class PRIZM:
         if pk is None:
             pk = cls._get_account(sp=env['PRIZM_SP'])['account']
         res = cls._call('getAccount', f'&account={pk}')
-        return cls.from_subunit(Decimal(res['balanceNQT']))
+        return cls.from_subunit(Decimal(res.get('balanceNQT', 0)))
 
     @classmethod
     def get_transactions(cls, limit=30):
