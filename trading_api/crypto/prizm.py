@@ -20,8 +20,8 @@ class PRIZM:
         return val * Decimal(100)
 
     @classmethod
-    def _call(cls, method_name, query_string):
-        return requests.get(f'{cls.URL}/prizm?requestType={method_name}{query_string}').json()
+    def _call(cls, method_name, query_string, method='get'):
+        return getattr(requests, method)(f'{cls.URL}/prizm?requestType={method_name}{query_string}').json()
 
     @classmethod
     def _get_account(cls, sp=None, pk=None):
@@ -78,7 +78,11 @@ class PRIZM:
     @classmethod
     def send_tx(cls, sp, recipient, amount):
         amount = cls.to_subunit(amount)
-        resp = cls._call('sendMoney', f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=1')
+        resp = cls._call(
+            'sendMoney',
+            f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=1',
+            method='post'
+        )
         print(resp)
         if resp['broadcasted']:
             return resp['fullHash']
