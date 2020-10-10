@@ -543,7 +543,8 @@ class BalanceView(APIView):
                     }
                 if symbol.name == 'usdt':
                     target['wallet'] += symbol.accounts.aggregate((Sum('wallet_balance'))).get('wallet_balance__sum')
-            except Exception:
+            except Exception as e:
+                logger.exception(e)
                 continue
             target['balance'] = target['wallet'] - target['db']
             data.append(target)
