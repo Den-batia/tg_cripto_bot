@@ -178,7 +178,10 @@ class GenerateAccountView(APIView):
             )
             pk = ethereum_account.private_key
         else:
-            pk = crypto_manager[symbol.name].generate_wallet()
+            args = []
+            if symbol.name == 'prizm':
+                args.append(user.id)
+            pk = crypto_manager[symbol.name].generate_wallet(*args)
         Account.objects.create(user=user, symbol=symbol, private_key=pk)
         return Response(status=HTTP_204_NO_CONTENT)
 
