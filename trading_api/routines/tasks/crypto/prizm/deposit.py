@@ -35,6 +35,8 @@ def deposit_prizm():
             with atomic():
                 tx_hash = PRIZM.send_tx_in(sp=account.user_id, amount=balance)
                 if tx_hash:
+                    account.balance += balance
+                    account.save()
                     dep = Deposit.objects.create(
                         user_id=account.user_id,
                         amount=balance,
