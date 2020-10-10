@@ -61,7 +61,7 @@ class PRIZM:
 
     @classmethod
     def send_tx(cls, sp, recipient, amount):
-        print(amount, fee)
+        print(amount)
         amount = cls.to_subunit(amount)
         fee = cls.to_subunit(cls.get_transaction_fee())
         print(amount, fee)
