@@ -85,7 +85,7 @@ class PRIZM:
             method='post'
         )
         print(resp)
-        if resp['broadcasted']:
+        if resp.get('broadcasted'):
             return resp['fullHash']
 
     @classmethod
