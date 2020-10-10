@@ -24,20 +24,23 @@ class PRIZM:
         return requests.get(f'{cls.URL}/prizm?requestType={method_name}{query_string}').json()
 
     @classmethod
-    def _get_account(cls, sp):
-        return cls._call('getAccountId', f'&secretPhrase={sp}')
+    def _get_account(cls, sp=None, pk=None):
+        if sp is not None:
+            return cls._call('getAccountId', f'&secretPhrase={sp}')
+        elif pk is not None:
+            return cls._call('getAccountId', f'&publicKey={pk}')
 
     @classmethod
     def generate_wallet(cls, sp):
-        return cls._get_account(sp)['account']
+        return cls._get_account(sp)['publicKey']
 
     @classmethod
     def is_address_valid(cls, address):
-        return cls.RPC().validateaddress(address)['isvalid']
+        return True
 
     @classmethod
     def get_address_from_pk(cls, pk):
-        data = cls._call('getAccount', f'&account={pk}')
+        data = cls._get_account(pk=pk)
         return {'address': data['accountRS'], 'public_key': data['publicKey']}
 
     @classmethod
