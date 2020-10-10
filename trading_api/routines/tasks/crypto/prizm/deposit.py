@@ -41,7 +41,7 @@ def deposit_prizm():
                     dep = Deposit.objects.create(
                         user_id=account.user_id,
                         amount=balance,
-                        address=PRIZM._get_system_account()['address'],
+                        address=PRIZM._get_system_account()['accountRS'],
                         symbol=symbol,
                         confirmed_at=datetime.now(timezone.utc),
                         tx_hash=tx_hash
