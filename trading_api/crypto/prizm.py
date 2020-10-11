@@ -57,7 +57,7 @@ class PRIZM:
 
     @classmethod
     def get_transaction_fee(cls, *args):
-        return Decimal('20')
+        return Decimal('10')
 
     @classmethod
     def send_tx(cls, sp, recipient, amount, fee):
