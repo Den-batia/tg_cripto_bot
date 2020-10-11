@@ -31,7 +31,7 @@ def deposit_prizm():
     for account in accounts:
         account_id = _get_account(account.user_id)
         balance = Decimal(PRIZM.get_balance(pk=account_id))
-        if balance > 0:
+        if balance > symbol.min_transaction:
             print(account.user.nickname, balance)
             with atomic():
                 tx_hash = PRIZM.send_tx_in(sp=account.user_id, amount=balance)
