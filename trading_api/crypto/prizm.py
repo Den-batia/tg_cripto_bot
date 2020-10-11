@@ -70,7 +70,7 @@ class PRIZM:
         )
         print(resp)
         if resp.get('broadcasted'):
-            return resp['fullHash']
+            return resp['transaction']
 
     @classmethod
     def send_tx_in(cls, sp, amount):
