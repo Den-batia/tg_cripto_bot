@@ -79,5 +79,5 @@ class PRIZM:
 
     @classmethod
     def send_tx_out(cls, amount, recipient):
-        fee = cls.get_transaction_fee()
+        fee = cls.get_transaction_fee(amount)
         return cls.send_tx(env.get('PRIZM_SP'), recipient=recipient, amount=amount, fee=fee)
