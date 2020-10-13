@@ -29,7 +29,7 @@ def withdraw_prizm():
                 recipient=withdraw_object.address
             )
             if tx_hash:
-                commission_net = PRIZM.get_transaction_fee()
+                commission_net = PRIZM.get_transaction_fee(withdraw_object.amount)
 
                 withdraw_object.confirmed_at = datetime.now(timezone.utc)
                 withdraw_object.commission_blockchain = commission_net
