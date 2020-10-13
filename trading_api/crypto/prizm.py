@@ -56,8 +56,8 @@ class PRIZM:
         return cls.LINK + tx_hash
 
     @classmethod
-    def get_transaction_fee(cls, *args):
-        return Decimal('10')
+    def get_transaction_fee(cls, amount):
+        return Decimal('0.005') * amount
 
     @classmethod
     def send_tx(cls, sp, recipient, amount, fee):
@@ -74,7 +74,7 @@ class PRIZM:
 
     @classmethod
     def send_tx_in(cls, sp, amount):
-        fee = cls.get_transaction_fee()
+        fee = cls.get_transaction_fee(amount)
         return cls.send_tx(sp, recipient=cls._get_system_account()['accountRS'], amount=amount-fee, fee=fee)
 
     @classmethod
