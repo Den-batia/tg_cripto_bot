@@ -39,6 +39,9 @@ class User(models.Model):
     REQUIRED_FIELDS = ['id']
     USERNAME_FIELD = 'telegram_id'
 
+    def __str__(self):
+        return self.nickname
+
     @property
     def is_anonymous(self):
         return False
