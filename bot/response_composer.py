@@ -79,7 +79,7 @@ class ResponseComposer:
         text = await self._get(var_name='about')
         for symbol in symbols:
             text += f"\n{float(symbol['commission'])} {symbol['name'].upper()}"
-        k = await kb.ref()
+        k = await kb.about()
         return text, k
 
     async def referral(self):

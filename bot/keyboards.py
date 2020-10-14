@@ -199,8 +199,11 @@ class Keyboard:
         btns = [[self.inl_b('invite_more', action='friends')]]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
-    async def ref(self):
-        btns = [[self.inl_b('ref', action='ref')]]
+    async def about(self):
+        btns = [
+            [self.inl_b('chat', link='https://t.me/joinchat/AAAAAE-APfy6tAkg67m4iw')],
+            [self.inl_b('ref', action='ref')],
+        ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def settings(self, user):
