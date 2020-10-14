@@ -36,6 +36,11 @@ class Users(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
 
+class Accounts(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'user', 'symbol', 'balance')
+    actions = ["export_as_csv"]
+
+
 class Brokers(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('name',)
     actions = ["export_as_csv"]
@@ -71,6 +76,7 @@ class Withdraws(admin.ModelAdmin, ExportCsvMixin):
 
 
 admin_site.register(User, Users)
+admin_site.register(Account, Accounts)
 admin_site.register(Broker, Brokers)
 admin_site.register(Symbol, Symbols)
 admin_site.register(Order, Orders)
