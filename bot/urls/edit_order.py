@@ -37,19 +37,22 @@ async def cancel_send_message(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(lambda msg: re.match(r'^-?[0-9]{1,2}%$', msg.text), state=EDIT_ORDER_RATE)
-@dp.message_handler(lambda msg: re.match(r'^-?[0-9.]{1,3}%$', msg.text), state=EDIT_ORDER_RATE)
+@dp.message_handler(lambda msg: re.match(r'^-?[0-9.,]{1,3}%$', msg.text), state=EDIT_ORDER_RATE)
 async def edit_rate_percents(message: types.Message, state):
-    coefficient = str(round((float(message.text[:-1]) + 100) / 100, 3))
+    coefficient = str(round((float(message.text.replace(',', '.')[:-1]) + 100) / 100, 3))
     data = await state.get_data()
     text, k = await dh.update_order(message.from_user.id, data['order_id'], {'coefficient': coefficient})
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state(with_data=True)
 
 
-@dp.message_handler(lambda msg: is_string_a_number(msg.text), state=EDIT_ORDER_RATE)
+@dp.message_handler(lambda msg: is_string_a_number(msg.text.replace(',', '.')), state=EDIT_ORDER_RATE)
 async def edit_rate_fixed(message: types.Message, state):
     data = await state.get_data()
-    text, k = await dh.update_order(message.from_user.id, data['order_id'], {'rate': message.text, 'coefficient': None})
+    text, k = await dh.update_order(
+        message.from_user.id, data['order_id'],
+        {'rate': message.text.replace(',', '.'), 'coefficient': None}
+    )
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state(with_data=True)
 

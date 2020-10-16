@@ -108,7 +108,7 @@ def withdraw_usdt():
     single_jobs['usdt_width'] = False
 
 
-@periodic_task(run_every=timedelta(minutes=2))
+@periodic_task(run_every=timedelta(minutes=5))
 def deposit_prizm():
     from .tasks.crypto.prizm.deposit import deposit_prizm
     if single_jobs['prizm_dep']:
