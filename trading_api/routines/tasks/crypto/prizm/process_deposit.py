@@ -11,7 +11,7 @@ logger = logging.getLogger('prizm_deposits')
 
 def process_deposit_prizm():
     symbol = Symbol.objects.get(name='prizm')
-    for dep in symbol.deposits.filter(confirmed_at__null=True):
+    for dep in symbol.deposits.filter(confirmed_at__isnull=True):
         tx = PRIZM.get_tx(dep.tx_hash)
         if tx['confirmations'] > 0:
             with atomic():
