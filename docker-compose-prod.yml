@@ -12,6 +12,8 @@ services:
     command: bash -c "python manage.py migrate --noinput && gunicorn --workers=3 trading_api.wsgi -b 0.0.0.0:8080"
     expose:
       - 8080
+    ports:
+      - 8080:8080
 
   celery:
     build: trading_api
