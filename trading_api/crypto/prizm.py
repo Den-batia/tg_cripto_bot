@@ -4,7 +4,7 @@ from os import environ as env
 
 
 class PRIZM:
-    URL = env['PRIZM_NODE']
+    URL = env.get('PRIZM_NODE')
     LINK = "https://prizmexplorer.com/tx/"
     DECIMALS = 2
 
@@ -57,7 +57,7 @@ class PRIZM:
 
     @classmethod
     def get_transaction_fee(cls, amount):
-        return Decimal('0.005') * amount
+        return min(Decimal('0.005') * amount, 10)
 
     @classmethod
     def send_tx(cls, sp, recipient, amount, fee):
@@ -81,3 +81,7 @@ class PRIZM:
     def send_tx_out(cls, amount, recipient):
         fee = cls.get_transaction_fee(amount)
         return cls.send_tx(env.get('PRIZM_SP'), recipient=recipient, amount=amount, fee=fee)
+
+    @classmethod
+    def get_tx(cls, tx_hash):
+        return cls._call('getTransaction', f'&transaction={tx_hash}')

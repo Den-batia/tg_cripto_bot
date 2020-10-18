@@ -10,7 +10,7 @@ from crypto.manager import crypto_manager
 class SymbolSerializer(ModelSerializer):
     class Meta:
         model = Symbol
-        fields = ('id', 'name', 'min_transaction', 'commission', 'deals_commission')
+        fields = ('id', 'name', 'min_transaction', 'commission', 'deals_commission', 'info')
 
 
 class BrokerSerializer(ModelSerializer):

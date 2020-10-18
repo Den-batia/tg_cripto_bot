@@ -183,7 +183,7 @@ class DataHandler:
         account = await self._get_account(user['id'], symbol_id)
         if Decimal(account['balance']) < Decimal(symbol['min_transaction']):
             return await rc.not_enough_money_withdraw(), False
-        return await rc.enter_address(), True
+        return await rc.enter_address(symbol['info']), True
 
     async def process_address(self, telegram_id, address, symbol_id):
         address_check_result = await api.check_address(address, symbol_id)

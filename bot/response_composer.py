@@ -248,8 +248,10 @@ class ResponseComposer:
         k = await kb.main_menu()
         return text, k
 
-    async def enter_address(self):
+    async def enter_address(self, info):
         text = await self._get(var_name='enter_address')
+        if info:
+            text += f'\n\n{info}'
         k = await kb.get_cancel()
         return text, k
 

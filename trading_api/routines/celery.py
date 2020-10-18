@@ -109,13 +109,19 @@ def withdraw_usdt():
 
 
 @periodic_task(run_every=timedelta(minutes=5))
-def deposit_prizm():
-    from .tasks.crypto.prizm.deposit import deposit_prizm
+def create_deposit_prizm():
+    from .tasks.crypto.prizm.create_deposit import create_deposit_prizm
     if single_jobs['prizm_dep']:
         return
     single_jobs['prizm_dep'] = True
-    deposit_prizm()
+    create_deposit_prizm()
     single_jobs['prizm_dep'] = False
+
+
+@periodic_task(run_every=timedelta(seconds=15))
+def process_deposit_prizm():
+    from .tasks.crypto.prizm.process_deposit import process_deposit_prizm
+    process_deposit_prizm()
 
 
 @periodic_task(run_every=timedelta(minutes=1))

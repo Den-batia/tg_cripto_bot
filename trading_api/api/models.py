@@ -56,6 +56,7 @@ class Symbol(models.Model):
     min_transaction = models.DecimalField(max_digits=15, decimal_places=8, default='0.01')
     commission = models.DecimalField(max_digits=15, decimal_places=8, default='0.005')
     deals_commission = models.DecimalField(max_digits=5, decimal_places=5, default=0.001)
+    info = models.TextField(default="")
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
