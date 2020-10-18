@@ -65,7 +65,7 @@ class PRIZM:
         fee = cls.to_subunit(fee)
         resp = cls._call(
             'sendMoney',
-            f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=1&feeNQT={fee}',
+            f'&secretPhrase={sp}&recipient={recipient}&amountNQT={amount}&deadline=5&feeNQT={fee}',
             method='post'
         )
         print(resp)
