@@ -113,6 +113,13 @@ class DataHandler:
         await api.update_order(user_id=user['id'], order_id=order_id, data={'is_active': not order['is_active']})
         return await self.get_order_info(telegram_id, order_id)
 
+    async def change_all_orders(self, telegram_id, action):
+        user = await api.get_user(telegram_id)
+        orders = await api.get_user_orders(user['id'])
+        for order in orders:
+            await api.update_order(user_id=user['id'], order_id=order['id'], data={'is_active': action == 'on'})
+        return await rc.my_orders(orders)
+
     async def about(self):
         symbols = await api.get_symbols()
         return await rc.about(symbols)

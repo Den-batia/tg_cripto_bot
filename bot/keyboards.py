@@ -103,6 +103,9 @@ class Keyboard:
         ]
         btns.append([self.inl_b('new_order', action='new_order')])
         btns.append([self.inl_b('back', action='trading')])
+        if orders:
+            btns.append([self.inl_b('on_all_orders', action='on_all_orders')])
+            btns.append([self.inl_b('off_all_orders', action='off_all_orders')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def my_order(self, order):

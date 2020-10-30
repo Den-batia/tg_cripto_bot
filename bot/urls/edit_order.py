@@ -95,3 +95,12 @@ async def edit_order_activity(message: types.CallbackQuery):
     order_id = message.data.split()[1]
     text, k = await dh.edit_order_activity(message.from_user.id, order_id)
     await message.message.edit_text(text, reply_markup=k)
+
+
+@dp.callback_query_handler(lambda msg: re.match(r'^(on|off)_all_orders$', msg.data))
+async def deal_rate_user(message: types.CallbackQuery):
+    await message.answer()
+    await message.message.edit_reply_markup()
+    action = message.data.split('_')[0]
+    text, k = await dh.change_all_orders(message.from_user.id, action)
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
