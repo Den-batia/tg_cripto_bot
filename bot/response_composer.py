@@ -124,6 +124,11 @@ class ResponseComposer:
         k = await kb.symbol_broker_market(symbol, orders, action=action)
         return text, k
 
+    async def get_update_send_notifications(self, text, **kwargs):
+        text = text
+        k = None
+        return text, k
+
     async def get_update_deposit(self, amount, symbol, **kwargs):
         text = await self._get(var_name='deposit_notification', symbol=symbol.upper(), amount=amount)
         k = None

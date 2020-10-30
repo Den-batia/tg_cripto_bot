@@ -424,7 +424,7 @@ class DataHandler:
         deal = await api.get_deal(deal_id)
         user = await api.get_user(telegram_id)
         self._validate_user_in_deal(user, deal)
-        if deal['status'] != 0:
+        if deal['status'] not in [0, 1]:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], action)
         answers = {
