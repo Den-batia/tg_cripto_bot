@@ -75,14 +75,20 @@ WSGI_APPLICATION = 'trading_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('DB_NAME') or 'postgres',
+#         'PORT': os.environ.get('DB_PORT') or 5432,
+#         'HOST': os.environ.get('DB_HOST') or 'localhost',
+#         'PASSWORD': os.environ.get('DB_PASSWORD') or 'pass',
+#         'USER': os.environ.get('DB_USER') or 'tester'
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME') or 'postgres',
-        'PORT': os.environ.get('DB_PORT') or 5432,
-        'HOST': os.environ.get('DB_HOST') or 'localhost',
-        'PASSWORD': os.environ.get('DB_PASSWORD') or 'pass',
-        'USER': os.environ.get('DB_USER') or 'tester'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase'
     }
 }
 
@@ -126,7 +132,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-CELERY_BROKER_URL = 'redis://redis:6379'
+# CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

@@ -4,7 +4,8 @@ import redis
 
 
 class NotificationsQueue:
-    __db = redis.Redis(host='redis')
+    # __db = redis.Redis(host='redis')
+    __db = redis.Redis(host='127.0.0.1')
     key = 'queue:notifications'
 
     @classmethod
