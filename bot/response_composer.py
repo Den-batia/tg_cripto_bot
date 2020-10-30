@@ -427,6 +427,8 @@ class ResponseComposer:
                                requisite=deal['requisite'], id=deal['id'], rate=deal['rate'])
         k = await kb.main_menu()
         if user:
+            if user['id'] == deal['buyer']['id'] and deal['status'] == 0:
+                k = await kb.decline_deal(deal['id'])
             if user['id'] == deal['buyer']['id'] and deal['status'] == 1:
                 k = await kb.send_fiat(deal['id'], deal['seller']['id'])
             elif user['id'] == deal['seller']['id'] and deal['status'] == 2:

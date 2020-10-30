@@ -432,7 +432,7 @@ class ConfirmDealView(APIView, UpdateDealMixin):
 
 
 class DeclineDealView(APIView, UpdateDealMixin):
-    target_statuses = [0]
+    target_statuses = [0, 1]
     buyer_message_type = 'deal_declined'
     seller_message_type = 'deal_declined'
 
