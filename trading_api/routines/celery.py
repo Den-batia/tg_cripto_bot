@@ -140,7 +140,7 @@ def deal_process_timeouts():
     process_timeouts()
 
 
-@periodic_task(run_every=timedelta(seconds=10))
+@periodic_task(run_every=timedelta(minutes=10))
 def send_message():
     from .tasks.notification.send_notifications import send_process
     send_process()
