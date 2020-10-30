@@ -138,4 +138,3 @@ database.sqlite
 .coverage
 *.env
 docker_install.sh
-mydatabase
