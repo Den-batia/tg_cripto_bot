@@ -61,6 +61,10 @@ class API:
         res = await self._call_api(f'/v1/orders/?symbol={symbol_id}&type={order_type}&broker={broker_id}&ref={user_id}')
         return res
 
+    async def change_activity_all_order(self, telegram_id, action):
+        res = await self._call_api(f'/v1/user/{telegram_id}/change-all-orders/?action={action}')
+        return res
+
     async def get_user_orders(self, user_id):
         res = await self._call_api(f'/v1/users/{user_id}/orders')
         return res
