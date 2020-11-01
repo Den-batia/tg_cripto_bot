@@ -2,6 +2,7 @@ import re
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.exceptions import MessageNotModified
 
 from bot.data_handler import dh, send_message
 from bot.settings import dp
@@ -102,4 +103,7 @@ async def edit_orders_activity(message: types.CallbackQuery):
     await message.answer()
     action = message.data.split('_')[0]
     text, k = await dh.change_activity_all_orders(message.from_user.id, action)
-    await message.message.edit_reply_markup(reply_markup=k)
+    try:
+        await message.message.edit_reply_markup(reply_markup=k)
+    except MessageNotModified:
+        pass
