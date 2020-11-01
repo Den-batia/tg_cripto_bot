@@ -14,7 +14,7 @@ def send_process():
         ids = list(User.objects.values('telegram_id'))
         for notification in notifications:
 
-            if notification.started_at:
+            if not notification.started_at:
                 time_start = datetime.now(timezone.utc)
                 notification.started_at = time_start
                 notification.save()
