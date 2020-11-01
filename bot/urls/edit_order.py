@@ -100,7 +100,6 @@ async def edit_order_activity(message: types.CallbackQuery):
 @dp.callback_query_handler(lambda msg: re.match(r'^(on|off)_all_orders$', msg.data))
 async def edit_orders_activity(message: types.CallbackQuery):
     await message.answer()
-    await message.message.edit_reply_markup()
     action = message.data.split('_')[0]
     text, k = await dh.change_activity_all_orders(message.from_user.id, action)
     await message.message.edit_reply_markup(reply_markup=k)
