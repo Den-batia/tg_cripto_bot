@@ -8,7 +8,7 @@ from .api import (
     NewWithdrawView, UserOrdersViewSet, TgUserViewSet, UserInfoViewSet, OrderInfoViewSet, UserBrokerView, NewDealView,
     DealDetailViewSet, ConfirmDealView, DeclineDealView, SendFiatDealView, SendCryptoDealView, NewMessageView,
     BalanceView, RateUserView, NicknameChangeView, UsersStatView, RatesViewSet, SolveDisputeView, OpenDisputeView,
-    ChangeAllOrders
+    ChangeActivAllOrdersView
 )
 
 router = routers.DefaultRouter()
@@ -48,5 +48,5 @@ urlpatterns += [
     path('v1/users/<str:user_id>/nickname/', NicknameChangeView.as_view(), name='nickname-change'),
     path('v1/balance', BalanceView.as_view(), name='balance'),
     path('v1/users-stat', UsersStatView.as_view(), name='users-stat'),
-    path('v1/user/<str:telegram_id>/change-all-orders/', ChangeAllOrders.as_view(), name='change-all-orders')
+    path('v1/user/<str:user_id>/change-all-orders/', ChangeActivAllOrdersView.as_view(), name='change-all-orders')
 ]

@@ -8,13 +8,18 @@ from utils.redis_queue import NotificationsQueue
 
 
 def send_process():
-    notifications = Notification.objects.filter(is_active=True).all()
+    notifications = Notification.objects.filter(ended_at=None).all()
+
     if notifications:
-        ids = User.objects.values('telegram_id')
+        ids = list(User.objects.values('telegram_id'))
         for notification in notifications:
-            time_start = datetime.now()
-            while ids:
-                ids_10 = ids[:10]
+
+            time_start = datetime.now(timezone.utc)
+            notification.started_at = time_start
+            notification.save()
+
+            while len(ids) > 0:
+                ids_10 = ids[:1]
                 for i in ids_10:
                     NotificationsQueue.put(
                         {
@@ -23,10 +28,8 @@ def send_process():
                             'text': notification.text
                         }
                     )
-                ids = ids[10:]
+                    ids.pop(0)
                 time.sleep(1)
-            time_end = datetime.now()
-            notification.started_at = time_start
+            time_end = datetime.now(timezone.utc)
             notification.ended_at = time_end
-            notification.is_active = False
             notification.save()

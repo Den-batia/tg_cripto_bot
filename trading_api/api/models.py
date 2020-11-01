@@ -184,8 +184,7 @@ class Text(models.Model):
 
 class Notification(models.Model):
     id = models.AutoField(primary_key=True)
-    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(default=None, blank=True, null=True)
     ended_at = models.DateTimeField(default=None, blank=True, null=True)
-    text = models.TextField(max_length=1000)
+    text = models.TextField()

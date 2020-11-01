@@ -113,10 +113,10 @@ class DataHandler:
         await api.update_order(user_id=user['id'], order_id=order_id, data={'is_active': not order['is_active']})
         return await self.get_order_info(telegram_id, order_id)
 
-    async def change_activity_all_order(self, telegram_id, action):
+    async def change_activity_all_orders(self, telegram_id, action):
         user = await api.get_user(telegram_id)
         orders = await api.get_user_orders(user['id'])
-        await api.change_activity_all_order(telegram_id, action)
+        await api.change_activity_all_orders(user['id'], action)
         return await rc.my_orders(orders)
 
     async def about(self):

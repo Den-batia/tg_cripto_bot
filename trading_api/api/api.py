@@ -599,9 +599,9 @@ class TextViewSet(ReadOnlyModelViewSet):
     lookup_field = 'name'
 
 
-class ChangeAllOrders(APIView):
+class ChangeActivAllOrdersView(APIView):
     def get(self, request, *args, **kwargs):
         is_active = True if self.request.query_params.get('action') == 'on' else False
-        user = get_object_or_404(User, telegram_id=kwargs['telegram_id'])
+        user = get_object_or_404(User, id=kwargs['user_id'])
         user.orders.filter(is_deleted=False).update(is_active=is_active)
         return Response(status=204)

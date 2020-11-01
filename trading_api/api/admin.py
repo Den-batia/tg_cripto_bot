@@ -76,7 +76,7 @@ class Withdraws(admin.ModelAdmin, ExportCsvMixin):
 
 
 class Notifications(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ('id', 'text', 'created_at', 'started_at', 'ended_at', 'is_active')
+    list_display = ('id', 'text', 'created_at', 'started_at', 'ended_at')
     list_filter = ('created_at', )
     actions = ["export_as_csv"]
 
