@@ -94,7 +94,7 @@ class Keyboard:
         btns = [
             [
                 self.inl_b(
-                    f'{"🟢" if order["is_active"] else "⚫️"}{"купить" if order["type"] == "buy" else "продать"}, {order["broker"]}, '
+                    f'{"🟢" if order["is_active"] else "⚫️"}{" купить" if order["type"] == "buy" else "продать"}, {order["broker"]}, '
                     f'{order["symbol"]["name"].upper()}, {prettify_number(order["limit_from"])}-{prettify_number(order["limit_to"])} ₽, {order["rate"]} ₽',
                     action=f'order {order["id"]}'
                 )
