@@ -180,3 +180,11 @@ class Rates(models.Model):
 class Text(models.Model):
     name = models.CharField(max_length=50)
     text = models.TextField()
+
+
+class Notification(models.Model):
+    id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(default=None, blank=True, null=True)
+    ended_at = models.DateTimeField(default=None, blank=True, null=True)
+    text = models.TextField()

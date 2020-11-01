@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib import admin
 from django.contrib.admin import AdminSite
 
-from .models import User, Account, Broker, Symbol, Order, Deal, Deposit, Withdraw
+from .models import User, Account, Broker, Symbol, Order, Deal, Deposit, Withdraw, Notification
 
 
 class MyAdminSite(AdminSite):
@@ -75,6 +75,12 @@ class Withdraws(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
 
+class Notifications(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'text', 'created_at', 'started_at', 'ended_at')
+    list_filter = ('created_at', )
+    actions = ["export_as_csv"]
+
+
 admin_site.register(User, Users)
 admin_site.register(Account, Accounts)
 admin_site.register(Broker, Brokers)
@@ -83,3 +89,4 @@ admin_site.register(Order, Orders)
 admin_site.register(Deal, Deals)
 admin_site.register(Deposit, Deposits)
 admin_site.register(Withdraw, Withdraws)
+admin_site.register(Notification, Notifications)

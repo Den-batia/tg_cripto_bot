@@ -432,7 +432,7 @@ class ConfirmDealView(APIView, UpdateDealMixin):
 
 
 class DeclineDealView(APIView, UpdateDealMixin):
-    target_statuses = [0]
+    target_statuses = [0, 1]
     buyer_message_type = 'deal_declined'
     seller_message_type = 'deal_declined'
 
@@ -597,3 +597,11 @@ class TextViewSet(ReadOnlyModelViewSet):
     serializer_class = TextSerializer
     queryset = Text.objects.all()
     lookup_field = 'name'
+
+
+class ChangeActivityAllOrdersView(APIView):
+    def post(self, request, *args, **kwargs):
+        is_active = True if request.data['action'] == 'on' else False
+        user = get_object_or_404(User, id=kwargs['user_id'])
+        user.orders.filter(is_deleted=False).update(is_active=is_active)
+        return Response(status=204)

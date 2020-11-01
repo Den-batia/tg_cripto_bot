@@ -113,6 +113,12 @@ class DataHandler:
         await api.update_order(user_id=user['id'], order_id=order_id, data={'is_active': not order['is_active']})
         return await self.get_order_info(telegram_id, order_id)
 
+    async def change_activity_all_orders(self, telegram_id, action):
+        user = await api.get_user(telegram_id)
+        orders = await api.get_user_orders(user['id'])
+        await api.change_activity_all_orders(user['id'], action)
+        return await rc.my_orders(orders)
+
     async def about(self):
         symbols = await api.get_symbols()
         return await rc.about(symbols)
@@ -424,7 +430,7 @@ class DataHandler:
         deal = await api.get_deal(deal_id)
         user = await api.get_user(telegram_id)
         self._validate_user_in_deal(user, deal)
-        if deal['status'] != 0:
+        if deal['status'] not in [0, 1]:
             return await rc.unknown_error()
         await api.confirm_decline_deal(user['id'], deal['id'], action)
         answers = {

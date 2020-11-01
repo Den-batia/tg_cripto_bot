@@ -138,3 +138,9 @@ def withdraw_prizm():
 def deal_process_timeouts():
     from .tasks.deals.timeouts import process_timeouts
     process_timeouts()
+
+
+@periodic_task(run_every=timedelta(hours=12))
+def send_message():
+    from .tasks.notification.send_notifications import send_process
+    send_process()

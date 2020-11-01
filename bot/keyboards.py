@@ -103,6 +103,9 @@ class Keyboard:
         ]
         btns.append([self.inl_b('new_order', action='new_order')])
         btns.append([self.inl_b('back', action='trading')])
+        if orders:
+            btns.append([self.inl_b('on_all_orders', action='on_all_orders')])
+            btns.append([self.inl_b('off_all_orders', action='off_all_orders')])
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
     async def my_order(self, order):
@@ -243,10 +246,17 @@ class Keyboard:
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 
+    async def decline_deal(self, deal_id):
+        btns = [
+            [self.inl_b('decline', action=f'decline_deal {deal_id}')]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=btns)
+
     async def send_fiat(self, deal_id, user_id):
         btns = [
             [self.inl_b('fiat_sent', action=f'deal_send_fiat {deal_id}')],
-            [self.inl_b('send_message', action=f'send_message {user_id}')]
+            [self.inl_b('send_message', action=f'send_message {user_id}')],
+            [self.inl_b('decline', action=f'decline_deal {deal_id}')]
         ]
         return InlineKeyboardMarkup(inline_keyboard=btns)
 

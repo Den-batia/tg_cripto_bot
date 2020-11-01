@@ -124,6 +124,11 @@ class ResponseComposer:
         k = await kb.symbol_broker_market(symbol, orders, action=action)
         return text, k
 
+    async def get_update_send_notifications(self, text, **kwargs):
+        text = text
+        k = None
+        return text, k
+
     async def get_update_deposit(self, amount, symbol, **kwargs):
         text = await self._get(var_name='deposit_notification', symbol=symbol.upper(), amount=amount)
         k = None
@@ -422,6 +427,8 @@ class ResponseComposer:
                                requisite=deal['requisite'], id=deal['id'], rate=deal['rate'])
         k = await kb.main_menu()
         if user:
+            if user['id'] == deal['buyer']['id'] and deal['status'] == 0:
+                k = await kb.decline_deal(deal['id'])
             if user['id'] == deal['buyer']['id'] and deal['status'] == 1:
                 k = await kb.send_fiat(deal['id'], deal['seller']['id'])
             elif user['id'] == deal['seller']['id'] and deal['status'] == 2:
