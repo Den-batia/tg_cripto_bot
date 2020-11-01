@@ -62,7 +62,7 @@ class API:
         return res
 
     async def change_activity_all_orders(self, user_id, action):
-        res = await self._call_api(f'/v1/user/{user_id}/change-all-orders/?action={action}')
+        res = await self._call_api(f'/v1/user/{user_id}/change-all-orders/', method='post', _json={'action': action})
         return res
 
     async def get_user_orders(self, user_id):

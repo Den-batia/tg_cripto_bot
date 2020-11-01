@@ -14,22 +14,23 @@ def send_process():
         ids = list(User.objects.values('telegram_id'))
         for notification in notifications:
 
-            time_start = datetime.now(timezone.utc)
-            notification.started_at = time_start
-            notification.save()
+            if notification.started_at:
+                time_start = datetime.now(timezone.utc)
+                notification.started_at = time_start
+                notification.save()
 
-            while len(ids) > 0:
-                ids_10 = ids[:10]
-                for i in ids_10:
-                    NotificationsQueue.put(
-                        {
-                            'telegram_id': i['telegram_id'],
-                            'type': 'send_notifications',
-                            'text': notification.text
-                        }
-                    )
-                    ids.pop(0)
-                time.sleep(1)
-            time_end = datetime.now(timezone.utc)
-            notification.ended_at = time_end
-            notification.save()
+                while len(ids) > 0:
+                    ids_10 = ids[:10]
+                    for i in ids_10:
+                        NotificationsQueue.put(
+                            {
+                                'telegram_id': i['telegram_id'],
+                                'type': 'send_notifications',
+                                'text': notification.text
+                            }
+                        )
+                        ids.pop(0)
+                    time.sleep(1)
+                time_end = datetime.now(timezone.utc)
+                notification.ended_at = time_end
+                notification.save()
