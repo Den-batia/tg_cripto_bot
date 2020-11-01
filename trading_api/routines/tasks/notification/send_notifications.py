@@ -19,7 +19,7 @@ def send_process():
             notification.save()
 
             while len(ids) > 0:
-                ids_10 = ids[:1]
+                ids_10 = ids[:10]
                 for i in ids_10:
                     NotificationsQueue.put(
                         {
