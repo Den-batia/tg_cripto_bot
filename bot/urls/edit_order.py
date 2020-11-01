@@ -103,4 +103,4 @@ async def edit_orders_activity(message: types.CallbackQuery):
     await message.message.edit_reply_markup()
     action = message.data.split('_')[0]
     text, k = await dh.change_activity_all_orders(message.from_user.id, action)
-    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
+    await message.message.edit_reply_markup(reply_markup=k)
