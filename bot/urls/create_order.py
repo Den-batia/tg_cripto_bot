@@ -99,3 +99,5 @@ async def choose_rate_fixed(message: types.Message, state):
     text, k = await dh.create_order(message.from_user.id, {**data, **{'rate': message.text}})
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state(with_data=True)
+    text, k = await dh.my_orders(message.from_user.id)
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
