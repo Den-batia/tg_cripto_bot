@@ -580,7 +580,7 @@ class DealsStatView(APIView):
         }
         for symbol in Symbol.objects.filter(is_active=True):
             data[symbol.name] = deals_q.filter(symbol=symbol).count()
-            data[symbol.name + '24h'] = deals_q.filter(symbol=symbol).count()
+            data[symbol.name + '24h'] = deals_q.filter(symbol=symbol, created_at__gt=datetime.now(timezone.utc) - timedelta(days=1)).count()
         return data
 
     def get(self, request, *args, **kwargs):
