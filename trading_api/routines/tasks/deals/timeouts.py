@@ -18,7 +18,7 @@ def process_timeouts():
     for deal in deals_to_timeout:
         bm = BalanceManagementMixin()
         with atomic():
-            bm.unfreeze(deal.amount_crypto, deal.seller, deal.symbol)
+            bm.unfreeze(deal.amount_crypto_blocked, deal.seller, deal.symbol)
             for user in (deal.buyer, deal.seller):
                 NotificationsQueue.put(
                     {
