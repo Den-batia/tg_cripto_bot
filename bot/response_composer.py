@@ -48,7 +48,7 @@ class ResponseComposer:
         return text, k
 
     async def deal_created(self):
-        text = await self._get(var_name='del_created')
+        text = await self._get(var_name='deal_created')
         k = await kb.main_menu()
         return text, k
 
