@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.exceptions import MessageNotModified, MessageCantBeEdited
 
 from bot.data_handler import dh, send_message
 from bot.settings import dp
@@ -44,6 +45,8 @@ async def begin_deal_enter_amount(message: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.text in get_trans_list('yes'), state=CONFIRM_BEGIN_DEAL)
 async def confirm_begin_deal(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    text, k = await dh.deal_created()
+    await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     text, k = await dh.begin_deal_confirmed(data, message.from_user.id)
     await send_message(text=text, chat_id=message.from_user.id, reply_markup=k)
     await state.reset_state()

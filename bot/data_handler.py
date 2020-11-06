@@ -39,6 +39,9 @@ class DataHandler:
     async def policy_confirmed(self):
         return await rc.start()
 
+    async def deal_created(self):
+        return await rc.deal_created()
+
     async def get_updates(self):
         notification = NotificationsQueue.get_nowait()
         while notification is not None:
