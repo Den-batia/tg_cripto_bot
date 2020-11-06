@@ -146,7 +146,7 @@ def send_message():
     send_process()
 
 
-@periodic_task(run_every=timedelta(minutes=1))
+@periodic_task(run_every=timedelta(minutes=30))
 def send_reports():
     from .tasks.reports.basic_report import send_report
     send_report()
