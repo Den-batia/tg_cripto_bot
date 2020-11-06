@@ -531,16 +531,18 @@ class NewMessageView(APIView):
 
 
 class BalanceView(APIView):
-    def get(self, request, *args, **kwargs):
+    @classmethod
+    def get_balance_data(cls):
         symbols = Symbol.objects.filter(is_active=True).all()
         data = []
         for symbol in symbols:
             try:
                 target = {
-                        'wallet': crypto_manager[symbol.name].get_balance(),
-                        'db': symbol.accounts.aggregate(Sum('balance')).get('balance__sum') + symbol.accounts.aggregate(Sum('frozen')).get('frozen__sum'),
-                        'symbol': symbol.name
-                    }
+                    'wallet': crypto_manager[symbol.name].get_balance(),
+                    'db': symbol.accounts.aggregate(Sum('balance')).get('balance__sum') + symbol.accounts.aggregate(
+                        Sum('frozen')).get('frozen__sum'),
+                    'symbol': symbol.name
+                }
                 if symbol.name == 'usdt':
                     target['wallet'] += symbol.accounts.aggregate((Sum('wallet_balance'))).get('wallet_balance__sum')
             except Exception as e:
@@ -548,16 +550,41 @@ class BalanceView(APIView):
                 continue
             target['balance'] = target['wallet'] - target['db']
             data.append(target)
+        return data
+
+    def get(self, request, *args, **kwargs):
+        data = self.get_balance_data()
         return Response(data=data)
 
 
 class UsersStatView(APIView):
-    def get(self, request, *args, **kwargs):
-        data = {
+    @classmethod
+    def get_users_stat(cls):
+        return {
             'users': User.objects.count(),
             'users24h': User.objects.filter(created_at__gt=datetime.now(timezone.utc)-timedelta(days=1)).count()
         }
+
+    def get(self, request, *args, **kwargs):
+        data = self.get_users_stat()
         return Response(data=data)
+
+
+class DealsStatView(APIView):
+    @classmethod
+    def get_deals_stat(cls):
+        deals_q = Deal.objects.filter(status=3)
+        data = {
+            'total_deals': deals_q.count(),
+            'total_deals24h': deals_q.filter(created_at__gt=datetime.now(timezone.utc)).count(),
+        }
+        for symbol in Symbol.objects.filter(is_active=True):
+            data[symbol.name] = deals_q.filter(symbol=symbol).count()
+            data[symbol.name + '24h'] = deals_q.filter(symbol=symbol).count()
+        return data
+
+    def get(self, request, *args, **kwargs):
+        return Response(data=self.get_deals_stat())
 
 
 class RateUserView(APIView):
