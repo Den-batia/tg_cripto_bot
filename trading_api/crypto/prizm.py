@@ -20,10 +20,7 @@ class PRIZM:
 
     @classmethod
     def _call(cls, method_name, query_string, method='get'):
-        try:
-            return getattr(requests, method)(f'{cls.URL}/prizm?requestType={method_name}{query_string}', timeout=5).json()
-        except ConnectTimeout:
-            return
+        return getattr(requests, method)(f'{cls.URL}/prizm?requestType={method_name}{query_string}', timeout=2).json()
 
     @classmethod
     def _get_account(cls, sp=None, pk=None):
@@ -42,7 +39,10 @@ class PRIZM:
 
     @classmethod
     def get_address_from_pk(cls, pk):
-        data = cls._get_account(pk=pk)
+        try:
+            data = cls._get_account(pk=pk)
+        except ConnectTimeout:
+            return
         return {'address': data['accountRS'], 'public_key': data['publicKey']}
 
     @classmethod
