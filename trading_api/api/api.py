@@ -62,10 +62,6 @@ class UserAccountsViewSet(RetrieveModelMixin, GenericViewSet):
     serializer_class = UserAccountsSerializer
     queryset = User.objects.all()
 
-    def retrieve(self, request, *args, **kwargs):
-        print('here')
-        return super().retrieve(request, *args, **kwargs)
-
 
 class AggregatedOrderView(APIView):
     def get(self, request, *args, **kwargs):
