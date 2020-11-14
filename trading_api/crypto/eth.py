@@ -4,7 +4,6 @@ import requests
 from web3 import Web3, HTTPProvider
 from os import environ as env
 
-from web3.exceptions import TransactionNotFound
 
 if env.get('TEST'):
     web3 = Web3(HTTPProvider('https://ropsten.infura.io/v3/6ebd1c9c66c445eeb9715eb27eab7f60'))
@@ -119,17 +118,13 @@ class ETH:
 
     @classmethod
     def is_transaction_delivered(cls, tx_hash):
-        try:
-            return bool(web3.eth.getTransactionReceipt(tx_hash))
-        except TransactionNotFound:
-            return None
+        return bool(web3.eth.getTransactionReceipt(tx_hash))
 
     @classmethod
     def get_tx_amount(cls, tx_hash):
         for _ in range(100):
-            try:
-                tx = web3.eth.getTransaction(tx_hash)
-            except TransactionNotFound:
+            tx = web3.eth.getTransaction(tx_hash)
+            if tx is None:
                 time.sleep(3)
                 continue
             return cls.from_subunit(int(tx['value']))
