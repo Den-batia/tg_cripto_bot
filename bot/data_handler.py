@@ -39,6 +39,9 @@ class DataHandler:
     async def policy_confirmed(self):
         return await rc.start()
 
+    async def deal_created(self):
+        return await rc.deal_created()
+
     async def get_updates(self):
         notification = NotificationsQueue.get_nowait()
         while notification is not None:
@@ -407,7 +410,8 @@ class DataHandler:
         new_data['rate'] = order['rate']
         return await rc.begin_deal_confirmation(order, amount, new_data['amount_crypto'], requisite, sell_buy_reversed), True, new_data
 
-    async def begin_deal_confirmed(self, data):
+    async def begin_deal_confirmed(self, data, telegram_id):
+        user = await api.get_user(telegram_id)
         order = await api.get_order_info(data['order_id'])
         account = await self._get_account(data['seller_id'], order['symbol']['id'])
         try:
@@ -415,7 +419,7 @@ class DataHandler:
         except:
             return await rc.unknown_error()
         deal = await api.create_deal(data)
-        return await rc.deal(deal)
+        return await rc.deal(deal, user=user)
 
     async def get_deal(self, telegram_id, deal_id):
         user = await api.get_user(telegram_id)
