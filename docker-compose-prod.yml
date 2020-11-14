@@ -14,6 +14,7 @@ services:
       - 8080
     ports:
       - 8080:8080
+    restart: always
 
   celery:
     build: trading_api
@@ -25,6 +26,7 @@ services:
       - .env
     depends_on:
       - redis
+    restart: always
 
   trading_bot:
     build: bot
@@ -39,6 +41,7 @@ services:
     depends_on:
       - trading_api
       - redis
+    restart: always
 
   redis:
     hostname: redis
