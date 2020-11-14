@@ -18,7 +18,10 @@ class PRIZM:
 
     @classmethod
     def _call(cls, method_name, query_string, method='get'):
-        return getattr(requests, method)(f'{cls.URL}/prizm?requestType={method_name}{query_string}').json()
+        try:
+            return getattr(requests, method)(f'{cls.URL}/prizm?requestType={method_name}{query_string}', timeout=5).json()
+        except TimeoutError:
+            return
 
     @classmethod
     def _get_account(cls, sp=None, pk=None):
