@@ -2,6 +2,8 @@ import requests
 from decimal import Decimal
 from os import environ as env
 
+from requests import ConnectTimeout
+
 
 class PRIZM:
     URL = env.get('PRIZM_NODE')
@@ -20,7 +22,7 @@ class PRIZM:
     def _call(cls, method_name, query_string, method='get'):
         try:
             return getattr(requests, method)(f'{cls.URL}/prizm?requestType={method_name}{query_string}', timeout=5).json()
-        except TimeoutError:
+        except ConnectTimeout:
             return
 
     @classmethod
