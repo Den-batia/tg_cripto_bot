@@ -7,7 +7,7 @@ from django.db.models import Q, Sum
 from django.db.transaction import atomic
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
@@ -61,6 +61,10 @@ class BrokersViewSet(ReadOnlyModelViewSet):
 class UserAccountsViewSet(RetrieveModelMixin, GenericViewSet):
     serializer_class = UserAccountsSerializer
     queryset = User.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        print('here')
+        return super().retrieve(request, *args, **kwargs)
 
 
 class AggregatedOrderView(APIView):
