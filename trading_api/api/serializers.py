@@ -42,7 +42,6 @@ class AccountSerializer(ModelSerializer):
         fields = ('balance', 'frozen', 'earned_from_ref', 'address', 'symbol')
 
     def get_address(self, instance: Account):
-        print(instance.symbol.name)
         return crypto_manager[instance.symbol.name].get_address_from_pk(instance.private_key)
 
 
