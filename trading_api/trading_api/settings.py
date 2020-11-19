@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -26,7 +28,6 @@ SECRET_KEY = '4dglwwt11i)-8s3q^60^o(-ywgy(d1mir#e(9b&k%t23v)%0@d'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -71,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'trading_api.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -85,7 +85,6 @@ DATABASES = {
         'USER': os.environ.get('DB_USER') or 'tester'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -105,7 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -119,7 +117,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -130,3 +127,9 @@ CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+
+# sentry_sdk.init(
+#     "your dsn",
+#     integrations=[DjangoIntegration()]
+# )

@@ -53,7 +53,6 @@ class UserAccountsSerializer(ModelSerializer):
         fields = ('id', 'telegram_id', 'accounts')
 
     def get_accounts(self, instance: User):
-        print('here')
         return AccountSerializer(instance.accounts, many=True).data
 
 
