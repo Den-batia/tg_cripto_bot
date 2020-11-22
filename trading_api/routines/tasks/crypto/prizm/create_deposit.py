@@ -1,4 +1,5 @@
 import logging
+import time
 from decimal import Decimal
 
 from api.models import Symbol, Deposit
@@ -35,3 +36,4 @@ def create_deposit_prizm():
                     symbol=symbol,
                     tx_hash=tx_hash
                 )
+        time.sleep(0.5)
