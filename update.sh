@@ -1,1 +1,0 @@
-git pull && sudo docker-compose -f docker-compose-prod.yml up -d --build --remove-orphans
